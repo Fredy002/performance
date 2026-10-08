@@ -50,3 +50,9 @@ El menú, el panel, el buscador y la ruta `/#/tools/<id>` se generan solos.
 
 > Herramienta de apoyo. Verifica siempre los resultados con la documentación
 > oficial de la aeronave.
+
+## Despliegue en GitHub Pages
+
+El workflow `.github/workflows/deploy.yml` compila y publica la app en cada push a `main`.
+Activación (una sola vez): **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+La app queda en `https://<usuario>.github.io/performance/`.
