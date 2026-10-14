@@ -40,10 +40,10 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
         </div>
       </Card>
 
-      <Card title="Ejemplo resuelto con la figura 67" flush>
+      <Card title="Ejemplo resuelto" flush>
         <p className="muted" style={{ padding: '6px 22px 12px', fontSize: 14 }}>
           Resultado de aplicar el procedimiento a cada condición, con los valores de la{' '}
-          <Link to="/tables/fig67">figura 67</Link>.
+          <Link to={`/tables/${F67.id}`}>{F67.title.toLowerCase()}</Link>.
         </p>
         <div className="data-table-wrap">
           <table className="data-table">

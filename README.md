@@ -1,6 +1,6 @@
-# AeroPerf · Calculadoras de performance
+# AeroPerf · Performance de aeronaves
 
-Aplicación web para cálculos de performance aeronáutica. Empieza con la
+Aplicación web para cálculos de performance de aeronaves. Empieza con la
 interpolación lineal de tablas del AFM/POH y está pensada para crecer.
 
 ```
@@ -15,7 +15,8 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
 - **Altitud de densidad**: altitud de presión, desviación ISA, σ.
 - **Componentes de viento**: cara/cola y cruzado, con diagrama y límite.
 - **Conversor de unidades**: altitud, distancia, velocidad, masa, presión, temperatura, volumen.
-- **Tablas de performance** (solo consulta): figuras 66, 67 y 69 del suplemento FAA digitalizadas,
+- **Tablas de performance de aeronaves** (solo consulta): planificación de vuelo en crucero Mach 0,74,
+  planificación de vuelo abreviada y performance de espera del B-737 (suplemento FAA),
   con ayuda de uso, glosario, ejemplos resueltos y exportación a CSV.
 - Panel con estadísticas, favoritas y actividad reciente; historial persistente.
 - Buscador `Ctrl/⌘ + K`, tema claro/oscuro, menú colapsable, diseño responsive.

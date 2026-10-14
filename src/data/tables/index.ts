@@ -6,7 +6,7 @@ import type { PerformanceTable } from './types';
 export * from './types';
 export { FIG66_OPERATING_CONDITIONS, FIG67_ABBREVIATED_FLIGHT_PLANNING, FIG69_B737_HOLDING };
 
-/** Biblioteca de tablas digitalizadas, en orden de figura. */
+/** Biblioteca de tablas de performance de aeronaves digitalizadas. */
 export const PERFORMANCE_TABLES: PerformanceTable[] = [
   FIG66_OPERATING_CONDITIONS,
   FIG67_ABBREVIATED_FLIGHT_PLANNING,
@@ -18,7 +18,7 @@ export function getTable(id: string): PerformanceTable | undefined {
 }
 
 /**
- * Corrección de tiempo y combustible por viento (figura 67).
+ * Corrección de tiempo y combustible por viento (planificación de vuelo abreviada).
  * Positivo = se suma (viento de cara), negativo = se resta (viento de cola).
  */
 export function windCorrection(timeMin: number, fuelLb: number, windKt: number, tasKt: number, kind: 'HW' | 'TW') {

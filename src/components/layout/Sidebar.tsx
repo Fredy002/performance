@@ -17,7 +17,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
         </span>
         <span className="brand-name">
           AeroPerf
-          <small>Performance toolkit</small>
+          <small>Performance de aeronaves</small>
         </span>
       </div>
 
@@ -57,9 +57,9 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
 
         <div className="nav-section">
           <div className="nav-section-title">Referencia</div>
-          <NavLink to="/tables" className={link} onClick={onNavigate} title="Tablas de performance">
+          <NavLink to="/tables" className={link} onClick={onNavigate} title="Tablas de performance de aeronaves">
             <Table size={19} />
-            <span className="nav-label">Tablas de performance</span>
+            <span className="nav-label">Tablas de aeronaves</span>
           </NavLink>
         </div>
       </nav>

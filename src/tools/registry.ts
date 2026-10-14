@@ -36,7 +36,7 @@ export interface ToolDef {
 export const CATEGORIES: Record<ToolCategory, string> = {
   interpolation: 'Interpolación',
   atmosphere: 'Atmósfera',
-  performance: 'Performance',
+  performance: 'Performance de aeronaves',
   utilities: 'Utilidades',
 };
 
@@ -44,7 +44,7 @@ export const TOOLS: ToolDef[] = [
   {
     id: 'linear',
     name: 'Interpolación lineal',
-    description: 'Calcula un valor intermedio entre dos puntos de una tabla de performance.',
+    description: 'Calcula un valor intermedio entre dos puntos de una tabla de performance de la aeronave.',
     category: 'interpolation',
     icon: Spline,
     keywords: ['interpolar', 'tabla', 'lineal', 'simple', 'x'],

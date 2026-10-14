@@ -90,7 +90,7 @@ export default function Dashboard() {
     <>
       <section className="hero">
         <div>
-          <h1>Calculadoras de performance</h1>
+          <h1>Performance de aeronaves</h1>
           <p>
             Interpola tablas del manual de vuelo en segundos, verifica las condiciones atmosféricas y guarda cada cálculo
             con su desarrollo paso a paso.

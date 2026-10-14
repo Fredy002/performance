@@ -5,7 +5,7 @@
  */
 
 export interface TableSource {
-  /** Figura de referencia, p. ej. "FIGURE 67" */
+  /** Figura del documento original (solo trazabilidad; no se muestra en la interfaz) */
   figure: string;
   /** Título original en inglés */
   originalTitle: string;
@@ -24,8 +24,11 @@ export interface TableHelp {
 }
 
 interface TableBase {
+  /** Identificador estable; también es el segmento de la URL */
   id: string;
   title: string;
+  /** Área de operación a la que pertenece (p. ej. «Planificación de vuelo») */
+  category: string;
   aircraft?: string;
   summary: string;
   source: TableSource;
@@ -34,7 +37,7 @@ interface TableBase {
   related?: string[];
 }
 
-/* ---------- Figura 66: escenarios de planificación ---------- */
+/* ---------- Escenarios de planificación (datos de ejercicio) ---------- */
 
 export type WindKind = 'HW' | 'TW';
 
@@ -49,7 +52,7 @@ export interface ConditionsTable extends TableBase {
   conditions: OperatingCondition[];
 }
 
-/* ---------- Figura 67: planificación abreviada (1 entrada) ---------- */
+/* ---------- Planificación de vuelo abreviada (1 entrada) ---------- */
 
 export interface FlightPlanningRow {
   distanceNm: number;
@@ -74,7 +77,7 @@ export interface FlightPlanningTable extends TableBase {
   };
 }
 
-/* ---------- Figura 69: espera (2 entradas, 3 valores por celda) ---------- */
+/* ---------- Performance de espera (2 entradas, 3 valores por celda) ---------- */
 
 export interface HoldingCell {
   epr: number;

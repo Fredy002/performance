@@ -8,7 +8,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/': 'Panel',
   '/history': 'Historial',
   '/settings': 'Ajustes',
-  '/tables': 'Tablas de performance',
+  '/tables': 'Tablas de performance de aeronaves',
 };
 
 const NEXT_THEME: Record<ThemePref, ThemePref> = { system: 'light', light: 'dark', dark: 'system' };

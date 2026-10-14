@@ -9,9 +9,10 @@ function fl(flightLevel: number, epr: number[], ias: number[], ff: number[]): Ho
 }
 
 export const FIG69_B737_HOLDING: HoldingTable = {
-  id: 'fig69',
+  id: 'espera-b737',
   kind: 'holding',
-  title: 'Performance en espera',
+  title: 'Performance de espera del Boeing 737',
+  category: 'Procedimientos de espera',
   aircraft: 'Boeing 737',
   summary: 'EPR, velocidad indicada y flujo de combustible por motor en espera, según nivel de vuelo y peso bruto.',
   source: {

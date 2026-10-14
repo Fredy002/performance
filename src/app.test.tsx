@@ -63,19 +63,21 @@ describe('calculadoras (regresión)', () => {
   });
 });
 
-describe('tablas de performance', () => {
-  it('la biblioteca lista las tres figuras', async () => {
-    renderAt('#/tables');
-    await screen.findByRole('heading', { name: 'Tablas de performance' });
-    for (const name of ['Condiciones de operación · crucero M .74', 'Planificación de vuelo abreviada', 'Performance en espera']) {
+describe('tablas de performance de aeronaves', () => {
+  it('la biblioteca lista las tres tablas por su título, sin números de figura', async () => {
+    const { container } = renderAt('#/tables');
+    await screen.findByRole('heading', { name: 'Tablas de performance de aeronaves' });
+    for (const name of ['Planificación de vuelo en crucero Mach 0,74', 'Planificación de vuelo abreviada', 'Performance de espera del Boeing 737']) {
       expect(screen.getByRole('heading', { name })).toBeTruthy();
     }
+    expect(container.textContent).not.toMatch(/figur/i);
   });
 
-  it('figura 66: muestra condiciones y el ejemplo resuelto', async () => {
-    renderAt('#/tables/fig66');
-    await screen.findByRole('heading', { name: /Condiciones de operación/ });
-    const solved = screen.getByText('Ejemplo resuelto con la figura 67').closest('section')!;
+  it('crucero Mach 0,74: muestra condiciones y el ejemplo resuelto', async () => {
+    const { container } = renderAt('#/tables/planificacion-crucero-m074');
+    await screen.findByRole('heading', { name: 'Planificación de vuelo en crucero Mach 0,74' });
+    expect(container.textContent).not.toMatch(/figur/i);
+    const solved = screen.getByText('Ejemplo resuelto').closest('section')!;
     const z1 = within(solved).getByText('Z-1').closest('tr')!;
     expect(z1.textContent).toContain('51,9 min');
     expect(z1.textContent).toContain('5233 lb');
@@ -85,8 +87,8 @@ describe('tablas de performance', () => {
     expect(screen.getByText('¿Para qué sirve?')).toBeTruthy();
   });
 
-  it('figura 67: filas, tramo omitido y corrección por viento', async () => {
-    renderAt('#/tables/fig67');
+  it('planificación abreviada: filas, tramo omitido y corrección por viento', async () => {
+    renderAt('#/tables/planificacion-abreviada');
     await screen.findByRole('heading', { name: 'Planificación de vuelo abreviada' });
     const rows = screen.getAllByRole('row');
     // cabecera + 25 filas + fila de tramo omitido
@@ -95,9 +97,10 @@ describe('tablas de performance', () => {
     expect(screen.getByText('Δ TIME = TIME × WIND COMPONENT ÷ TAS')).toBeTruthy();
   });
 
-  it('figura 69: matriz 8×11 y selector de parámetro', async () => {
-    renderAt('#/tables/fig69');
-    await screen.findByRole('heading', { name: 'Performance en espera' });
+  it('espera B-737: matriz 8×11 y selector de parámetro', async () => {
+    const { container } = renderAt('#/tables/espera-b737');
+    await screen.findByRole('heading', { name: 'Performance de espera del Boeing 737' });
+    expect(container.textContent).not.toMatch(/figur/i);
     const table = screen.getByText('FL \\ Peso').closest('table')!;
     expect(within(table).getAllByRole('row')).toHaveLength(9);
     const fl200 = within(table).getByText('FL 200').closest('tr')!;

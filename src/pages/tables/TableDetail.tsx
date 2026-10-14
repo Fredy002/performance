@@ -14,7 +14,7 @@ function downloadCsv(t: PerformanceTable) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${t.source.figure.toLowerCase().replace(/\s+/g, '-')}.csv`;
+  a.download = `${t.id}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -38,7 +38,7 @@ export default function TableDetail() {
   return (
     <>
       <PageHeader
-        eyebrow={<><Table size={14} /> {table.source.figure.replace('FIGURE', 'Figura')}{table.aircraft ? ` · ${table.aircraft}` : ''}</>}
+        eyebrow={<><Table size={14} /> {table.category}{table.aircraft ? ` · ${table.aircraft}` : ''}</>}
         title={table.title}
         subtitle={
           <>
@@ -67,7 +67,7 @@ export default function TableDetail() {
               <span key={id}>
                 {i > 0 && ', '}
                 <Link to={`/tables/${id}`}>
-                  {r.source.figure.replace('FIGURE', 'Figura')} · {r.title}
+                  {r.title}
                 </Link>
               </span>
             ) : null;

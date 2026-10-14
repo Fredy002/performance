@@ -36,12 +36,21 @@ describe('biblioteca de tablas', () => {
     }
   });
 
+  it('ningún texto visible hace referencia a números de figura', () => {
+    for (const t of PERFORMANCE_TABLES) {
+      const { source: _source, ...visible } = t;
+      expect(JSON.stringify(visible)).not.toMatch(/figur/i);
+      expect(t.id).toMatch(/^[a-z0-9-]+$/);
+      expect(t.category.length).toBeGreaterThan(3);
+    }
+  });
+
   it('las tablas relacionadas existen', () => {
     for (const t of PERFORMANCE_TABLES) t.related?.forEach((r) => expect(getTable(r)).toBeDefined());
   });
 });
 
-describe('figura 66 · condiciones de operación', () => {
+describe('planificación de vuelo en crucero Mach 0,74', () => {
   it('transcribe Z-1 a Z-5', () => {
     expect(F66.conditions.map((c) => [c.id, c.distanceNm, c.wind.speedKt, c.wind.kind])).toEqual([
       ['Z-1', 340, 25, 'TW'],
@@ -52,13 +61,13 @@ describe('figura 66 · condiciones de operación', () => {
     ]);
   });
 
-  it('todas las distancias aparecen exactas en la figura 67', () => {
+  it('todas las distancias aparecen exactas en la planificación abreviada', () => {
     const dists = F67.rows.map((r) => r.distanceNm);
     F66.conditions.forEach((c) => expect(dists).toContain(c.distanceNm));
   });
 });
 
-describe('figura 67 · planificación abreviada', () => {
+describe('planificación de vuelo abreviada', () => {
   it('tiene 25 filas con distancias crecientes', () => {
     expect(F67.rows).toHaveLength(25);
     for (let i = 1; i < F67.rows.length; i++) expect(F67.rows[i].distanceNm).toBeGreaterThan(F67.rows[i - 1].distanceNm);
@@ -112,7 +121,7 @@ describe('figura 67 · planificación abreviada', () => {
     expect(r.deltaTimeMin).toBeCloseTo(1.9, 1);
   });
 
-  it('resuelve las condiciones Z-1…Z-5 (fig. 66 + fig. 67)', () => {
+  it('resuelve las condiciones Z-1…Z-5 con la planificación abreviada', () => {
     const solve = (id: string) => {
       const c = F66.conditions.find((x) => x.id === id)!;
       const r = F67.rows.find((x) => x.distanceNm === c.distanceNm)!;
@@ -138,7 +147,7 @@ describe('figura 67 · planificación abreviada', () => {
   });
 });
 
-describe('figura 69 · espera B-737', () => {
+describe('performance de espera del B-737', () => {
   it('tiene 8 niveles × 11 pesos', () => {
     expect(F69.weightsKlb).toEqual([115, 110, 105, 100, 95, 90, 85, 80, 75, 70, 65]);
     expect(F69.rows.map((r) => r.flightLevel)).toEqual([350, 300, 250, 200, 150, 100, 50, 15]);

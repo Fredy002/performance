@@ -9,16 +9,18 @@ const row = (distanceNm: number, alt: [number, number], tasKt: number, airTimeMi
 });
 
 export const FIG67_ABBREVIATED_FLIGHT_PLANNING: FlightPlanningTable = {
-  id: 'fig67',
+  id: 'planificacion-abreviada',
   kind: 'flight-planning',
   title: 'Planificación de vuelo abreviada',
+  category: 'Planificación de vuelo',
+  aircraft: 'Reactor de transporte',
   summary: 'Altitud recomendada, TAS, tiempo y combustible de viaje en aire en calma según la distancia, con corrección por viento.',
   source: {
     figure: 'FIGURE 67',
     originalTitle: 'Abbreviated Flight Planning',
     document: 'FAA — Computer Testing Supplement (ATP / Aircraft Dispatcher), Appendix 2',
   },
-  related: ['fig66'],
+  related: ['planificacion-crucero-m074'],
   profile: [
     '.280/.70 CLIMB',
     '.74/320/340 DESCENT',
@@ -67,7 +69,7 @@ export const FIG67_ABBREVIATED_FLIGHT_PLANNING: FlightPlanningTable = {
   },
   help: {
     purpose:
-      'Tabla de planificación rápida (estilo B-727/737 del suplemento FAA). Para una distancia dada da la altitud de crucero recomendada, la TAS, el tiempo en el aire y el combustible de viaje en aire en calma, incluyendo ascenso, crucero y descenso con el perfil de la cabecera. Después se corrige por la componente de viento.',
+      'Tabla de planificación rápida de un reactor de transporte. Para una distancia dada da la altitud de crucero recomendada, la TAS, el tiempo en el aire y el combustible de viaje en aire en calma, incluyendo ascenso, crucero y descenso con el perfil de la cabecera. Después se corrige por la componente de viento.',
     glossary: [
       { term: 'DIST. N. MI.', meaning: 'Distancia del tramo en millas náuticas.' },
       { term: 'REC. ALT.', meaning: 'Altitud (nivel) de crucero recomendada para esa distancia.' },

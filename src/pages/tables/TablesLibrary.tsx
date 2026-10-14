@@ -14,8 +14,8 @@ export default function TablesLibrary() {
     <>
       <PageHeader
         eyebrow={<><Table size={14} /> Referencia</>}
-        title="Tablas de performance"
-        subtitle="Tablas digitalizadas del suplemento de examen de la FAA, con explicación de para qué sirven y cómo se usan. Por ahora son solo de consulta: no están conectadas a ninguna calculadora."
+        title="Tablas de performance de aeronaves"
+        subtitle="Tablas de performance de aeronaves digitalizadas (suplemento de examen de la FAA), con explicación de para qué sirven y cómo se usan. Por ahora son solo de consulta: no están conectadas a ninguna calculadora."
       />
       <div className="grid grid-3">
         {PERFORMANCE_TABLES.map((t) => (
@@ -25,7 +25,7 @@ export default function TablesLibrary() {
             </span>
             <div>
               <div className="chip chip-accent" style={{ marginBottom: 8 }}>
-                {t.source.figure.replace('FIGURE', 'Figura')}
+                {t.category}
               </div>
               <h3>{t.title}</h3>
               <p style={{ marginTop: 4 }}>{t.summary}</p>
