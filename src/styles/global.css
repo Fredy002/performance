@@ -1219,6 +1219,194 @@ a.list-item:hover {
   height: 42px;
 }
 
+/* ---------- data tables (tablas digitalizadas) ---------- */
+.data-table-wrap {
+  overflow-x: auto;
+  border-top: 1px solid var(--border);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-subtle);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.data-table td {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+  position: sticky;
+  left: 0;
+  text-align: left;
+  background: var(--bg-elevated);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  border-right: 1px solid var(--border);
+}
+
+.data-table thead th:first-child {
+  background: var(--bg-subtle);
+  z-index: 2;
+}
+
+.data-table tbody tr:hover td {
+  background: var(--accent-soft);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.data-table .gap-row td {
+  padding: 8px 14px;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--warning);
+  background: var(--warning-soft);
+  position: static;
+}
+
+.data-table .remark {
+  color: var(--warning);
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.3;
+}
+
+.cell-stack .epr {
+  color: var(--accent);
+}
+
+.cell-stack .ias {
+  color: var(--text);
+}
+
+.cell-stack .ff {
+  color: var(--result);
+  font-weight: 600;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: currentColor;
+}
+
+.help-block h3 {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.help-block p,
+.help-block li {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.help-block ul {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.glossary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 14px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.glossary dt {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.glossary dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.formula-box {
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--bg-subtle);
+  border: 1px dashed var(--border-strong);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (max-width: 560px) {
+  .glossary {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+
+  .glossary dd {
+    margin-bottom: 8px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 8px 10px;
+  }
+}
+
 /* ---------- chart ---------- */
 .chart {
   width: 100%;

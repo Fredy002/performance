@@ -1,0 +1,92 @@
+import type { FlightPlanningRow, FlightPlanningTable } from './types';
+
+const row = (distanceNm: number, alt: [number, number], tasKt: number, airTimeMin: number, fuelLb: number): FlightPlanningRow => ({
+  distanceNm,
+  recAltFt: alt,
+  tasKt,
+  airTimeMin,
+  fuelLb,
+});
+
+export const FIG67_ABBREVIATED_FLIGHT_PLANNING: FlightPlanningTable = {
+  id: 'fig67',
+  kind: 'flight-planning',
+  title: 'Planificación de vuelo abreviada',
+  summary: 'Altitud recomendada, TAS, tiempo y combustible de viaje en aire en calma según la distancia, con corrección por viento.',
+  source: {
+    figure: 'FIGURE 67',
+    originalTitle: 'Abbreviated Flight Planning',
+    document: 'FAA — Computer Testing Supplement (ATP / Aircraft Dispatcher), Appendix 2',
+  },
+  related: ['fig66'],
+  profile: [
+    '.280/.70 CLIMB',
+    '.74/320/340 DESCENT',
+    '250 KTS CRUISE BELOW 10000 FT.',
+    '320 KTS CRUISE 10000 THRU 23000 FT.',
+    '.74 MACH CRUISE 24000 FT. AND ABOVE',
+  ],
+  rows: [
+    row(50, [6000, 7000], 279, 16, 1800),
+    row(60, [6000, 7000], 279, 18, 1950),
+    row(260, [26000, 27000], 447, 44, 4600),
+    row(270, [26000, 27000], 447, 45, 4750),
+    row(280, [27000, 28000], 445, 47, 4850),
+    row(290, [28000, 29000], 443, 48, 4950),
+    row(300, [28000, 29000], 443, 49, 5100),
+    row(310, [28000, 29000], 443, 51, 5200),
+    row(320, [29000, 31000], 441, 52, 5300),
+    row(330, [29000, 31000], 441, 53, 5400),
+    row(340, [31000, 33000], 438, 55, 5550),
+    row(350, [31000, 33000], 438, 56, 5650),
+    row(400, [33000, 35000], 433, 62, 6250),
+    row(450, [33000, 35000], 433, 69, 6850),
+    row(500, [33000, 35000], 433, 76, 7500),
+    row(550, [33000, 35000], 433, 82, 8100),
+    row(600, [33000, 35000], 433, 89, 8700),
+    row(650, [33000, 35000], 433, 96, 9300),
+    row(700, [33000, 35000], 433, 102, 9900),
+    row(750, [33000, 35000], 433, 109, 10500),
+    row(800, [33000, 35000], 433, 115, 11100),
+    row(850, [33000, 35000], 433, 122, 11700),
+    row(900, [33000, 35000], 433, 129, 12300),
+    row(950, [33000, 35000], 433, 135, 12900),
+    row(1000, [33000, 35000], 433, 142, 13500),
+  ],
+  gaps: [
+    {
+      afterNm: 60,
+      beforeNm: 260,
+      note: 'La fuente omite las filas de 70 a 250 NM (marcadas con ═). No interpoles dentro de este tramo: el salto de altitud recomendada (7 000 → 26 000 ft) hace que el resultado no sea fiable.',
+    },
+  ],
+  windCorrection: {
+    formulas: ['Δ TIME = TIME × WIND COMPONENT ÷ TAS', 'Δ FUEL = FUEL × WIND COMPONENT ÷ TAS'],
+    rule: 'ADD Δ TIME AND Δ FUEL FOR THE HEADWIND; SUBTRACT FOR TAILWIND',
+    example: { distanceNm: 250, timeMin: 43, fuelLb: 4500, windKt: 20, tasKt: 449, deltaFuelLb: 200 },
+  },
+  help: {
+    purpose:
+      'Tabla de planificación rápida (estilo B-727/737 del suplemento FAA). Para una distancia dada da la altitud de crucero recomendada, la TAS, el tiempo en el aire y el combustible de viaje en aire en calma, incluyendo ascenso, crucero y descenso con el perfil de la cabecera. Después se corrige por la componente de viento.',
+    glossary: [
+      { term: 'DIST. N. MI.', meaning: 'Distancia del tramo en millas náuticas.' },
+      { term: 'REC. ALT.', meaning: 'Altitud (nivel) de crucero recomendada para esa distancia.' },
+      { term: 'TAS KTS', meaning: 'Velocidad verdadera media de crucero en nudos; se usa en la corrección por viento.' },
+      { term: 'AIR TIME MINS.', meaning: 'Tiempo de vuelo en minutos, sin viento.' },
+      { term: 'FUEL LBS.', meaning: 'Combustible de viaje en libras, sin viento (no incluye reservas).' },
+      { term: '.280/.70 CLIMB', meaning: 'Ascenso a 280 KIAS hasta alcanzar Mach 0,70.' },
+      { term: '.74/320/340 DESCENT', meaning: 'Perfil de descenso indicado en la fuente (Mach 0,74 y velocidades indicadas).' },
+    ],
+    steps: [
+      'Busca la fila de la distancia del vuelo. Si cae entre dos filas, interpola linealmente cada columna (tiempo, combustible).',
+      'Anota la TAS, el tiempo y el combustible en aire en calma.',
+      'Calcula Δ TIME = TIME × viento ÷ TAS y Δ FUEL = FUEL × viento ÷ TAS.',
+      'Con viento de cara (HW) suma los incrementos; con viento de cola (TW) réstalos.',
+    ],
+    tips: [
+      'Ejemplo de la fuente: 250 NM → 43 min y 4 500 lb; viento 20 kt, TAS 449 kt → Δ FUEL = 4 500 × 20 ÷ 449 ≈ 200 lb y Δ TIME ≈ 1,9 min (la fuente deja este resultado en blanco).',
+      'La fila de 250 NM del ejemplo está dentro del tramo omitido en esta digitalización.',
+      'El combustible es solo de viaje: añade reservas, alternativo y rodaje según la normativa.',
+    ],
+  },
+};

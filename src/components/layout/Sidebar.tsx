@@ -1,4 +1,4 @@
-import { History, LayoutDashboard, PanelLeftClose, PanelLeftOpen, Plane, Settings } from 'lucide-react';
+import { History, LayoutDashboard, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { CATEGORIES, toolPath, toolsByCategory } from '@/tools/registry';
 import { updateSettings, useSettings } from '@/state/settings';
@@ -54,6 +54,14 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
             )}
           </div>
         ))}
+
+        <div className="nav-section">
+          <div className="nav-section-title">Referencia</div>
+          <NavLink to="/tables" className={link} onClick={onNavigate} title="Tablas de performance">
+            <Table size={19} />
+            <span className="nav-label">Tablas de performance</span>
+          </NavLink>
+        </div>
       </nav>
 
       <div className="sidebar-footer">

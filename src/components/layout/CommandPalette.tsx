@@ -1,7 +1,8 @@
-import { CornerDownLeft, History, LayoutDashboard, Search, Settings, type LucideIcon } from 'lucide-react';
+import { CornerDownLeft, History, LayoutDashboard, Search, Settings, Table, type LucideIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, TOOLS, toolPath } from '@/tools/registry';
+import { PERFORMANCE_TABLES } from '@/data/tables';
 
 interface Item {
   id: string;
@@ -23,6 +24,15 @@ const ITEMS: Item[] = [
     to: toolPath(t.id),
     keywords: normalize([t.name, t.description, ...t.keywords].join(' ')),
   })),
+  ...PERFORMANCE_TABLES.map((t) => ({
+    id: `table-${t.id}`,
+    label: `${t.source.figure.replace('FIGURE', 'Figura')} · ${t.title}`,
+    hint: 'Tabla de referencia',
+    icon: Table,
+    to: `/tables/${t.id}`,
+    keywords: normalize([t.title, t.summary, t.source.originalTitle, t.source.figure, t.aircraft ?? '', 'tabla'].join(' ')),
+  })),
+  { id: 'tables', label: 'Tablas de performance', hint: 'Navegación', icon: Table, to: '/tables', keywords: 'tablas referencia figuras' },
   { id: 'dash', label: 'Panel', hint: 'Navegación', icon: LayoutDashboard, to: '/', keywords: 'panel dashboard inicio' },
   { id: 'hist', label: 'Historial', hint: 'Navegación', icon: History, to: '/history', keywords: 'historial guardados' },
   { id: 'set', label: 'Ajustes', hint: 'Navegación', icon: Settings, to: '/settings', keywords: 'ajustes tema decimales' },

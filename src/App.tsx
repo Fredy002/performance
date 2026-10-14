@@ -5,6 +5,8 @@ import HistoryPage from '@/pages/History';
 import NotFound from '@/pages/NotFound';
 import SettingsPage from '@/pages/Settings';
 import ToolPage from '@/pages/ToolPage';
+import TableDetail from '@/pages/tables/TableDetail';
+import TablesLibrary from '@/pages/tables/TablesLibrary';
 import { useApplyTheme } from '@/state/settings';
 
 export default function App() {
@@ -16,6 +18,8 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route index element={<Dashboard />} />
           <Route path="tools/:toolId" element={<ToolPage />} />
+          <Route path="tables" element={<TablesLibrary />} />
+          <Route path="tables/:tableId" element={<TableDetail />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />

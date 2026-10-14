@@ -15,6 +15,8 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
 - **Altitud de densidad**: altitud de presión, desviación ISA, σ.
 - **Componentes de viento**: cara/cola y cruzado, con diagrama y límite.
 - **Conversor de unidades**: altitud, distancia, velocidad, masa, presión, temperatura, volumen.
+- **Tablas de performance** (solo consulta): figuras 66, 67 y 69 del suplemento FAA digitalizadas,
+  con ayuda de uso, glosario, ejemplos resueltos y exportación a CSV.
 - Panel con estadísticas, favoritas y actividad reciente; historial persistente.
 - Buscador `Ctrl/⌘ + K`, tema claro/oscuro, menú colapsable, diseño responsive.
 - Enlaces compartibles: cada cálculo se puede reabrir desde su URL.
@@ -33,6 +35,7 @@ npm run build    # build estático en dist/
 ```
 src/
   core/            Funciones puras (interpolación, ISA, viento, unidades) + tests
+  data/tables/     Tablas digitalizadas (datos tipados + ayuda) y su texto fuente
   tools/           Una carpeta por calculadora
   tools/registry.ts  Registro central de herramientas
   components/      Layout (menú, barra superior, buscador) y UI reutilizable
@@ -50,6 +53,13 @@ El menú, el panel, el buscador y la ruta `/#/tools/<id>` se generan solos.
 
 > Herramienta de apoyo. Verifica siempre los resultados con la documentación
 > oficial de la aeronave.
+
+## Tablas digitalizadas
+
+Cada tabla vive en `src/data/tables/` como datos tipados, transcritos tal cual la
+fuente (sin corregir valores). `__fixtures__/` guarda la transcripción literal y
+`tables.test.ts` comprueba celda a celda que los datos coinciden con ella.
+Para añadir una tabla: crea su archivo, regístrala en `index.ts` y añade su fixture y tests.
 
 ## Despliegue en GitHub Pages
 
