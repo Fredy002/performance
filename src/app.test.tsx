@@ -115,3 +115,40 @@ describe('tablas de performance de aeronaves', () => {
     expect(await screen.findByText('Página no encontrada')).toBeTruthy();
   });
 });
+
+describe('pruebas', () => {
+  it('el menú lateral tiene la sección Pruebas', async () => {
+    renderAt('#/');
+    const link = await screen.findByRole('link', { name: 'Pruebas' });
+    expect(link.getAttribute('href')).toBe('#/pruebas');
+  });
+
+  it('la lista muestra el ejercicio del B737', async () => {
+    renderAt('#/pruebas');
+    await screen.findByRole('heading', { name: 'Pruebas', level: 1 });
+    expect(screen.getByRole('heading', { name: 'Planificación de combustible SPJC – SPQT' })).toBeTruthy();
+  });
+
+  it('resuelve el ejercicio y valida contra el cuaderno sin discrepancias', async () => {
+    renderAt('#/pruebas/b737-combustible-spjc-spqt');
+    await screen.findByRole('heading', { name: 'Planificación de combustible SPJC – SPQT' });
+    expect(screen.getByText('19/19 pasos coinciden')).toBeTruthy();
+    expect(screen.queryByText('No coincide')).toBeNull();
+    const answers = [...document.querySelectorAll('.answer-value')].map((e) => e.firstChild?.textContent);
+    expect(answers).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
+    // desarrollo con la interpolación entre 600 y 650 NM
+    expect(screen.getAllByText(/89 \+ \(96 − 89\)\(622 − 600\) \/ \(650 − 600\)/)).toHaveLength(1);
+  });
+
+  it('al cambiar los datos recalcula y desactiva la validación', async () => {
+    renderAt('#/pruebas/b737-combustible-spjc-spqt');
+    await screen.findByRole('heading', { name: 'Planificación de combustible SPJC – SPQT' });
+    const dist = screen.getAllByLabelText('Distancia')[0];
+    fireEvent.change(dist, { target: { value: '650' } });
+    expect(screen.getByText(/la validación solo se aplica a los datos originales/)).toBeTruthy();
+    fireEvent.change(dist, { target: { value: '150' } });
+    expect(screen.getByRole('alert').textContent).toMatch(/no está digitalizado/);
+    fireEvent.click(screen.getAllByRole('button', { name: /Restaurar enunciado/ })[0]);
+    expect(screen.getByText('19/19 pasos coinciden')).toBeTruthy();
+  });
+});

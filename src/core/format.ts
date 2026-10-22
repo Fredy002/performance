@@ -12,3 +12,14 @@ export function parseNumber(raw: string): number {
   if (s === '' || s === '-' || s === '.') return NaN;
   return Number(s);
 }
+
+/**
+ * Número sin separador de miles y con coma decimal, como en una resolución a mano.
+ * Recorta ceros finales: 92.080 → «92,08», 433 → «433».
+ */
+export function formatPlain(value: number, maxDecimals = 2): string {
+  if (!Number.isFinite(value)) return '—';
+  const fixed = value.toFixed(maxDecimals);
+  const trimmed = fixed.includes('.') ? fixed.replace(/0+$/, '').replace(/\.$/, '') : fixed;
+  return (trimmed === '-0' ? '0' : trimmed).replace('.', ',');
+}

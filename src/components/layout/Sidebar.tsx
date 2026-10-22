@@ -1,5 +1,6 @@
-import { History, LayoutDashboard, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { ClipboardCheck, History, LayoutDashboard, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import { CATEGORIES, toolPath, toolsByCategory } from '@/tools/registry';
 import { updateSettings, useSettings } from '@/state/settings';
 import { useHistory } from '@/state/history';
@@ -8,6 +9,13 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
   const { sidebarCollapsed } = useSettings();
   const history = useHistory();
   const link = ({ isActive }: { isActive: boolean }) => `nav-link${isActive ? ' active' : ''}`;
+  const navRef = useRef<HTMLElement>(null);
+  const { pathname } = useLocation();
+
+  // en pantallas bajas el menú tiene scroll: mantiene visible la sección activa
+  useEffect(() => {
+    navRef.current?.querySelector<HTMLElement>('.nav-link.active')?.scrollIntoView?.({ block: 'nearest' });
+  }, [pathname]);
 
   return (
     <aside className="sidebar" aria-label="Menú principal">
@@ -21,7 +29,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
         </span>
       </div>
 
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav" ref={navRef}>
         <div className="nav-section">
           <div className="nav-section-title">General</div>
           <NavLink to="/" end className={link} onClick={onNavigate} title="Panel">
@@ -60,6 +68,14 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
           <NavLink to="/tables" className={link} onClick={onNavigate} title="Tablas de performance de aeronaves">
             <Table size={19} />
             <span className="nav-label">Tablas de aeronaves</span>
+          </NavLink>
+        </div>
+
+        <div className="nav-section">
+          <div className="nav-section-title">Pruebas</div>
+          <NavLink to="/pruebas" className={link} onClick={onNavigate} title="Pruebas">
+            <ClipboardCheck size={19} />
+            <span className="nav-label">Pruebas</span>
           </NavLink>
         </div>
       </nav>

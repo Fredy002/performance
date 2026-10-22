@@ -101,3 +101,56 @@ describe('viento', () => {
     expect(runwayToHeading('274')).toBe(274);
   });
 });
+
+import { bracket, lookupFlightPlanning, lookupHolding, LookupError } from './tableLookup';
+import { FIG67_ABBREVIATED_FLIGHT_PLANNING as F67, FIG69_B737_HOLDING as F69 } from '@/data/tables';
+import { solveFuelPlan } from './fuelPlanning';
+
+describe('lectura de tablas con interpolación', () => {
+  it('bracket en listas crecientes y decrecientes', () => {
+    expect(bracket([10, 20, 30], 20)).toEqual({ lo: 1, hi: 1, exact: true });
+    expect(bracket([10, 20, 30], 25)).toEqual({ lo: 1, hi: 2, exact: false });
+    expect(bracket([115, 110, 105], 107)).toEqual({ lo: 1, hi: 2, exact: false });
+    expect(bracket([10, 20], 5)).toBeUndefined();
+  });
+
+  it('planificación abreviada: fila exacta, interpolada y límites', () => {
+    expect(lookupFlightPlanning(F67, 270)).toMatchObject({ tasKt: 447, airTimeMin: 45, fuelLb: 4750, interpolated: false });
+    expect(lookupFlightPlanning(F67, 425)).toMatchObject({ airTimeMin: 65.5, fuelLb: 6550, interpolated: true });
+    expect(() => lookupFlightPlanning(F67, 150)).toThrow(LookupError); // tramo no digitalizado
+    expect(() => lookupFlightPlanning(F67, 1200)).toThrow(LookupError);
+  });
+
+  it('espera: exacta, por peso, por nivel y doble', () => {
+    expect(lookupHolding(F69, 15, 85).ffPerEngineLbHr).toBe(2510);
+    expect(lookupHolding(F69, 15, 87.5).ffPerEngineLbHr).toBe(2550);
+    expect(lookupHolding(F69, 32.5, 85).ffPerEngineLbHr).toBeCloseTo(2465, 10); // entre FL 015 y FL 050
+    expect(lookupHolding(F69, 225, 102.5).ffPerEngineLbHr).toBeCloseTo(2435, 10);
+    expect(() => lookupHolding(F69, 400, 85)).toThrow(LookupError);
+    expect(() => lookupHolding(F69, 100, 60)).toThrow(LookupError);
+  });
+
+  it('planificación de combustible: viento de cara suma y de cola resta', () => {
+    const base = { holding: { weightLb: 85000, flightLevel: 15, minutes: 30 }, taxiFuelLb: 0 };
+    const leg = { distanceNm: 400, windKt: 0, windKind: 'HW' as const };
+    const calm = solveFuelPlan({ trip: leg, alternate: leg, ...base });
+    const hw = solveFuelPlan({ trip: { ...leg, windKt: 20 }, alternate: leg, ...base });
+    const tw = solveFuelPlan({ trip: { ...leg, windKt: 20, windKind: 'TW' }, alternate: leg, ...base });
+    expect(calm.trip.fuelLb).toBe(6250);
+    expect(hw.trip.fuelLb).toBeGreaterThan(6250);
+    expect(tw.trip.fuelLb).toBeLessThan(6250);
+    expect(calm.holding.fuelLb).toBe(2510); // 2510 × 30/60 × 2
+  });
+});
+
+import { formatPlain } from './format';
+
+describe('formatPlain', () => {
+  it('formatea como en el cuaderno', () => {
+    expect(formatPlain(92.08)).toBe('92,08');
+    expect(formatPlain(17059.1776)).toBe('17059,18');
+    expect(formatPlain(433)).toBe('433');
+    expect(formatPlain(11.696074, 3)).toBe('11,696');
+    expect(formatPlain(-0.0001)).toBe('0');
+  });
+});

@@ -1,8 +1,9 @@
-import { CornerDownLeft, History, LayoutDashboard, Search, Settings, Table, type LucideIcon } from 'lucide-react';
+import { ClipboardCheck, CornerDownLeft, History, LayoutDashboard, Search, Settings, Table, type LucideIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, TOOLS, toolPath } from '@/tools/registry';
 import { PERFORMANCE_TABLES } from '@/data/tables';
+import { EXERCISES } from '@/exercises/registry';
 
 interface Item {
   id: string;
@@ -32,6 +33,15 @@ const ITEMS: Item[] = [
     to: `/tables/${t.id}`,
     keywords: normalize([t.title, t.summary, t.source.originalTitle, t.category, t.aircraft ?? '', 'tabla performance aeronave'].join(' ')),
   })),
+  ...EXERCISES.map((e) => ({
+    id: `exercise-${e.id}`,
+    label: e.title,
+    hint: `Prueba · ${e.aircraft}`,
+    icon: ClipboardCheck,
+    to: `/pruebas/${e.id}`,
+    keywords: normalize([e.title, e.summary, e.aircraft, 'prueba ejercicio validar'].join(' ')),
+  })),
+  { id: 'pruebas', label: 'Pruebas', hint: 'Navegación', icon: ClipboardCheck, to: '/pruebas', keywords: 'pruebas ejercicios validar' },
   { id: 'tables', label: 'Tablas de performance de aeronaves', hint: 'Navegación', icon: Table, to: '/tables', keywords: 'tablas referencia performance aeronaves' },
   { id: 'dash', label: 'Panel', hint: 'Navegación', icon: LayoutDashboard, to: '/', keywords: 'panel dashboard inicio' },
   { id: 'hist', label: 'Historial', hint: 'Navegación', icon: History, to: '/history', keywords: 'historial guardados' },

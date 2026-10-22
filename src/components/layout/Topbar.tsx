@@ -2,6 +2,7 @@ import { ChevronRight, Menu, Monitor, Moon, Search, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { CATEGORIES, getTool } from '@/tools/registry';
 import { getTable } from '@/data/tables';
+import { getExercise } from '@/exercises/registry';
 import { updateSettings, useSettings, type ThemePref } from '@/state/settings';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -9,6 +10,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/history': 'Historial',
   '/settings': 'Ajustes',
   '/tables': 'Tablas de performance de aeronaves',
+  '/pruebas': 'Pruebas',
 };
 
 const NEXT_THEME: Record<ThemePref, ThemePref> = { system: 'light', light: 'dark', dark: 'system' };
@@ -19,6 +21,7 @@ export function Topbar({ onMenu, onSearch }: { onMenu: () => void; onSearch: () 
   const { theme } = useSettings();
   const tool = pathname.startsWith('/tools/') ? getTool(pathname.split('/')[2]) : undefined;
   const table = pathname.startsWith('/tables/') ? getTable(pathname.split('/')[2]) : undefined;
+  const exercise = pathname.startsWith('/pruebas/') ? getExercise(pathname.split('/')[2]) : undefined;
   const ThemeIcon = theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor;
   const isMac = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);
 
@@ -35,6 +38,14 @@ export function Topbar({ onMenu, onSearch }: { onMenu: () => void; onSearch: () 
             </Link>
             <ChevronRight size={14} className="desktop-only" />
             <strong>{tool.name}</strong>
+          </>
+        ) : exercise ? (
+          <>
+            <Link to="/pruebas" className="desktop-only" style={{ color: 'inherit' }}>
+              Pruebas
+            </Link>
+            <ChevronRight size={14} className="desktop-only" />
+            <strong>{exercise.title}</strong>
           </>
         ) : table ? (
           <>
