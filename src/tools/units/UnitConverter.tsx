@@ -70,7 +70,7 @@ export default function UnitConverter() {
               .filter((u) => u.id !== from.id)
               .map((u) => {
                 const out = Number.isFinite(value) ? convert(quantity.id, value, from.id, u.id) : NaN;
-                const text = `${formatNumber(out, Math.max(decimals, 2))} ${u.symbol}`;
+                const text = `${formatNumber(out, decimals)} ${u.symbol}`;
                 return (
                   <div className="list-item" key={u.id}>
                     <div className="list-item-main">

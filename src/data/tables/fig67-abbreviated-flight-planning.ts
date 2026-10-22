@@ -59,7 +59,7 @@ export const FIG67_ABBREVIATED_FLIGHT_PLANNING: FlightPlanningTable = {
     {
       afterNm: 60,
       beforeNm: 260,
-      note: 'La fuente omite las filas de 70 a 250 NM (marcadas con ═). No interpoles dentro de este tramo: el salto de altitud recomendada (7 000 → 26 000 ft) hace que el resultado no sea fiable.',
+      note: 'La fuente no publica filas entre 70 y 250 NM (marcadas con ═). Para distancias en ese tramo se interpola directamente entre las filas de 60 y 260 NM, como en el método del curso. Es una aproximación: la altitud recomendada cambia de 7 000 a 26 000 ft.',
     },
   ],
   windCorrection: {
@@ -87,7 +87,8 @@ export const FIG67_ABBREVIATED_FLIGHT_PLANNING: FlightPlanningTable = {
     ],
     tips: [
       'Ejemplo de la fuente: 250 NM → 43 min y 4 500 lb; viento 20 kt, TAS 449 kt → Δ FUEL = 4 500 × 20 ÷ 449 ≈ 200 lb y Δ TIME ≈ 1,9 min (la fuente deja este resultado en blanco).',
-      'La fila de 250 NM del ejemplo está dentro del tramo omitido en esta digitalización.',
+      'Distancias entre 60 y 260 NM (p. ej. 145 NM): interpola entre esas dos filas, porque la tabla no publica las intermedias.',
+      'La fila de 250 NM del ejemplo está dentro del tramo no publicado.',
       'El combustible es solo de viaje: añade reservas, alternativo y rodaje según la normativa.',
     ],
   },

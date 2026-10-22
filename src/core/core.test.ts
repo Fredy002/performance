@@ -117,7 +117,15 @@ describe('lectura de tablas con interpolación', () => {
   it('planificación abreviada: fila exacta, interpolada y límites', () => {
     expect(lookupFlightPlanning(F67, 270)).toMatchObject({ tasKt: 447, airTimeMin: 45, fuelLb: 4750, interpolated: false });
     expect(lookupFlightPlanning(F67, 425)).toMatchObject({ airTimeMin: 65.5, fuelLb: 6550, interpolated: true });
-    expect(() => lookupFlightPlanning(F67, 150)).toThrow(LookupError); // tramo no digitalizado
+    // tramo sin filas publicadas: se interpola entre 60 y 260 NM y se marca
+    const g = lookupFlightPlanning(F67, 145);
+    expect(g.rows.map((r) => r.distanceNm)).toEqual([60, 260]);
+    expect(g.tasKt).toBeCloseTo(350.4, 10);
+    expect(g.airTimeMin).toBeCloseTo(29.05, 10);
+    expect(g.fuelLb).toBeCloseTo(3076.25, 10);
+    expect(g.gap).toMatchObject({ afterNm: 60, beforeNm: 260 });
+    expect(lookupFlightPlanning(F67, 400).gap).toBeUndefined();
+    expect(() => lookupFlightPlanning(F67, 40)).toThrow(LookupError);
     expect(() => lookupFlightPlanning(F67, 1200)).toThrow(LookupError);
   });
 

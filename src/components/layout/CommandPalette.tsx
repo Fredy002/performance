@@ -36,8 +36,9 @@ const ITEMS: Item[] = [
   ...EXERCISES.map((e) => ({
     id: `exercise-${e.id}`,
     label: e.title,
-    hint: `Prueba · ${e.aircraft}`,
+    hint: e.status === 'verified' ? `Ejercicio resuelto · ${e.aircraft}` : `Prueba · ${e.aircraft}`,
     icon: ClipboardCheck,
+    // los verificados se abren en su herramienta (la ruta de pruebas redirige)
     to: `/pruebas/${e.id}`,
     keywords: normalize([e.title, e.summary, e.aircraft, 'prueba ejercicio validar'].join(' ')),
   })),

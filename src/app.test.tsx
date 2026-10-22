@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import App from './App';
+import { updateSettings } from './state/settings';
 
 function renderAt(hash: string) {
   window.location.hash = hash;
@@ -11,7 +12,10 @@ function renderAt(hash: string) {
 const output = (label: string) => document.querySelector(`.field-control[aria-label="${label}"] output`)!;
 
 beforeEach(() => localStorage.clear());
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  updateSettings({ decimals: 2 });
+});
 
 describe('calculadoras (regresión)', () => {
   it('interpolación lineal: ejemplo de referencia = 92,08', async () => {
@@ -79,11 +83,11 @@ describe('tablas de performance de aeronaves', () => {
     expect(container.textContent).not.toMatch(/figur/i);
     const solved = screen.getByText('Ejemplo resuelto').closest('section')!;
     const z1 = within(solved).getByText('Z-1').closest('tr')!;
-    expect(z1.textContent).toContain('51,9 min');
-    expect(z1.textContent).toContain('5233 lb');
+    expect(z1.textContent).toContain('51,86 min');
+    expect(z1.textContent).toContain('5233,22 lb');
     const z2 = within(solved).getByText('Z-2').closest('tr')!;
-    expect(z2.textContent).toContain('+10,0');
-    expect(z2.textContent).toContain('10267 lb');;
+    expect(z2.textContent).toContain('+9,98');
+    expect(z2.textContent).toContain('10266,51 lb');
     expect(screen.getByText('¿Para qué sirve?')).toBeTruthy();
   });
 
@@ -116,6 +120,8 @@ describe('tablas de performance de aeronaves', () => {
   });
 });
 
+const answerValues = () => [...document.querySelectorAll('.answer-value')].map((e) => e.firstChild?.textContent);
+
 describe('pruebas', () => {
   it('el menú lateral tiene la sección Pruebas', async () => {
     renderAt('#/');
@@ -123,32 +129,94 @@ describe('pruebas', () => {
     expect(link.getAttribute('href')).toBe('#/pruebas');
   });
 
-  it('la lista muestra el ejercicio del B737', async () => {
+  it('lista solo los pendientes y enlaza los ya verificados a su herramienta', async () => {
     renderAt('#/pruebas');
     await screen.findByRole('heading', { name: 'Pruebas', level: 1 });
-    expect(screen.getByRole('heading', { name: 'Planificación de combustible SPJC – SPQT' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Planificación de combustible SPUR – SPJC' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Planificación de combustible SPJC – SPQT' })).toBeNull();
+    const done = screen.getByText('Planificación de combustible SPJC – SPQT').closest('a')!;
+    expect(done.getAttribute('href')).toMatch(/^#\/tools\/fuel\?td=622&/);
   });
 
-  it('resuelve el ejercicio y valida contra el cuaderno sin discrepancias', async () => {
-    renderAt('#/pruebas/b737-combustible-spjc-spqt');
-    await screen.findByRole('heading', { name: 'Planificación de combustible SPJC – SPQT' });
+  it('SPUR – SPJC: interpola el alterno entre 60 y 260 NM y coincide con la resolución', async () => {
+    renderAt('#/pruebas/b737-combustible-spur-spjc');
+    await screen.findByRole('heading', { name: 'Planificación de combustible SPUR – SPJC' });
+    expect(screen.getByText('Pendiente de verificación')).toBeTruthy();
+    expect(answerValues()).toEqual(['96,41', '9287,53', '16972,16', '172,95']);
     expect(screen.getByText('19/19 pasos coinciden')).toBeTruthy();
     expect(screen.queryByText('No coincide')).toBeNull();
-    const answers = [...document.querySelectorAll('.answer-value')].map((e) => e.firstChild?.textContent);
-    expect(answers).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
-    // desarrollo con la interpolación entre 600 y 650 NM
-    expect(screen.getAllByText(/89 \+ \(96 − 89\)\(622 − 600\) \/ \(650 − 600\)/)).toHaveLength(1);
+    expect(screen.getByText(/279 \+ \(447 − 279\)\(145 − 60\) \/ \(260 − 60\)/)).toBeTruthy();
+    expect(screen.getByText(/Entre 60 y 260 NM la tabla no publica filas intermedias/)).toBeTruthy();
+    expect(screen.getByText(/interpolado entre FL 015 \/ 95000 y 90000 lb/)).toBeTruthy();
   });
 
   it('al cambiar los datos recalcula y desactiva la validación', async () => {
-    renderAt('#/pruebas/b737-combustible-spjc-spqt');
-    await screen.findByRole('heading', { name: 'Planificación de combustible SPJC – SPQT' });
+    renderAt('#/pruebas/b737-combustible-spur-spjc');
+    await screen.findByRole('heading', { name: 'Planificación de combustible SPUR – SPJC' });
     const dist = screen.getAllByLabelText('Distancia')[0];
     fireEvent.change(dist, { target: { value: '650' } });
     expect(screen.getByText(/la validación solo se aplica a los datos originales/)).toBeTruthy();
-    fireEvent.change(dist, { target: { value: '150' } });
-    expect(screen.getByRole('alert').textContent).toMatch(/no está digitalizado/);
+    fireEvent.change(dist, { target: { value: '1200' } });
+    expect(screen.getByRole('alert').textContent).toMatch(/fuera de la tabla/);
     fireEvent.click(screen.getAllByRole('button', { name: /Restaurar enunciado/ })[0]);
     expect(screen.getByText('19/19 pasos coinciden')).toBeTruthy();
+  });
+
+  it('un ejercicio verificado redirige a la planificación de combustible', async () => {
+    renderAt('#/pruebas/b737-combustible-spjc-spqt');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    expect(window.location.hash).toMatch(/^#\/tools\/fuel\?td=622/);
+  });
+});
+
+describe('planificación de combustible', () => {
+  it('está activa en Performance de aeronaves y carga el ejercicio verificado como ejemplo', async () => {
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
+    expect(screen.getByText(/Ejercicio resuelto · SPJC – SPQT/)).toBeTruthy();
+    expect(screen.getByText('Verificado')).toBeTruthy();
+    expect(screen.getByText('19/19 pasos coinciden')).toBeTruthy();
+  });
+
+  it('con otros datos calcula y explica el método', async () => {
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    fireEvent.change(screen.getAllByLabelText('Distancia')[0], { target: { value: '400' } });
+    expect(screen.queryByText(/Ejercicio resuelto/)).toBeNull();
+    expect(screen.getByText('Cómo se calcula')).toBeTruthy();
+    // 400 NM, 55 kt de cola: 6250 − 6250 × 55 ÷ 433
+    expect(answerValues()[1]).toBe('5456,12');
+    fireEvent.click(screen.getByRole('button', { name: /Guardar/ }));
+    expect(JSON.parse(localStorage.getItem('aeroperf.history')!)[0]).toMatchObject({ toolId: 'fuel' });
+  });
+});
+
+describe('ajuste de decimales', () => {
+  it('se aplica a la planificación de combustible y a las pruebas', async () => {
+    updateSettings({ decimals: 3 });
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    expect(answerValues()).toEqual(['80,384', '7825,386', '17059,178', '173,404']);
+    cleanup();
+    updateSettings({ decimals: 0 });
+    renderAt('#/pruebas/b737-combustible-spur-spjc');
+    await screen.findByRole('heading', { name: 'Planificación de combustible SPUR – SPJC' });
+    expect(answerValues()).toEqual(['96', '9288', '16972', '173']);
+    // la validación muestra al menos los decimales de la resolución
+    expect(screen.getAllByText('16972,16 lb', { selector: 'td' })).toHaveLength(2);
+  });
+
+  it('se aplica a viento y altitud de densidad', async () => {
+    updateSettings({ decimals: 0 });
+    renderAt('#/tools/wind');
+    await screen.findByRole('heading', { name: 'Componentes de viento' });
+    expect(document.querySelector('.result-hero-value')!.firstChild!.textContent).toBe('16');
+    cleanup();
+    updateSettings({ decimals: 3 });
+    renderAt('#/tools/density-altitude');
+    await screen.findByRole('heading', { name: 'Altitud de densidad' });
+    expect(screen.getByText('Presión estática').nextElementSibling!.textContent).toBe('842,857 hPa');
+    expect(screen.getByText('Densidad relativa (σ)').nextElementSibling!.textContent).toBe('79,068 %');
   });
 });

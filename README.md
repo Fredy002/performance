@@ -18,9 +18,10 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
 - **Tablas de performance de aeronaves** (solo consulta): planificación de vuelo en crucero Mach 0,74,
   planificación de vuelo abreviada y performance de espera del B-737 (suplemento FAA),
   con ayuda de uso, glosario, ejemplos resueltos y exportación a CSV.
+- **Planificación de combustible** (B737, vuelos nacionales del Perú): viaje, alterno, espera
+  (45 min según la RAP) y taxi → FOB y autonomía, con desarrollo paso a paso y ejercicios resueltos.
 - **Pruebas**: ejercicios resueltos a mano que la app vuelve a resolver con las tablas y la
-  interpolación, comparando cada paso con la resolución (p. ej. planificación de combustible B737
-  SPJC – SPQT: tiempo y combustible de viaje, FOB y autonomía).
+  interpolación, comparando cada paso con la resolución. Al verificarse pasan a su herramienta.
 - Panel con estadísticas, favoritas y actividad reciente; historial persistente.
 - Buscador `Ctrl/⌘ + K`, tema claro/oscuro, menú colapsable, diseño responsive.
 - Enlaces compartibles: cada cálculo se puede reabrir desde su URL.
@@ -73,6 +74,11 @@ Para añadir una tabla: crea su archivo, regístrala en `index.ts` y añade su f
 `src/exercises/registry.ts` guarda los valores **tal como se escribieron** en la resolución
 manual («80,4»), y la página de la prueba los compara con el cálculo de la app:
 «Coincide» si son iguales con los mismos decimales, «Redondeo» si difieren menos de 0,05.
+
+Cada ejercicio tiene `status`: `pending` (aparece en Pruebas) o `verified` (se ofrece como
+ejercicio resuelto en Planificación de combustible; su ruta de Pruebas redirige allí).
+Distancias entre 60 y 260 NM se interpolan entre esas dos filas (la tabla no publica las
+intermedias) y el desarrollo lo indica.
 
 ## Despliegue en GitHub Pages
 

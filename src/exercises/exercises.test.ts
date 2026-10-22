@@ -68,3 +68,50 @@ describe('ejercicio B737 SPJC – SPQT', () => {
     expect(byAnswer('d').status).toBe('rounding');
   });
 });
+
+describe('ejercicio B737 SPUR – SPJC (alterno entre 60 y 260 NM)', () => {
+  const ex = getExercise('b737-combustible-spur-spjc')!;
+  const r = solveFuelPlan(ex.input);
+
+  it('queda pendiente de verificación y es un vuelo nacional', () => {
+    expect(ex.status).toBe('pending');
+    expect(ex.scope).toBe('nacional');
+  });
+
+  it('origen: fila exacta de 750 NM con viento de cola', () => {
+    expect(r.trip.lookup.interpolated).toBe(false);
+    expect(r.trip.timeMin).toBeCloseTo(96.41, 2);
+    expect(r.trip.fuelLb).toBeCloseTo(9287.53, 2);
+  });
+
+  it('alterno: interpola entre 60 y 260 NM (tramo sin filas publicadas)', () => {
+    expect(r.alternate.lookup.rows.map((x) => x.distanceNm)).toEqual([60, 260]);
+    expect(r.alternate.lookup.gap).toBeDefined();
+    expect(r.alternate.lookup.tasKt).toBeCloseTo(350.4, 10);
+    expect(r.alternate.lookup.airTimeMin).toBeCloseTo(29.05, 10);
+    expect(r.alternate.lookup.fuelLb).toBeCloseTo(3076.25, 10);
+    expect(r.alternate.fuelLb).toBeCloseTo(3339.63, 2);
+  });
+
+  it('espera: 92 500 lb interpolado entre 95 000 y 90 000 lb en FL 015 → 2630 lb/h', () => {
+    expect(r.holding.lookup.weightsKlb).toEqual([95, 90]);
+    expect(r.holding.lookup.ffPerEngineLbHr).toBe(2630);
+    expect(r.holding.fuelLb).toBe(3945);
+  });
+
+  it('todos los pasos coinciden exactamente con la resolución', () => {
+    const results = ex.expected.map((s) => ({ label: s.label, ...compareWithWritten(s.written, s.pick(r)) }));
+    expect(results.filter((x) => x.status !== 'match')).toEqual([]);
+    expect(r.fobLb).toBeCloseTo(16972.16, 2);
+    expect(r.enduranceMin).toBeCloseTo(172.95, 2);
+  });
+});
+
+describe('estado de los ejercicios', () => {
+  it('el ejercicio SPJC – SPQT ya está verificado', () => {
+    expect(getExercise('b737-combustible-spjc-spqt')!.status).toBe('verified');
+  });
+  it('cada ejercicio tiene 4 respuestas (a–d)', () => {
+    EXERCISES.forEach((e) => expect(e.expected.filter((s) => s.answer).map((s) => s.answer)).toEqual(['a', 'b', 'c', 'd']));
+  });
+});

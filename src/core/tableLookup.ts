@@ -42,6 +42,8 @@ export interface FlightPlanningLookup {
   /** Filas usadas: una si la distancia es exacta, dos si se interpoló */
   rows: FlightPlanningTable['rows'][number][];
   interpolated: boolean;
+  /** Presente si se interpoló a través de un tramo sin filas publicadas (p. ej. 60–260 NM) */
+  gap?: FlightPlanningTable['gaps'][number];
 }
 
 export function lookupFlightPlanning(table: FlightPlanningTable, distanceNm: number): FlightPlanningLookup {
@@ -52,12 +54,8 @@ export function lookupFlightPlanning(table: FlightPlanningTable, distanceNm: num
   if (distanceNm < min || distanceNm > max) {
     throw new LookupError(`La distancia ${distanceNm} NM está fuera de la tabla (${min}–${max} NM). No se extrapola.`);
   }
+  // dentro de un tramo sin filas publicadas se interpola entre las filas que lo rodean (método del curso)
   const gap = table.gaps.find((g) => distanceNm > g.afterNm && distanceNm < g.beforeNm);
-  if (gap) {
-    throw new LookupError(
-      `La distancia ${distanceNm} NM cae en el tramo ${gap.afterNm}–${gap.beforeNm} NM, que no está digitalizado.`,
-    );
-  }
   const br = bracket(dists, distanceNm)!;
   const rows = br.exact ? [table.rows[br.lo]] : [table.rows[br.lo], table.rows[br.hi]];
   return {
@@ -67,6 +65,7 @@ export function lookupFlightPlanning(table: FlightPlanningTable, distanceNm: num
     fuelLb: interp(br, dists, distanceNm, (i) => table.rows[i].fuelLb),
     rows,
     interpolated: !br.exact,
+    gap,
   };
 }
 

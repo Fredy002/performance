@@ -50,7 +50,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
               t.status === 'ready' ? (
                 <NavLink key={t.id} to={toolPath(t.id)} className={link} onClick={onNavigate} title={t.name}>
                   <t.icon size={19} />
-                  <span className="nav-label">{t.name}</span>
+                  <span className="nav-label">{t.shortName ?? t.name}</span>
                 </NavLink>
               ) : (
                 <span key={t.id} className="nav-link disabled" title={`${t.name} (próximamente)`} aria-disabled="true">

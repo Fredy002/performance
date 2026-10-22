@@ -2,11 +2,13 @@ import { Fragment } from 'react';
 import { Card } from '@/components/ui/Card';
 import { formatNumber } from '@/core/format';
 import type { FlightPlanningTable } from '@/data/tables';
+import { useDecimals } from '@/state/settings';
 
 // Números tal cual la fuente (sin separador de miles, que es-ES solo aplica desde 5 cifras)
 const ft = (v: number) => String(v);
 
 export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
+  const decimals = useDecimals();
   const ex = table.windCorrection.example;
   return (
     <div className="grid grid-calc">
@@ -81,7 +83,7 @@ export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
             <div className="k">Componente de viento</div>
             <div className="v">{ex.windKt} kt</div>
             <div className="k">Δ tiempo = {ex.timeMin} × {ex.windKt} ÷ {ex.tasKt}</div>
-            <div className="v">{formatNumber((ex.timeMin * ex.windKt) / ex.tasKt, 1)} min</div>
+            <div className="v">{formatNumber((ex.timeMin * ex.windKt) / ex.tasKt, decimals)} min</div>
             <div className="k">Δ combustible = {ft(ex.fuelLb)} × {ex.windKt} ÷ {ex.tasKt}</div>
             <div className="v">≈ {ex.deltaFuelLb} lb</div>
           </div>

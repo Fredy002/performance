@@ -9,6 +9,7 @@ import { ToolActions } from '@/components/ToolActions';
 import { formatNumber, parseNumber } from '@/core/format';
 import { runwayToHeading, windComponents, type WindComponents as WC } from '@/core/wind';
 import { useFormValues } from '@/hooks/useFormValues';
+import { useDecimals } from '@/state/settings';
 
 const DEFAULTS = { rwy: '27', dir: '300', spd: '18', limit: '15' };
 
@@ -54,6 +55,7 @@ function WindDiagram({ heading, w, dir }: { heading: number; w: WC; dir: number 
 }
 
 export default function WindComponents() {
+  const decimals = useDecimals();
   const form = useFormValues(DEFAULTS);
   const heading = runwayToHeading(form.values.rwy);
   const dir = parseNumber(form.values.dir);
@@ -61,7 +63,7 @@ export default function WindComponents() {
   const limit = parseNumber(form.values.limit);
   const valid = Number.isFinite(heading) && Number.isFinite(dir) && Number.isFinite(spd) && spd >= 0;
   const w = valid ? windComponents(heading, dir, spd) : undefined;
-  const kt = (v: number) => formatNumber(Math.abs(v), 1);
+  const kt = (v: number) => formatNumber(Math.abs(v), decimals);
 
   return (
     <>

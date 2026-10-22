@@ -41,6 +41,10 @@ export default function SettingsPage() {
           <p className="field-hint" style={{ marginTop: 10 }}>
             Vista previa: <span className="mono">{formatNumber(92.0812345, decimals)}</span>
           </p>
+          <p className="field-hint" style={{ marginTop: 6 }}>
+            Se aplica a los resultados de las calculadoras, la planificación de combustible, las pruebas y los ejemplos
+            resueltos. Los datos de las tablas se muestran tal cual la fuente y las altitudes en pies enteros.
+          </p>
         </Card>
       </div>
     </>

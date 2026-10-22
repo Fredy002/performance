@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
+import { formatPlain } from '@/core/format';
+import { useDecimals } from '@/state/settings';
 import { FIG67_ABBREVIATED_FLIGHT_PLANNING as F67, windCorrection, type ConditionsTable } from '@/data/tables';
 
-// Formato fijo para que todas las filas se lean igual (sin separador de miles, coma decimal)
-const lb = (v: number) => String(Math.round(v));
-const min = (v: number) => v.toFixed(1).replace('.', ',');
 
 export function ConditionsView({ table }: { table: ConditionsTable }) {
+  const decimals = useDecimals();
+  // sin separador de miles para que todas las filas se lean igual; decimales de Ajustes
+  const lb = (v: number) => formatPlain(v, decimals);
+  const min = (v: number) => formatPlain(v, decimals);
   return (
     <div className="stack">
       <Card title="Datos de la tabla" flush>

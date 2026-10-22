@@ -8,6 +8,7 @@ import { ToolActions } from '@/components/ToolActions';
 import { atmosphereReport, TROPOPAUSE_FT } from '@/core/atmosphere';
 import { formatNumber } from '@/core/format';
 import { useFormValues } from '@/hooks/useFormValues';
+import { useDecimals } from '@/state/settings';
 
 const DEFAULTS = { elev: '5000', qnh: '1013', oat: '30' };
 
@@ -16,7 +17,10 @@ export default function DensityAltitude() {
   const { elev, qnh, oat } = form.numbers;
   const valid = [elev, qnh, oat].every(Number.isFinite) && qnh > 0;
   const r = valid ? atmosphereReport(elev, qnh, oat) : undefined;
+  const decimals = useDecimals();
+  // las altitudes se muestran en pies enteros; el resto usa los decimales de Ajustes
   const ft = (v: number) => formatNumber(Math.round(v), 0);
+  const d = (v: number) => formatNumber(v, decimals);
 
   return (
     <>
@@ -59,7 +63,7 @@ export default function DensityAltitude() {
               unit="ft"
               meta={[
                 { label: 'Regla rápida (120 ft/°C)', value: `${ft(r.densityAltitudeApprox)} ft` },
-                { label: 'σ', value: formatNumber(r.densityRatio, 4) },
+                { label: 'σ', value: d(r.densityRatio) },
               ]}
             />
             {r.densityAltitude - r.pressureAltitude > 2000 && (
@@ -72,16 +76,16 @@ export default function DensityAltitude() {
                 <div className="k">Altitud de presión</div>
                 <div className="v">{ft(r.pressureAltitude)} ft</div>
                 <div className="k">Temperatura ISA a esa altitud</div>
-                <div className="v">{formatNumber(r.isaTemp, 1)} °C</div>
+                <div className="v">{d(r.isaTemp)} °C</div>
                 <div className="k">Desviación ISA</div>
                 <div className="v">
                   ISA {r.isaDeviation >= 0 ? '+' : '−'}
-                  {formatNumber(Math.abs(r.isaDeviation), 1)} °C
+                  {d(Math.abs(r.isaDeviation))} °C
                 </div>
                 <div className="k">Presión estática</div>
-                <div className="v">{formatNumber(r.staticPressure, 1)} hPa</div>
+                <div className="v">{d(r.staticPressure)} hPa</div>
                 <div className="k">Densidad relativa (σ)</div>
-                <div className="v">{formatNumber(r.densityRatio * 100, 1)} %</div>
+                <div className="v">{d(r.densityRatio * 100)} %</div>
               </div>
             </Card>
           </div>

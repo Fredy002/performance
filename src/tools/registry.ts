@@ -25,6 +25,8 @@ export type ToolCategory = 'interpolation' | 'atmosphere' | 'performance' | 'uti
 export interface ToolDef {
   id: string;
   name: string;
+  /** Nombre corto para el menú lateral, si `name` no cabe */
+  shortName?: string;
   description: string;
   category: ToolCategory;
   icon: LucideIcon;
@@ -92,6 +94,17 @@ export const TOOLS: ToolDef[] = [
     component: lazy(() => import('./units/UnitConverter')),
   },
   {
+    id: 'fuel',
+    name: 'Planificación de combustible',
+    shortName: 'Plan de combustible',
+    description: 'Viaje, alterno, espera y taxi: combustible a bordo (FOB) y autonomía. B737, vuelos nacionales (Perú).',
+    category: 'performance',
+    icon: Fuel,
+    keywords: ['combustible', 'fuel', 'fob', 'autonomia', 'trip fuel', 'alterno', 'holding', 'espera', 'reserva', 'b737'],
+    status: 'ready',
+    component: lazy(() => import('./fuel/FuelPlanning')),
+  },
+  {
     id: 'takeoff',
     name: 'Despegue',
     description: 'TODR / ASDR a partir de las tablas del AFM con correcciones.',
@@ -116,15 +129,6 @@ export const TOOLS: ToolDef[] = [
     category: 'performance',
     icon: Scale,
     keywords: ['peso', 'balance', 'cg', 'centrado', 'masa'],
-    status: 'soon',
-  },
-  {
-    id: 'fuel',
-    name: 'Combustible',
-    description: 'Trip fuel, reservas y autonomía.',
-    category: 'performance',
-    icon: Fuel,
-    keywords: ['combustible', 'fuel', 'reserva', 'autonomía'],
     status: 'soon',
   },
 ];

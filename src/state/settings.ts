@@ -39,3 +39,8 @@ export function useApplyTheme() {
     else root.setAttribute('data-theme', theme);
   }, [theme]);
 }
+
+/** Decimales elegidos en Ajustes para mostrar resultados. */
+export function useDecimals(): number {
+  return useSettings().decimals;
+}
