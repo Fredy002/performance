@@ -386,12 +386,18 @@ Determinar: a) T.T b) T.F c) FOB d) Autonomía`;
 });
 
 describe('navegación simplificada', () => {
-  it('el menú agrupa en Calcular, Consultar y Pruebas, sin entradas «Pronto»', async () => {
+  it('el menú agrupa en Calcular, Consultar, Pruebas y Próximamente', async () => {
     renderAt('#/');
     await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
     const titles = [...document.querySelectorAll('.sidebar .nav-section-title')].map((e) => e.textContent);
-    expect(titles).toEqual(['Calcular', 'Consultar', 'Pruebas']);
-    expect(document.querySelector('.sidebar .nav-link.disabled')).toBeNull();
+    expect(titles).toEqual(['Calcular', 'Consultar', 'Pruebas', 'Próximamente']);
+    // las herramientas pendientes siguen a la vista, sin enlace y marcadas «Pronto»
+    const pending = [...document.querySelectorAll('.sidebar .nav-link.disabled')];
+    expect(pending.map((e) => e.querySelector('.nav-label')!.textContent)).toEqual(['Despegue', 'Aterrizaje', 'Peso y centrado']);
+    pending.forEach((e) => {
+      expect(e.tagName).toBe('SPAN');
+      expect(e.querySelector('.nav-badge')!.textContent).toBe('Pronto');
+    });
     expect(document.querySelector('.sidebar .nav-section-title + .nav-link')!.textContent).toBe('Plan de combustible');
   });
 
@@ -409,6 +415,8 @@ describe('navegación simplificada', () => {
     await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
     const tiles = [...document.querySelectorAll('.action-tile')];
     expect(tiles.map((t) => t.getAttribute('href'))).toEqual(['#/tools/fuel', '#/tools/linear', '#/tables']);
-    expect(screen.getByText(/Próximamente: Despegue, Aterrizaje, Peso y centrado/)).toBeTruthy();
+    const upcoming = screen.getByRole('heading', { name: 'Próximamente', level: 2 }).nextElementSibling!;
+    expect([...upcoming.querySelectorAll('.list-item-title')].map((e) => e.textContent)).toEqual(['Despegue', 'Aterrizaje', 'Peso y centrado']);
+    expect(upcoming.querySelectorAll('a')).toHaveLength(0);
   });
 });

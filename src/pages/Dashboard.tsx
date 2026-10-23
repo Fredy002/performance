@@ -85,9 +85,29 @@ export default function Dashboard() {
             </div>
           </Card>
           {upcoming.length > 0 && (
-            <p className="field-hint" style={{ marginTop: 10 }}>
-              Próximamente: {upcoming.map((t) => t.name).join(', ')}.
-            </p>
+            <>
+              <h2 className="section-title">Próximamente</h2>
+              <Card flush>
+                <div className="list">
+                  {upcoming.map((t) => (
+                    <div key={t.id} className="list-item upcoming" aria-disabled="true">
+                      <span className="list-item-icon">
+                        <t.icon size={18} />
+                      </span>
+                      <span className="list-item-main">
+                        <span className="list-item-title" style={{ display: 'block' }}>
+                          {t.name}
+                        </span>
+                        <span className="list-item-sub" style={{ display: 'block' }}>
+                          {t.description}
+                        </span>
+                      </span>
+                      <span className="chip chip-warning">Pronto</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </>
           )}
         </section>
 

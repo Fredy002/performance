@@ -1,7 +1,7 @@
 import { ClipboardCheck, History, House, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { readyTools, toolPath } from '@/tools/registry';
+import { readyTools, toolPath, upcomingTools } from '@/tools/registry';
 import { updateSettings, useSettings } from '@/state/settings';
 import { useHistory } from '@/state/history';
 
@@ -66,6 +66,17 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
             <ClipboardCheck size={19} />
             <span className="nav-label">Pruebas</span>
           </NavLink>
+        </div>
+
+        <div className="nav-section">
+          <div className="nav-section-title">Próximamente</div>
+          {upcomingTools().map((t) => (
+            <span key={t.id} className="nav-link disabled" title={`${t.name}: ${t.description} (en desarrollo)`} aria-disabled="true">
+              <t.icon size={19} />
+              <span className="nav-label">{t.shortName ?? t.name}</span>
+              <span className="nav-badge">Pronto</span>
+            </span>
+          ))}
         </div>
       </nav>
 

@@ -2287,3 +2287,13 @@ a.list-item:hover {
     z-index: 48;
   }
 }
+
+/* herramientas en desarrollo: visibles pero sin enlace */
+.list-item.upcoming .list-item-icon {
+  background: var(--bg-subtle);
+  color: var(--text-faint);
+}
+
+.list-item.upcoming .list-item-title {
+  color: var(--text-muted);
+}
