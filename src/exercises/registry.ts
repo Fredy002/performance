@@ -1,4 +1,5 @@
 import type { FuelPlanInput, FuelPlanResult } from '@/core/fuelPlanning';
+import type { RouteAirports } from '@/data/airports';
 
 /**
  * Registro de ejercicios de prueba. Cada ejercicio guarda su enunciado, los datos
@@ -52,7 +53,8 @@ export interface FuelPlanExercise {
   /** Observaciones sobre la resolución manual (erratas, redondeos) */
   remarks: string[];
   input: FuelPlanInput;
-  route: { trip: [string, string]; alternate: [string, string] };
+  /** Aeropuertos del ejercicio (códigos OACI); en la herramienta son datos editables */
+  airports: RouteAirports;
   expected: ExpectedStep[];
   /** Tablas usadas (ids de src/data/tables) */
   tables: string[];
@@ -86,7 +88,7 @@ export const EXERCISES: Exercise[] = [
       'La resolución suma T.T = 80,4 y T.F = 7825,4 ya redondeados; por eso FOB y autonomía difieren en 0,01–0,02.',
       'Δ combustible del alterno: la resolución escribe 318,794; el valor exacto es 318,792 (4750 × 30 ÷ 447).',
     ],
-    route: { trip: ['SPJC', 'SPQT'], alternate: ['SPQT', 'SPST'] },
+    airports: { origin: 'SPJC', destination: 'SPQT', alternate: 'SPST' },
     input: {
       trip: { distanceNm: 622, windKt: 55, windKind: 'TW', flightLevel: 350 },
       alternate: { distanceNm: 270, windKt: 30, windKind: 'HW', flightLevel: 180 },
@@ -142,7 +144,7 @@ export const EXERCISES: Exercise[] = [
       'En la lista de respuestas de la resolución, c) FOB aparece como 3945, que es el combustible de espera; el desarrollo da FOB = 16 972,16, que es el valor que se valida.',
       'En un renglón del combustible del alterno aparece «3096,25»; el valor correcto, el que se usa en el resto del desarrollo, es 3076,25.',
     ],
-    route: { trip: ['SPUR', 'SPJC'], alternate: ['SPJC', 'SPSO'] },
+    airports: { origin: 'SPUR', destination: 'SPJC', alternate: 'SPSO' },
     input: {
       trip: { distanceNm: 750, windKt: 50, windKind: 'TW', flightLevel: 350 },
       alternate: { distanceNm: 145, windKt: 30, windKind: 'HW', flightLevel: 190 },

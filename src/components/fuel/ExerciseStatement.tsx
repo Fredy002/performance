@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
+import { findAirport } from '@/data/airports';
 import { getTable } from '@/data/tables';
 import type { FuelPlanExercise } from '@/exercises/registry';
 
@@ -13,6 +14,16 @@ export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise:
           <li key={s}>{s}</li>
         ))}
       </ul>
+      <p className="muted" style={{ marginTop: 10, fontSize: 13 }}>
+        Aeropuertos:{' '}
+        {(['origin', 'destination', 'alternate'] as const)
+          .map((role) => {
+            const code = exercise.airports[role];
+            const a = findAirport(code);
+            return `${code}${a ? ` (${a.city})` : ''}`;
+          })
+          .join(' · ')}
+      </p>
       <p style={{ marginTop: 14, fontWeight: 600, fontSize: 14 }}>Se pide:</p>
       <ul className="statement" style={{ fontSize: 14, marginTop: 4 }}>
         {exercise.questions.map((q) => (

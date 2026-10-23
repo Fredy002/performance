@@ -20,6 +20,9 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
   con ayuda de uso, glosario, ejemplos resueltos y exportación a CSV.
 - **Planificación de combustible** (B737, vuelos nacionales del Perú): viaje, alterno, espera
   (45 min según la RAP) y taxi → FOB y autonomía, con desarrollo paso a paso y ejercicios resueltos.
+  Origen, destino y alterno se introducen como códigos OACI (cambian en cada vuelo), con
+  autocompletado de aeropuertos del Perú y avisos si un código no es peruano (SP__) o la ruta
+  es incoherente.
 - **Pruebas**: ejercicios resueltos a mano que la app vuelve a resolver con las tablas y la
   interpolación, comparando cada paso con la resolución. Al verificarse pasan a su herramienta.
 - Panel con estadísticas, favoritas y actividad reciente; historial persistente.
@@ -42,6 +45,7 @@ src/
   core/            Funciones puras (interpolación, ISA, viento, unidades) + tests
   data/tables/     Tablas digitalizadas (datos tipados + ayuda) y su texto fuente
   exercises/       Ejercicios de prueba: enunciado, datos y resolución manual para validar
+  data/airports.ts Aeropuertos del Perú (código OACI, ciudad, nombre) y validación de rutas
   tools/           Una carpeta por calculadora
   tools/registry.ts  Registro central de herramientas
   components/      Layout (menú, barra superior, buscador) y UI reutilizable

@@ -3,6 +3,7 @@ import { formatPlain } from '@/core/format';
 import type { FuelPlanResult, LegResult } from '@/core/fuelPlanning';
 import type { WindKind } from '@/data/tables/types';
 import type { FuelPlanInput } from '@/core/fuelPlanning';
+import { EMPTY_ROUTE, type RouteAirports } from '@/data/airports';
 
 type Fmt = (v: number) => string;
 
@@ -109,16 +110,28 @@ function HoldingSteps({ r, weightLb, p }: { r: FuelPlanResult['holding']; weight
 }
 
 /** Desarrollo completo: tramo, alterno, espera y resumen, con los decimales de Ajustes. */
-export function FuelPlanSteps({ result: r, input, decimals }: { result: FuelPlanResult; input: FuelPlanInput; decimals: number }) {
+export function FuelPlanSteps({
+  result: r,
+  input,
+  airports = EMPTY_ROUTE,
+  decimals,
+}: {
+  result: FuelPlanResult;
+  input: FuelPlanInput;
+  airports?: RouteAirports;
+  decimals: number;
+}) {
   const p: Fmt = (v) => formatPlain(v, decimals);
+  // «SPJC → SPQT · » si hay códigos escritos
+  const leg = (a: string, b: string) => (a || b ? `${a || '····'} → ${b || '····'} · ` : '');
   return (
     <>
       <h2 className="section-title">Desarrollo</h2>
       <div className="grid grid-2">
-        <Card title={`1. Origen – destino · ${formatPlain(input.trip.distanceNm, 2)} NM`}>
+        <Card title={`1. Origen – destino · ${leg(airports.origin, airports.destination)}${formatPlain(input.trip.distanceNm, 2)} NM`}>
           <LegSteps leg={r.trip} windKt={input.trip.windKt} kind={input.trip.windKind} timeTag="T.T" fuelTag="T.F" p={p} />
         </Card>
-        <Card title={`2. Destino – alterno · ${formatPlain(input.alternate.distanceNm, 2)} NM`}>
+        <Card title={`2. Destino – alterno · ${leg(airports.destination, airports.alternate)}${formatPlain(input.alternate.distanceNm, 2)} NM`}>
           <LegSteps leg={r.alternate} windKt={input.alternate.windKt} kind={input.alternate.windKind} timeTag="A.T" fuelTag="A.F" p={p} />
         </Card>
         <Card title="3. Espera (holding)">

@@ -115,3 +115,20 @@ describe('estado de los ejercicios', () => {
     EXERCISES.forEach((e) => expect(e.expected.filter((s) => s.answer).map((s) => s.answer)).toEqual(['a', 'b', 'c', 'd']));
   });
 });
+
+import { isIcaoCode, routeWarnings } from '@/data/airports';
+
+describe('aeropuertos de los ejercicios', () => {
+  it('son códigos OACI coherentes con el enunciado y el título', () => {
+    for (const e of EXERCISES) {
+      const { origin, destination, alternate } = e.airports;
+      [origin, destination, alternate].forEach((c) => expect(isIcaoCode(c)).toBe(true));
+      expect(e.title).toContain(`${origin} – ${destination}`);
+      const statement = e.statement.join(' ');
+      expect(statement).toContain(`${origin} – ${destination}`);
+      expect(statement).toContain(`${destination} – ${alternate}`);
+      // vuelo nacional: todos peruanos y ruta coherente
+      expect(routeWarnings(e.airports, e.scope === 'nacional')).toEqual([]);
+    }
+  });
+});

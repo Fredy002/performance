@@ -135,7 +135,7 @@ describe('pruebas', () => {
     expect(screen.getByRole('heading', { name: 'Planificación de combustible SPUR – SPJC' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Planificación de combustible SPJC – SPQT' })).toBeNull();
     const done = screen.getByText('Planificación de combustible SPJC – SPQT').closest('a')!;
-    expect(done.getAttribute('href')).toMatch(/^#\/tools\/fuel\?td=622&/);
+    expect(done.getAttribute('href')).toMatch(/^#\/tools\/fuel\?dep=SPJC&dst=SPQT&alt=SPST&td=622&/);
   });
 
   it('SPUR – SPJC: interpola el alterno entre 60 y 260 NM y coincide con la resolución', async () => {
@@ -165,7 +165,7 @@ describe('pruebas', () => {
   it('un ejercicio verificado redirige a la planificación de combustible', async () => {
     renderAt('#/pruebas/b737-combustible-spjc-spqt');
     await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
-    expect(window.location.hash).toMatch(/^#\/tools\/fuel\?td=622/);
+    expect(window.location.hash).toMatch(/^#\/tools\/fuel\?dep=SPJC&dst=SPQT&alt=SPST&td=622/);
   });
 });
 
@@ -189,6 +189,56 @@ describe('planificación de combustible', () => {
     expect(answerValues()[1]).toBe('5456,12');
     fireEvent.click(screen.getByRole('button', { name: /Guardar/ }));
     expect(JSON.parse(localStorage.getItem('aeroperf.history')!)[0]).toMatchObject({ toolId: 'fuel' });
+  });
+});
+
+describe('aeropuertos (códigos OACI)', () => {
+  const airportInput = (label: string) => screen.getByLabelText(label) as HTMLInputElement;
+
+  it('la herramienta muestra la ruta del ejemplo como datos editables', async () => {
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    expect([airportInput('Origen').value, airportInput('Destino').value, airportInput('Alterno').value]).toEqual(['SPJC', 'SPQT', 'SPST']);
+    expect(screen.getByText(/^Lima – Callao · Jorge Chávez$/, { selector: '.field-hint' })).toBeTruthy();
+    expect(screen.getByText('Origen – destino (SPJC – SPQT)')).toBeTruthy();
+    expect(screen.getByText('Destino – alterno (SPQT – SPST)')).toBeTruthy();
+    expect(screen.getByText(/1\. Origen – destino · SPJC → SPQT · 622 NM/)).toBeTruthy();
+  });
+
+  it('cambiar los aeropuertos actualiza la ruta pero no el cálculo', async () => {
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    const before = answerValues();
+    fireEvent.change(airportInput('Destino'), { target: { value: 'spcl' } });
+    expect(airportInput('Destino').value).toBe('SPCL');
+    expect(screen.getByText(/^Pucallpa · /, { selector: '.field-hint' })).toBeTruthy();
+    expect(screen.getByText('Origen – destino (SPJC – SPCL)')).toBeTruthy();
+    expect(screen.getByText('Destino – alterno (SPCL – SPST)')).toBeTruthy();
+    expect(answerValues()).toEqual(before);
+    // con otros aeropuertos ya no es el ejercicio resuelto
+    expect(screen.queryByText(/Ejercicio resuelto ·/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /Guardar/ }));
+    expect(JSON.parse(localStorage.getItem('aeroperf.history')!)[0].summary).toMatch(/^SPJC–SPCL 622 NM .* alterno SPCL–SPST 270 NM/);
+  });
+
+  it('avisa si un aeropuerto no es del Perú o la ruta es incoherente', async () => {
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    fireEvent.change(airportInput('Alterno'), { target: { value: 'SKBO' } });
+    expect(screen.getByRole('note').textContent).toMatch(/SKBO \(alterno\) no es un aeropuerto del Perú/);
+    fireEvent.change(airportInput('Alterno'), { target: { value: 'SPQT' } });
+    expect(screen.getByRole('note').textContent).toMatch(/El alterno debe ser un aeropuerto distinto del destino/);
+    fireEvent.change(airportInput('Alterno'), { target: { value: 'SPXY' } });
+    expect(screen.queryByRole('note')).toBeNull();
+    expect(screen.getByText('No está en la lista de referencia')).toBeTruthy();
+  });
+
+  it('la prueba usa los aeropuertos de su enunciado', async () => {
+    renderAt('#/pruebas/b737-combustible-spur-spjc');
+    await screen.findByRole('heading', { name: 'Planificación de combustible SPUR – SPJC' });
+    expect([airportInput('Origen').value, airportInput('Destino').value, airportInput('Alterno').value]).toEqual(['SPUR', 'SPJC', 'SPSO']);
+    expect(screen.getByText(/Aeropuertos: SPUR \(Piura\) · SPJC \(Lima – Callao\) · SPSO \(Pisco\)/)).toBeTruthy();
+    expect(screen.getByText(/2\. Destino – alterno · SPJC → SPSO · 145 NM/)).toBeTruthy();
   });
 });
 

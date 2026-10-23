@@ -57,7 +57,7 @@ export default function ExercisesList() {
           <Card flush>
             <div className="list" style={{ marginTop: 12 }}>
               {verified.map((e) => (
-                <Link key={e.id} to={`/tools/fuel?${fuelFormQuery(e.input)}`} className="list-item">
+                <Link key={e.id} to={`/tools/fuel?${fuelFormQuery(e.input, e.airports)}`} className="list-item">
                   <span className="list-item-icon" style={{ color: 'var(--success)', background: 'var(--success-soft)' }}>
                     <BadgeCheck size={18} />
                   </span>

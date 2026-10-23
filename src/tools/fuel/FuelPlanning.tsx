@@ -4,7 +4,7 @@ import { checkExercise, ExerciseValidation, summarize } from '@/components/fuel/
 import { FuelPlanAnswers } from '@/components/fuel/FuelPlanAnswers';
 import { FuelPlanForm } from '@/components/fuel/FuelPlanForm';
 import { FuelPlanSteps } from '@/components/fuel/FuelPlanSteps';
-import { sameFuelForm, toFuelForm, useFuelPlan } from '@/components/fuel/fuelForm';
+import { routeFromForm, sameFuelForm, toFuelForm, useFuelPlan } from '@/components/fuel/fuelForm';
 import { ToolActions } from '@/components/ToolActions';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
@@ -17,7 +17,10 @@ import { useDecimals } from '@/state/settings';
 const SCOPE = SCOPES.nacional;
 const SOLVED = verifiedExercises();
 // valores de ejemplo: el primer ejercicio verificado
-const DEFAULTS = toFuelForm(SOLVED[0].input);
+const DEFAULTS = toFuelForm(SOLVED[0].input, SOLVED[0].airports);
+
+/** «SPJC–SPQT»; sin códigos queda vacío */
+const legLabel = (a: string, b: string) => (a || b ? `${a || '?'}–${b || '?'}` : '');
 
 export default function FuelPlanning() {
   const decimals = useDecimals();
@@ -27,7 +30,8 @@ export default function FuelPlanning() {
   const p = (v: number) => formatPlain(v, decimals);
   const v = form.values;
 
-  const solved = SOLVED.find((e) => sameFuelForm(v, toFuelForm(e.input)));
+  const route = routeFromForm(v);
+  const solved = SOLVED.find((e) => sameFuelForm(v, toFuelForm(e.input, e.airports)));
   const checks = solved && r ? checkExercise(solved, r) : [];
   const verified = solved && summarize(checks);
 
@@ -46,7 +50,7 @@ export default function FuelPlanning() {
             toolId="fuel"
             href={form.href}
             canSave={!!r}
-            summary={`${v.td} NM (${v.tw} kt ${v.tk}) + alterno ${v.ad} NM (${v.aw} kt ${v.ak}) · espera ${v.hm} min`}
+            summary={`${legLabel(route.origin, route.destination)} ${v.td} NM (${v.tw} kt ${v.tk}) · alterno ${legLabel(route.destination, route.alternate)} ${v.ad} NM (${v.aw} kt ${v.ak}) · espera ${v.hm} min`}
             result={r ? `FOB ${p(r.fobLb)} lb · ${p(r.enduranceMin)} min` : ''}
             onReset={form.reset}
           />
@@ -65,7 +69,7 @@ export default function FuelPlanning() {
             value=""
             onChange={(e) => {
               const ex = SOLVED.find((x) => x.id === e.target.value);
-              if (ex) form.load(toFuelForm(ex.input));
+              if (ex) form.load(toFuelForm(ex.input, ex.airports));
             }}
           >
             <option value="" disabled>
@@ -93,7 +97,7 @@ export default function FuelPlanning() {
             exercise={solved}
             title={
               <span className="row" style={{ gap: 8 }}>
-                <BadgeCheck size={17} style={{ color: 'var(--success)' }} /> Ejercicio resuelto · {solved.route.trip.join(' – ')}
+                <BadgeCheck size={17} style={{ color: 'var(--success)' }} /> Ejercicio resuelto · {solved.airports.origin} – {solved.airports.destination}
               </span>
             }
           />
@@ -122,7 +126,7 @@ export default function FuelPlanning() {
         )}
       </div>
 
-      {r && <FuelPlanSteps result={r} input={plan.input} decimals={decimals} />}
+      {r && <FuelPlanSteps result={r} input={plan.input} airports={route} decimals={decimals} />}
 
       {solved && r && verified && (
         <>

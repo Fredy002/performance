@@ -9,7 +9,7 @@ export default function ExerciseDetail() {
   const exercise = getExercise(exerciseId);
   if (!exercise) return <NotFound />;
   // los ejercicios verificados viven en su herramienta: se redirige con los datos cargados
-  if (exercise.status === 'verified') return <Navigate to={`/tools/fuel?${fuelFormQuery(exercise.input)}`} replace />;
+  if (exercise.status === 'verified') return <Navigate to={`/tools/fuel?${fuelFormQuery(exercise.input, exercise.airports)}`} replace />;
   // la key reinicia el formulario al cambiar de ejercicio
   return <FuelPlanExerciseView key={exercise.id} exercise={exercise} />;
 }

@@ -2,16 +2,23 @@ import { useMemo } from 'react';
 import { parseNumber } from '@/core/format';
 import { solveFuelPlan, type FuelPlanInput, type FuelPlanResult } from '@/core/fuelPlanning';
 import { LookupError } from '@/core/tableLookup';
+import { EMPTY_ROUTE, normalizeIcao, type RouteAirports } from '@/data/airports';
 
-/** Claves del formulario de planificación de combustible (también son los parámetros de la URL). */
-export const FUEL_FORM_KEYS = ['td', 'tw', 'tk', 'tfl', 'ad', 'aw', 'ak', 'afl', 'hw', 'hfl', 'hm', 'taxi'] as const;
+/**
+ * Claves del formulario de planificación de combustible (también son los parámetros de la URL).
+ * dep / dst / alt: códigos OACI de origen, destino y alterno (varían en cada vuelo).
+ */
+export const FUEL_FORM_KEYS = ['dep', 'dst', 'alt', 'td', 'tw', 'tk', 'tfl', 'ad', 'aw', 'ak', 'afl', 'hw', 'hfl', 'hm', 'taxi'] as const;
 export type FuelFormKey = (typeof FUEL_FORM_KEYS)[number];
 export type FuelFormValues = Record<FuelFormKey, string>;
 
-const TEXT_KEYS: FuelFormKey[] = ['tk', 'ak'];
+const TEXT_KEYS: FuelFormKey[] = ['dep', 'dst', 'alt', 'tk', 'ak'];
 
-export function toFuelForm(input: FuelPlanInput): FuelFormValues {
+export function toFuelForm(input: FuelPlanInput, airports: RouteAirports = EMPTY_ROUTE): FuelFormValues {
   return {
+    dep: airports.origin,
+    dst: airports.destination,
+    alt: airports.alternate,
     td: String(input.trip.distanceNm),
     tw: String(input.trip.windKt),
     tk: input.trip.windKind,
@@ -25,6 +32,10 @@ export function toFuelForm(input: FuelPlanInput): FuelFormValues {
     hm: String(input.holding.minutes),
     taxi: String(input.taxiFuelLb),
   };
+}
+
+export function routeFromForm(v: FuelFormValues): RouteAirports {
+  return { origin: normalizeIcao(v.dep), destination: normalizeIcao(v.dst), alternate: normalizeIcao(v.alt) };
 }
 
 export function fromFuelForm(v: FuelFormValues): { input: FuelPlanInput; incomplete: boolean } {
@@ -42,16 +53,16 @@ export function fromFuelForm(v: FuelFormValues): { input: FuelPlanInput; incompl
 /** Compara dos formularios por valor («622» = «622,0»). */
 export function sameFuelForm(a: FuelFormValues, b: FuelFormValues): boolean {
   return FUEL_FORM_KEYS.every((k) => {
-    if (TEXT_KEYS.includes(k)) return a[k] === b[k];
+    if (TEXT_KEYS.includes(k)) return normalizeIcao(a[k]) === normalizeIcao(b[k]);
     const x = parseNumber(a[k]);
     const y = parseNumber(b[k]);
     return (Number.isNaN(x) && Number.isNaN(y)) || x === y;
   });
 }
 
-export function fuelFormQuery(input: FuelPlanInput): string {
+export function fuelFormQuery(input: FuelPlanInput, airports?: RouteAirports): string {
   const qs = new URLSearchParams();
-  Object.entries(toFuelForm(input)).forEach(([k, val]) => val !== '' && qs.set(k, val));
+  Object.entries(toFuelForm(input, airports)).forEach(([k, val]) => val !== '' && qs.set(k, val));
   return qs.toString();
 }
 

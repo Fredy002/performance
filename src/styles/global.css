@@ -697,6 +697,11 @@ kbd {
   font-size: 14px;
 }
 
+/* dentro de un campo (columna flex) el select no debe encogerse a su contenido */
+.field > .select {
+  flex: none;
+}
+
 /* ---------- interpolation rows (como en la referencia) ---------- */
 .interp-table {
   display: grid;
@@ -1837,5 +1842,15 @@ a.list-item:hover {
 
   .validation-table .status-text {
     display: none;
+  }
+}
+
+.inline-fields.airport-fields {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 560px) {
+  .inline-fields.airport-fields {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

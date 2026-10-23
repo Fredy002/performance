@@ -2,14 +2,17 @@ import type { ReactNode } from 'react';
 import { Card } from '@/components/ui/Card';
 import { NumberField } from '@/components/ui/NumberField';
 import { parseNumber } from '@/core/format';
-import type { FuelFormKey, FuelFormValues } from './fuelForm';
+import { normalizeIcao, routeWarnings } from '@/data/airports';
+import { AirportField, AirportsDatalist } from './AirportField';
+import { routeFromForm, type FuelFormKey, type FuelFormValues } from './fuelForm';
 
 interface Props {
   values: FuelFormValues;
   set: (k: FuelFormKey, v: string) => void;
-  routes?: { trip: [string, string]; alternate: [string, string] };
   action?: ReactNode;
   holdingHint?: string;
+  /** Vuelo nacional: avisa si algún aeropuerto no es del Perú */
+  domesticOnly?: boolean;
 }
 
 function WindSelect({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
@@ -25,7 +28,7 @@ function WindSelect({ value, onChange, label }: { value: string; onChange: (v: s
 }
 
 /** Datos de entrada: tramo, alterno, espera y rodaje. */
-export function FuelPlanForm({ values: v, set, routes, action, holdingHint }: Props) {
+export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly = true }: Props) {
   const field = (k: FuelFormKey, label: string, unit?: string, hint?: string, placeholder?: string) => (
     <NumberField
       label={label}
@@ -37,13 +40,38 @@ export function FuelPlanForm({ values: v, set, routes, action, holdingHint }: Pr
       invalid={v[k] !== '' && Number.isNaN(parseNumber(v[k]))}
     />
   );
-  const route = (r?: [string, string]) => (r ? ` (${r.join(' – ')})` : '');
+  // etiqueta del tramo con los códigos que haya escrito el usuario
+  const leg = (a: string, b: string) => {
+    const [x, y] = [normalizeIcao(a), normalizeIcao(b)];
+    return x || y ? ` (${x || '····'} – ${y || '····'})` : '';
+  };
+  const warnings = routeWarnings(routeFromForm(v), domesticOnly);
   return (
     <Card title="Datos" action={action}>
+      <AirportsDatalist />
       <div className="stack">
         <div>
           <p className="field-label" style={{ marginBottom: 8 }}>
-            Origen – destino{route(routes?.trip)}
+            Ruta
+          </p>
+          <div className="inline-fields airport-fields">
+            <AirportField label="Origen" value={v.dep} onChange={(x) => set('dep', x)} />
+            <AirportField label="Destino" value={v.dst} onChange={(x) => set('dst', x)} />
+            <AirportField label="Alterno" value={v.alt} onChange={(x) => set('alt', x)} />
+          </div>
+          {warnings.length > 0 && (
+            <div className="alert alert-warning" role="note" style={{ marginTop: 12 }}>
+              <div>
+                {warnings.map((w) => (
+                  <p key={w}>{w}</p>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        <div>
+          <p className="field-label" style={{ marginBottom: 8 }}>
+            Origen – destino{leg(v.dep, v.dst)}
           </p>
           <div className="inline-fields">
             {field('td', 'Distancia', 'NM')}
@@ -54,7 +82,7 @@ export function FuelPlanForm({ values: v, set, routes, action, holdingHint }: Pr
         </div>
         <div>
           <p className="field-label" style={{ marginBottom: 8 }}>
-            Destino – alterno{route(routes?.alternate)}
+            Destino – alterno{leg(v.dst, v.alt)}
           </p>
           <div className="inline-fields">
             {field('ad', 'Distancia', 'NM')}
