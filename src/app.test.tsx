@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { updateSettings } from './state/settings';
@@ -292,14 +292,27 @@ Combustible para el taxi: 350 bs
 Determinar: a) T.T b) T.F c) FOB d) Autonomía`;
   const image = new File(['png'], 'captura.png', { type: 'image/png' });
   const value = (label: string) => (screen.getByLabelText(label, { exact: true }) as HTMLInputElement).value;
+  const statement = () => screen.getByLabelText('Enunciado del ejercicio') as HTMLTextAreaElement;
+  const openFuel = async (hash = '#/tools/fuel') => {
+    renderAt(hash);
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+  };
+
+  it('abre con un ejemplo resuelto en el cuadro de enunciado', async () => {
+    await openFuel();
+    expect(statement().value).toMatch(/^Un B737 tiene programado/);
+    expect(screen.getByText('Resuelto')).toBeTruthy();
+    expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
+  });
 
   it('lee la imagen, rellena los datos y resuelve el ejercicio solo', async () => {
     mockOcr.mockResolvedValueOnce({ text: OCR_TEXT, confidence: 92 });
-    renderAt('#/tools/fuel');
-    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    await openFuel();
     fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
-    await screen.findByText(/Ejercicio resuelto con estos datos/);
+    await waitFor(() => expect(value('Origen')).toBe('SPHI'));
+    expect(statement().value).toContain('SPHI - SPJC');
     expect(mockOcr).toHaveBeenCalledWith(image, expect.any(Function));
+    expect(screen.getByText('Resuelto')).toBeTruthy();
     expect([value('Origen'), value('Destino'), value('Alterno')]).toEqual(['SPHI', 'SPJC', 'SPSO']);
     expect(screen.getAllByLabelText('Distancia').map((e) => (e as HTMLInputElement).value)).toEqual(['380', '145']);
     expect(value('Peso en espera')).toBe('97000');
@@ -307,44 +320,95 @@ Determinar: a) T.T b) T.F c) FOB d) Autonomía`;
     // 380 NM interpolado entre 350 y 400 NM, 40 kt de cola
     expect(answerValues().slice(0, 2)).toEqual(['54,12', '5457,36']);
     // nivel y tiempo de espera no figuran en el enunciado: se marcan como supuestos
-    expect(screen.getAllByText('Supuesto')).toHaveLength(2);
-    expect((screen.getByLabelText(/Texto del enunciado/) as HTMLTextAreaElement).value).toContain('SPHI - SPJC');
+    expect(screen.getByLabelText('Datos detectados').textContent).toContain('FL 015*');
   });
 
-  it('si faltan datos no resuelve y dice qué falta', async () => {
+  it('si faltan datos no muestra respuestas y dice qué falta', async () => {
     mockOcr.mockResolvedValueOnce({ text: 'Origen - destino: SPJC - SPQT 622 nm (55 TW)\nHolding con 85000 lbs', confidence: 41 });
-    renderAt('#/tools/fuel');
-    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    await openFuel();
     fireEvent.change(screen.getByLabelText('Tomar foto del enunciado'), { target: { files: [image] } });
-    await screen.findByText(/baja confianza \(41 %\)/);
-    expect((screen.getByRole('button', { name: /^Resolver$/ }) as HTMLButtonElement).disabled).toBe(true);
-    expect(screen.getByText(/Falta: distancia destino – alterno, viento destino – alterno, combustible de taxi/)).toBeTruthy();
-    // al completar el texto a mano se puede resolver
-    fireEvent.change(screen.getByLabelText(/Texto del enunciado/), {
+    await screen.findByText(/poca claridad \(41 %\)/);
+    expect(screen.getByText('Faltan datos')).toBeTruthy();
+    expect(answerValues()).toEqual([]);
+    expect(screen.getByText(/distancia destino – alterno, viento destino – alterno, combustible de taxi/)).toBeTruthy();
+    // al completar el texto se resuelve solo
+    fireEvent.change(statement(), {
       target: { value: 'Origen - destino: SPJC - SPQT 622 nm F350 (55 TW)\nDestino - alterno: SPQT - SPST 270 nm F180 (30 HW)\nHolding con 85000 lbs\nTaxi: 400 lbs' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /^Resolver$/ }));
     expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
     expect(screen.getByText(/Ejercicio resuelto · SPJC – SPQT/)).toBeTruthy();
   });
 
-  it('se puede escribir o pegar el enunciado sin imagen', async () => {
-    renderAt('#/tools/fuel');
-    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
-    fireEvent.click(screen.getByRole('button', { name: /Escribir o pegar texto/ }));
-    fireEvent.change(screen.getByLabelText(/Texto del enunciado/), {
+  it('«Completar a mano» carga lo detectado para terminarlo en los datos', async () => {
+    await openFuel();
+    fireEvent.change(statement(), { target: { value: 'Origen - destino: SPJC - SPQT 622 nm (55 TW)\nDestino - alterno: SPQT - SPST 270 nm (30 HW)\nHolding con 85000 lbs' } });
+    expect(answerValues()).toEqual([]);
+    fireEvent.click(screen.getByRole('button', { name: /Completar a mano/ }));
+    expect((screen.getByText('Datos').closest('details') as HTMLDetailsElement).open).toBe(true);
+    fireEvent.change(screen.getByLabelText('Combustible de taxi'), { target: { value: '400' } });
+    expect(answerValues()[2]).toBe('17059,18');
+    expect(screen.getByText('Datos editados a mano')).toBeTruthy();
+  });
+
+  it('se puede borrar y escribir otro enunciado sin imagen', async () => {
+    await openFuel();
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar el enunciado' }));
+    expect(statement().value).toBe('');
+    expect(screen.getByText(/Escribe, pega o fotografía el enunciado/)).toBeTruthy();
+    fireEvent.change(statement(), {
       target: { value: 'Origen - destino: SPUR - SPJC distancia 750 nm F350 (50 TW)\nDestino - alterno: SPJC - SPSO distancia 145 nm F190 (30 HW)\nHolding con 92500 lbs\nCombustible para el taxi: 400 lbs' },
     });
-    fireEvent.click(screen.getByRole('button', { name: /^Resolver$/ }));
     expect(answerValues()).toEqual(['96,41', '9287,53', '16972,16', '172,95']);
     expect(mockOcr).not.toHaveBeenCalled();
   });
 
+  it('los ejemplos cargan su enunciado', async () => {
+    await openFuel();
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar el enunciado' }));
+    fireEvent.change(screen.getByLabelText('Cargar un ejemplo'), { target: { value: 'b737-combustible-spjc-spqt' } });
+    expect(statement().value).toContain('SPJC – SPQT');
+    expect(answerValues()[0]).toBe('80,38');
+  });
+
+  it('un enlace con datos (historial) los muestra sin enunciado', async () => {
+    await openFuel('#/tools/fuel?td=400&tw=20&tk=HW&ad=150&aw=10&ak=TW&hw=100000&hfl=200&hm=45&taxi=400');
+    expect(statement().value).toBe('');
+    expect(answerValues()).toHaveLength(4);
+    expect((screen.getByText('Datos').closest('details') as HTMLDetailsElement).open).toBe(true);
+  });
+
   it('si el OCR falla lo explica', async () => {
     mockOcr.mockRejectedValueOnce(new Error('sin red'));
-    renderAt('#/tools/fuel');
-    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    await openFuel();
     fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
     expect((await screen.findByRole('alert')).textContent).toMatch(/No se pudo leer la imagen/);
+  });
+});
+
+describe('navegación simplificada', () => {
+  it('el menú agrupa en Calcular, Consultar y Pruebas, sin entradas «Pronto»', async () => {
+    renderAt('#/');
+    await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
+    const titles = [...document.querySelectorAll('.sidebar .nav-section-title')].map((e) => e.textContent);
+    expect(titles).toEqual(['Calcular', 'Consultar', 'Pruebas']);
+    expect(document.querySelector('.sidebar .nav-link.disabled')).toBeNull();
+    expect(document.querySelector('.sidebar .nav-section-title + .nav-link')!.textContent).toBe('Plan de combustible');
+  });
+
+  it('barra inferior del móvil con los accesos principales', async () => {
+    renderAt('#/');
+    await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
+    const nav = screen.getByRole('navigation', { name: 'Accesos rápidos' });
+    expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['#/', '#/tools/fuel', '#/tools/linear', '#/tables']);
+    fireEvent.click(within(nav).getByRole('button', { name: 'Abrir menú' }));
+    expect(document.querySelector('.shell')!.className).toContain('mobile-open');
+  });
+
+  it('el inicio ofrece tres accesos directos', async () => {
+    renderAt('#/');
+    await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
+    const tiles = [...document.querySelectorAll('.action-tile')];
+    expect(tiles.map((t) => t.getAttribute('href'))).toEqual(['#/tools/fuel', '#/tools/linear', '#/tables']);
+    expect(screen.getByText(/Próximamente: Despegue, Aterrizaje, Peso y centrado/)).toBeTruthy();
   });
 });

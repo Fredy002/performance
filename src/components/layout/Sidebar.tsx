@@ -1,7 +1,7 @@
-import { ClipboardCheck, History, LayoutDashboard, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table } from 'lucide-react';
+import { ClipboardCheck, History, House, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { CATEGORIES, toolPath, toolsByCategory } from '@/tools/registry';
+import { readyTools, toolPath } from '@/tools/registry';
 import { updateSettings, useSettings } from '@/state/settings';
 import { useHistory } from '@/state/history';
 
@@ -31,10 +31,9 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
 
       <nav className="sidebar-nav" ref={navRef}>
         <div className="nav-section">
-          <div className="nav-section-title">General</div>
-          <NavLink to="/" end className={link} onClick={onNavigate} title="Panel">
-            <LayoutDashboard size={19} />
-            <span className="nav-label">Panel</span>
+          <NavLink to="/" end className={link} onClick={onNavigate} title="Inicio">
+            <House size={19} />
+            <span className="nav-label">Inicio</span>
           </NavLink>
           <NavLink to="/history" className={link} onClick={onNavigate} title="Historial">
             <History size={19} />
@@ -43,28 +42,18 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
           </NavLink>
         </div>
 
-        {toolsByCategory().map(([cat, tools]) => (
-          <div className="nav-section" key={cat}>
-            <div className="nav-section-title">{CATEGORIES[cat]}</div>
-            {tools.map((t) =>
-              t.status === 'ready' ? (
-                <NavLink key={t.id} to={toolPath(t.id)} className={link} onClick={onNavigate} title={t.name}>
-                  <t.icon size={19} />
-                  <span className="nav-label">{t.shortName ?? t.name}</span>
-                </NavLink>
-              ) : (
-                <span key={t.id} className="nav-link disabled" title={`${t.name} (próximamente)`} aria-disabled="true">
-                  <t.icon size={19} />
-                  <span className="nav-label">{t.name}</span>
-                  <span className="nav-badge">Pronto</span>
-                </span>
-              ),
-            )}
-          </div>
-        ))}
+        <div className="nav-section">
+          <div className="nav-section-title">Calcular</div>
+          {readyTools().map((t) => (
+            <NavLink key={t.id} to={toolPath(t.id)} className={link} onClick={onNavigate} title={t.name}>
+              <t.icon size={19} />
+              <span className="nav-label">{t.shortName ?? t.name}</span>
+            </NavLink>
+          ))}
+        </div>
 
         <div className="nav-section">
-          <div className="nav-section-title">Referencia</div>
+          <div className="nav-section-title">Consultar</div>
           <NavLink to="/tables" className={link} onClick={onNavigate} title="Tablas de performance de aeronaves">
             <Table size={19} />
             <span className="nav-label">Tablas de aeronaves</span>

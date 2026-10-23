@@ -23,13 +23,14 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
   Origen, destino y alterno se introducen como códigos OACI (cambian en cada vuelo), con
   autocompletado de aeropuertos del Perú y avisos si un código no es peruano (SP__) o la ruta
   es incoherente.
-- **Resolver desde una captura**: foto (cámara del móvil), imagen, Ctrl+V o arrastrar; el texto se
-  reconoce en el navegador, se extraen los datos y el ejercicio se resuelve solo. También se puede
-  escribir o pegar el enunciado.
+- **Un solo paso para resolver**: en Planificación de combustible se escribe, pega o fotografía el
+  enunciado y las respuestas aparecen al lado. Los datos detectados se muestran como chips de color
+  (detectado, supuesto, falta); datos, desarrollo y validación quedan en secciones plegables.
 - **Pruebas**: ejercicios resueltos a mano que la app vuelve a resolver con las tablas y la
   interpolación, comparando cada paso con la resolución. Al verificarse pasan a su herramienta.
 - Panel con estadísticas, favoritas y actividad reciente; historial persistente.
-- Buscador `Ctrl/⌘ + K`, tema claro/oscuro, menú colapsable, diseño responsive.
+- Menú por tareas (Calcular, Consultar, Pruebas), barra inferior en el móvil, buscador `Ctrl/⌘ + K`
+  y tema claro/oscuro.
 - Enlaces compartibles: cada cálculo se puede reabrir desde su URL.
 
 ## Desarrollo

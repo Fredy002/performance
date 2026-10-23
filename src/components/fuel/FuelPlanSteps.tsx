@@ -115,18 +115,21 @@ export function FuelPlanSteps({
   input,
   airports = EMPTY_ROUTE,
   decimals,
+  heading = true,
 }: {
   result: FuelPlanResult;
   input: FuelPlanInput;
   airports?: RouteAirports;
   decimals: number;
+  /** Título «Desarrollo» encima (no hace falta dentro de una sección plegable) */
+  heading?: boolean;
 }) {
   const p: Fmt = (v) => formatPlain(v, decimals);
   // «SPJC → SPQT · » si hay códigos escritos
   const leg = (a: string, b: string) => (a || b ? `${a || '····'} → ${b || '····'} · ` : '');
   return (
     <>
-      <h2 className="section-title">Desarrollo</h2>
+      {heading && <h2 className="section-title">Desarrollo</h2>}
       <div className="grid grid-2">
         <Card title={`1. Origen – destino · ${leg(airports.origin, airports.destination)}${formatPlain(input.trip.distanceNm, 2)} NM`}>
           <LegSteps leg={r.trip} windKt={input.trip.windKt} kind={input.trip.windKind} timeTag="T.T" fuelTag="T.F" p={p} />

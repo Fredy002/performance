@@ -16,11 +16,15 @@ interface Props {
   decimals: number;
   /** Contenido extra bajo cada respuesta (p. ej. comparación con la resolución manual) */
   footer?: (key: string) => ReactNode;
+  /** Distintivo junto al título (p. ej. «Ejercicio resuelto») */
+  badge?: ReactNode;
+  /** Qué mostrar mientras no hay resultado */
+  placeholder?: ReactNode;
 }
 
-export function FuelPlanAnswers({ result: r, error, decimals, footer }: Props) {
+export function FuelPlanAnswers({ result: r, error, decimals, footer, badge, placeholder }: Props) {
   return (
-    <Card title="Respuestas">
+    <Card title="Respuestas" action={badge}>
       {r ? (
         <>
           <div className="answer-grid">
@@ -42,7 +46,7 @@ export function FuelPlanAnswers({ result: r, error, decimals, footer }: Props) {
           </p>
         </>
       ) : (
-        <div className="empty">{error ? 'Revisa los datos.' : 'Completa los datos.'}</div>
+        (placeholder ?? <div className="empty">{error ? 'Revisa los datos.' : 'Completa los datos.'}</div>)
       )}
     </Card>
   );

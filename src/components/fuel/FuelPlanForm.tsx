@@ -13,6 +13,8 @@ interface Props {
   holdingHint?: string;
   /** Vuelo nacional: avisa si algún aeropuerto no es del Perú */
   domesticOnly?: boolean;
+  /** Sin tarjeta propia (cuando va dentro de una sección plegable) */
+  bare?: boolean;
 }
 
 function WindSelect({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
@@ -28,7 +30,7 @@ function WindSelect({ value, onChange, label }: { value: string; onChange: (v: s
 }
 
 /** Datos de entrada: tramo, alterno, espera y rodaje. */
-export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly = true }: Props) {
+export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly = true, bare }: Props) {
   const field = (k: FuelFormKey, label: string, unit?: string, hint?: string, placeholder?: string) => (
     <NumberField
       label={label}
@@ -46,8 +48,8 @@ export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly
     return x || y ? ` (${x || '····'} – ${y || '····'})` : '';
   };
   const warnings = routeWarnings(routeFromForm(v), domesticOnly);
-  return (
-    <Card title="Datos" action={action}>
+  const content = (
+    <>
       <AirportsDatalist />
       <div className="stack">
         <div>
@@ -103,6 +105,13 @@ export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly
           </div>
         </div>
       </div>
+    </>
+  );
+  return bare ? (
+    content
+  ) : (
+    <Card title="Datos" action={action}>
+      {content}
     </Card>
   );
 }

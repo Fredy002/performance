@@ -1,4 +1,4 @@
-import { ChevronRight, Menu, Monitor, Moon, Search, Sun } from 'lucide-react';
+import { ChevronRight, Monitor, Moon, Search, Sun } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { CATEGORIES, getTool } from '@/tools/registry';
 import { getTable } from '@/data/tables';
@@ -6,7 +6,7 @@ import { getExercise } from '@/exercises/registry';
 import { updateSettings, useSettings, type ThemePref } from '@/state/settings';
 
 const PAGE_TITLES: Record<string, string> = {
-  '/': 'Panel',
+  '/': 'Inicio',
   '/history': 'Historial',
   '/settings': 'Ajustes',
   '/tables': 'Tablas de performance de aeronaves',
@@ -16,7 +16,7 @@ const PAGE_TITLES: Record<string, string> = {
 const NEXT_THEME: Record<ThemePref, ThemePref> = { system: 'light', light: 'dark', dark: 'system' };
 const THEME_LABEL: Record<ThemePref, string> = { system: 'Tema del sistema', light: 'Tema claro', dark: 'Tema oscuro' };
 
-export function Topbar({ onMenu, onSearch }: { onMenu: () => void; onSearch: () => void }) {
+export function Topbar({ onSearch }: { onSearch: () => void }) {
   const { pathname } = useLocation();
   const { theme } = useSettings();
   const tool = pathname.startsWith('/tools/') ? getTool(pathname.split('/')[2]) : undefined;
@@ -27,9 +27,6 @@ export function Topbar({ onMenu, onSearch }: { onMenu: () => void; onSearch: () 
 
   return (
     <header className="topbar">
-      <button className="btn btn-ghost btn-icon mobile-only" onClick={onMenu} aria-label="Abrir menú">
-        <Menu size={20} />
-      </button>
       <nav className="breadcrumbs" aria-label="Ruta">
         {tool ? (
           <>

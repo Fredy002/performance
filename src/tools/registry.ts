@@ -44,6 +44,17 @@ export const CATEGORIES: Record<ToolCategory, string> = {
 
 export const TOOLS: ToolDef[] = [
   {
+    id: 'fuel',
+    name: 'Planificación de combustible',
+    shortName: 'Plan de combustible',
+    description: 'Viaje, alterno, espera y taxi: combustible a bordo (FOB) y autonomía. B737, vuelos nacionales (Perú).',
+    category: 'performance',
+    icon: Fuel,
+    keywords: ['combustible', 'fuel', 'fob', 'autonomia', 'trip fuel', 'alterno', 'holding', 'espera', 'reserva', 'b737', 'captura', 'foto', 'ocr', 'escanear'],
+    status: 'ready',
+    component: lazy(() => import('./fuel/FuelPlanning')),
+  },
+  {
     id: 'linear',
     name: 'Interpolación lineal',
     description: 'Calcula un valor intermedio entre dos puntos de una tabla de performance de la aeronave.',
@@ -94,17 +105,6 @@ export const TOOLS: ToolDef[] = [
     component: lazy(() => import('./units/UnitConverter')),
   },
   {
-    id: 'fuel',
-    name: 'Planificación de combustible',
-    shortName: 'Plan de combustible',
-    description: 'Viaje, alterno, espera y taxi: combustible a bordo (FOB) y autonomía. B737, vuelos nacionales (Perú).',
-    category: 'performance',
-    icon: Fuel,
-    keywords: ['combustible', 'fuel', 'fob', 'autonomia', 'trip fuel', 'alterno', 'holding', 'espera', 'reserva', 'b737', 'captura', 'foto', 'ocr', 'escanear'],
-    status: 'ready',
-    component: lazy(() => import('./fuel/FuelPlanning')),
-  },
-  {
     id: 'takeoff',
     name: 'Despegue',
     description: 'TODR / ASDR a partir de las tablas del AFM con correcciones.',
@@ -138,6 +138,10 @@ export const toolPath = (id: string) => `/tools/${id}`;
 export function getTool(id: string): ToolDef | undefined {
   return TOOLS.find((t) => t.id === id);
 }
+
+/** Herramientas disponibles, en el orden del menú (la más usada primero). */
+export const readyTools = () => TOOLS.filter((t) => t.status === 'ready');
+export const upcomingTools = () => TOOLS.filter((t) => t.status === 'soon');
 
 export function toolsByCategory(): [ToolCategory, ToolDef[]][] {
   return (Object.keys(CATEGORIES) as ToolCategory[])

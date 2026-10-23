@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useSettings } from '@/state/settings';
 import { useToast } from '@/state/toast';
+import { BottomNav } from './BottomNav';
 import { CommandPalette } from './CommandPalette';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
@@ -34,13 +35,14 @@ export function AppShell() {
       <Sidebar onNavigate={() => setMobileOpen(false)} />
       <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} />
       <div className="main">
-        <Topbar onMenu={() => setMobileOpen(true)} onSearch={() => setPaletteOpen(true)} />
+        <Topbar onSearch={() => setPaletteOpen(true)} />
         <main className="content">
           <Suspense fallback={<div className="empty">Cargando…</div>}>
             <Outlet />
           </Suspense>
         </main>
       </div>
+      <BottomNav onMenu={() => setMobileOpen(true)} />
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
       {toast && (
         <div className="toast" role="status">
