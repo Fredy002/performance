@@ -1,4 +1,4 @@
-import { ClipboardCheck, CornerDownLeft, History, LayoutDashboard, Search, Settings, Table, type LucideIcon } from 'lucide-react';
+import { ClipboardCheck, CornerDownLeft, ScanText, History, LayoutDashboard, Search, Settings, Table, type LucideIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, TOOLS, toolPath } from '@/tools/registry';
@@ -42,6 +42,14 @@ const ITEMS: Item[] = [
     to: `/pruebas/${e.id}`,
     keywords: normalize([e.title, e.summary, e.aircraft, 'prueba ejercicio validar'].join(' ')),
   })),
+  {
+    id: 'capture',
+    label: 'Resolver ejercicio desde una captura',
+    hint: 'Planificación de combustible',
+    icon: ScanText,
+    to: '/tools/fuel',
+    keywords: 'captura foto camara imagen ocr escanear resolver ejercicio enunciado',
+  },
   { id: 'pruebas', label: 'Pruebas', hint: 'Navegación', icon: ClipboardCheck, to: '/pruebas', keywords: 'pruebas ejercicios validar' },
   { id: 'tables', label: 'Tablas de performance de aeronaves', hint: 'Navegación', icon: Table, to: '/tables', keywords: 'tablas referencia performance aeronaves' },
   { id: 'dash', label: 'Panel', hint: 'Navegación', icon: LayoutDashboard, to: '/', keywords: 'panel dashboard inicio' },

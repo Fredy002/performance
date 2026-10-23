@@ -23,6 +23,9 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
   Origen, destino y alterno se introducen como códigos OACI (cambian en cada vuelo), con
   autocompletado de aeropuertos del Perú y avisos si un código no es peruano (SP__) o la ruta
   es incoherente.
+- **Resolver desde una captura**: foto (cámara del móvil), imagen, Ctrl+V o arrastrar; el texto se
+  reconoce en el navegador, se extraen los datos y el ejercicio se resuelve solo. También se puede
+  escribir o pegar el enunciado.
 - **Pruebas**: ejercicios resueltos a mano que la app vuelve a resolver con las tablas y la
   interpolación, comparando cada paso con la resolución. Al verificarse pasan a su herramienta.
 - Panel con estadísticas, favoritas y actividad reciente; historial persistente.
@@ -83,6 +86,24 @@ Cada ejercicio tiene `status`: `pending` (aparece en Pruebas) o `verified` (se o
 ejercicio resuelto en Planificación de combustible; su ruta de Pruebas redirige allí).
 Distancias entre 60 y 260 NM se interpolan entre esas dos filas (la tabla no publica las
 intermedias) y el desarrollo lo indica.
+
+## Resolver desde una captura (OCR)
+
+Análisis de dependencias y decisión:
+
+| Opción | Coste / requisitos | Impresos y capturas | Manuscrito | Decisión |
+|---|---|---|---|---|
+| **Tesseract.js 7** (Apache-2.0) | Gratis, sin servidor ni claves; WASM + modelo español desde jsDelivr (~5 MB, solo la 1.ª vez) | ✅ ~93 % de confianza, < 2 s | ❌ ~37 %, ilegible | **Usada** |
+| IA de visión (Claude, Google Vision…) | Necesita clave de API y un servidor intermedio para no exponerla; coste por imagen | ✅ | ✅ | No incluida (requiere decidir clave y backend) |
+| Text Detection API del navegador | Solo Chrome con flags | – | – | No viable |
+| PaddleOCR / onnxruntime-web | Modelos pesados (> 10 MB), integración compleja | ✅ | ⚠️ | Descartada |
+
+- `src/services/ocr.ts`: Tesseract.js se importa bajo demanda (no pesa en la carga inicial); la
+  imagen se procesa en el dispositivo y no se envía a ningún servidor.
+- `src/exercises/parseStatement.ts`: convierte el texto (OCR o escrito) en datos; tolera errores
+  típicos de OCR («8737» → B737, «Ibs» → lbs). Si el enunciado no indica la espera, se asume
+  FL 015 y 45 min (vuelo nacional) y se marca como «Supuesto».
+- Si faltan datos imprescindibles no resuelve: muestra qué falta y permite corregir el texto.
 
 ## Despliegue en GitHub Pages
 

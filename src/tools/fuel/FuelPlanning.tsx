@@ -1,4 +1,5 @@
 import { BadgeCheck, Fuel, Info } from 'lucide-react';
+import { CaptureSolver } from '@/components/fuel/CaptureSolver';
 import { ExerciseStatement } from '@/components/fuel/ExerciseStatement';
 import { checkExercise, ExerciseValidation, summarize } from '@/components/fuel/ExerciseValidation';
 import { FuelPlanAnswers } from '@/components/fuel/FuelPlanAnswers';
@@ -18,6 +19,8 @@ const SCOPE = SCOPES.nacional;
 const SOLVED = verifiedExercises();
 // valores de ejemplo: el primer ejercicio verificado
 const DEFAULTS = toFuelForm(SOLVED[0].input, SOLVED[0].airports);
+// si una captura no indica la espera: FL 015 (como en los ejercicios) y el tiempo del ámbito
+const CAPTURE_DEFAULTS = { holdingFlightLevel: 15, holdingMinutes: SCOPE.holdingMinutes };
 
 /** «SPJC–SPQT»; sin códigos queda vacío */
 const legLabel = (a: string, b: string) => (a || b ? `${a || '?'}–${b || '?'}` : '');
@@ -44,7 +47,7 @@ export default function FuelPlanning() {
           </>
         }
         title="Planificación de combustible"
-        subtitle="Combustible y tiempo de viaje, alterno, espera y taxi: combustible a bordo (FOB) y autonomía, con las tablas de planificación abreviada y de espera del B737."
+        subtitle="Combustible y tiempo de viaje, alterno, espera y taxi: combustible a bordo (FOB) y autonomía, con las tablas de planificación abreviada y de espera del B737. También puedes resolver un ejercicio desde una foto o captura del enunciado."
         actions={
           <ToolActions
             toolId="fuel"
@@ -57,6 +60,14 @@ export default function FuelPlanning() {
         }
       />
 
+      <CaptureSolver
+        defaults={CAPTURE_DEFAULTS}
+        onApply={(values) => {
+          form.load(values);
+          requestAnimationFrame(() => document.getElementById('fuel-answers')?.scrollIntoView?.({ behavior: 'smooth', block: 'start' }));
+        }}
+      />
+      <div style={{ marginTop: 20 }} />
       <FuelPlanForm
         values={v}
         set={form.set}
@@ -91,7 +102,9 @@ export default function FuelPlanning() {
       )}
 
       <div className="grid grid-calc" style={{ marginTop: 20 }}>
-        <FuelPlanAnswers result={r} error={plan.error} decimals={decimals} />
+        <div id="fuel-answers" style={{ scrollMarginTop: 80 }}>
+          <FuelPlanAnswers result={r} error={plan.error} decimals={decimals} />
+        </div>
         {solved ? (
           <ExerciseStatement
             exercise={solved}

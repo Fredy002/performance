@@ -100,7 +100,7 @@ export const TOOLS: ToolDef[] = [
     description: 'Viaje, alterno, espera y taxi: combustible a bordo (FOB) y autonomía. B737, vuelos nacionales (Perú).',
     category: 'performance',
     icon: Fuel,
-    keywords: ['combustible', 'fuel', 'fob', 'autonomia', 'trip fuel', 'alterno', 'holding', 'espera', 'reserva', 'b737'],
+    keywords: ['combustible', 'fuel', 'fob', 'autonomia', 'trip fuel', 'alterno', 'holding', 'espera', 'reserva', 'b737', 'captura', 'foto', 'ocr', 'escanear'],
     status: 'ready',
     component: lazy(() => import('./fuel/FuelPlanning')),
   },

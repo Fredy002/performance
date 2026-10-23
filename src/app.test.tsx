@@ -1,8 +1,15 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { updateSettings } from './state/settings';
+import { recognizeImage } from './services/ocr';
+
+// el motor OCR real (WASM) no se ejecuta en jsdom: se simula su respuesta
+vi.mock('./services/ocr', () => ({ recognizeImage: vi.fn() }));
+const mockOcr = vi.mocked(recognizeImage);
+URL.createObjectURL = vi.fn(() => 'blob:captura');
+URL.revokeObjectURL = vi.fn();
 
 function renderAt(hash: string) {
   window.location.hash = hash;
@@ -11,7 +18,10 @@ function renderAt(hash: string) {
 
 const output = (label: string) => document.querySelector(`.field-control[aria-label="${label}"] output`)!;
 
-beforeEach(() => localStorage.clear());
+beforeEach(() => {
+  localStorage.clear();
+  mockOcr.mockReset();
+});
 afterEach(() => {
   cleanup();
   updateSettings({ decimals: 2 });
@@ -268,5 +278,73 @@ describe('ajuste de decimales', () => {
     await screen.findByRole('heading', { name: 'Altitud de densidad' });
     expect(screen.getByText('Presión estática').nextElementSibling!.textContent).toBe('842,857 hPa');
     expect(screen.getByText('Densidad relativa (σ)').nextElementSibling!.textContent).toBe('79,068 %');
+  });
+});
+
+describe('resolver desde una captura', () => {
+  // texto tal como lo devolvió Tesseract.js para una captura impresa (con «8737», «Ibs», «bs»)
+  const OCR_TEXT = `Ejercicio 3
+Un 8737 tiene programado realizar una operación:
+Origen - destino: SPHI - SPJC distancia 380 nm FL350 (40 TW)
+Destino - alterno: SPJC - SPSO distancia 145 nm F190 (25 HW)
+Holding con 97 000 Ibs
+Combustible para el taxi: 350 bs
+Determinar: a) T.T b) T.F c) FOB d) Autonomía`;
+  const image = new File(['png'], 'captura.png', { type: 'image/png' });
+  const value = (label: string) => (screen.getByLabelText(label, { exact: true }) as HTMLInputElement).value;
+
+  it('lee la imagen, rellena los datos y resuelve el ejercicio solo', async () => {
+    mockOcr.mockResolvedValueOnce({ text: OCR_TEXT, confidence: 92 });
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
+    await screen.findByText(/Ejercicio resuelto con estos datos/);
+    expect(mockOcr).toHaveBeenCalledWith(image, expect.any(Function));
+    expect([value('Origen'), value('Destino'), value('Alterno')]).toEqual(['SPHI', 'SPJC', 'SPSO']);
+    expect(screen.getAllByLabelText('Distancia').map((e) => (e as HTMLInputElement).value)).toEqual(['380', '145']);
+    expect(value('Peso en espera')).toBe('97000');
+    expect(value('Combustible de taxi')).toBe('350');
+    // 380 NM interpolado entre 350 y 400 NM, 40 kt de cola
+    expect(answerValues().slice(0, 2)).toEqual(['54,12', '5457,36']);
+    // nivel y tiempo de espera no figuran en el enunciado: se marcan como supuestos
+    expect(screen.getAllByText('Supuesto')).toHaveLength(2);
+    expect((screen.getByLabelText(/Texto del enunciado/) as HTMLTextAreaElement).value).toContain('SPHI - SPJC');
+  });
+
+  it('si faltan datos no resuelve y dice qué falta', async () => {
+    mockOcr.mockResolvedValueOnce({ text: 'Origen - destino: SPJC - SPQT 622 nm (55 TW)\nHolding con 85000 lbs', confidence: 41 });
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    fireEvent.change(screen.getByLabelText('Tomar foto del enunciado'), { target: { files: [image] } });
+    await screen.findByText(/baja confianza \(41 %\)/);
+    expect((screen.getByRole('button', { name: /^Resolver$/ }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText(/Falta: distancia destino – alterno, viento destino – alterno, combustible de taxi/)).toBeTruthy();
+    // al completar el texto a mano se puede resolver
+    fireEvent.change(screen.getByLabelText(/Texto del enunciado/), {
+      target: { value: 'Origen - destino: SPJC - SPQT 622 nm F350 (55 TW)\nDestino - alterno: SPQT - SPST 270 nm F180 (30 HW)\nHolding con 85000 lbs\nTaxi: 400 lbs' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /^Resolver$/ }));
+    expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
+    expect(screen.getByText(/Ejercicio resuelto · SPJC – SPQT/)).toBeTruthy();
+  });
+
+  it('se puede escribir o pegar el enunciado sin imagen', async () => {
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    fireEvent.click(screen.getByRole('button', { name: /Escribir o pegar texto/ }));
+    fireEvent.change(screen.getByLabelText(/Texto del enunciado/), {
+      target: { value: 'Origen - destino: SPUR - SPJC distancia 750 nm F350 (50 TW)\nDestino - alterno: SPJC - SPSO distancia 145 nm F190 (30 HW)\nHolding con 92500 lbs\nCombustible para el taxi: 400 lbs' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /^Resolver$/ }));
+    expect(answerValues()).toEqual(['96,41', '9287,53', '16972,16', '172,95']);
+    expect(mockOcr).not.toHaveBeenCalled();
+  });
+
+  it('si el OCR falla lo explica', async () => {
+    mockOcr.mockRejectedValueOnce(new Error('sin red'));
+    renderAt('#/tools/fuel');
+    await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
+    expect((await screen.findByRole('alert')).textContent).toMatch(/No se pudo leer la imagen/);
   });
 });

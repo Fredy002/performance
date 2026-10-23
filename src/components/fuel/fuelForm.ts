@@ -3,6 +3,7 @@ import { parseNumber } from '@/core/format';
 import { solveFuelPlan, type FuelPlanInput, type FuelPlanResult } from '@/core/fuelPlanning';
 import { LookupError } from '@/core/tableLookup';
 import { EMPTY_ROUTE, normalizeIcao, type RouteAirports } from '@/data/airports';
+import type { ParseDefaults, ParseReport } from '@/exercises/parseStatement';
 
 /**
  * Claves del formulario de planificación de combustible (también son los parámetros de la URL).
@@ -79,4 +80,27 @@ export function useFuelPlan(values: FuelFormValues): { input: FuelPlanInput; res
     }
     // `key` resume todos los valores del formulario
   }, [key]);
+}
+
+/** Valores del formulario a partir de un enunciado leído (texto u OCR). */
+export function reportToFuelForm(r: ParseReport, defaults: ParseDefaults): FuelFormValues {
+  const p = r.parsed;
+  const s = (v?: number) => (v === undefined ? '' : String(v));
+  return {
+    dep: r.airports.origin,
+    dst: r.airports.destination,
+    alt: r.airports.alternate,
+    td: s(p.trip.distanceNm),
+    tw: s(p.trip.windKt),
+    tk: p.trip.windKind ?? 'TW',
+    tfl: s(p.trip.flightLevel),
+    ad: s(p.alternate.distanceNm),
+    aw: s(p.alternate.windKt),
+    ak: p.alternate.windKind ?? 'HW',
+    afl: s(p.alternate.flightLevel),
+    hw: s(p.holding.weightLb),
+    hfl: s(p.holding.flightLevel ?? defaults.holdingFlightLevel),
+    hm: s(p.holding.minutes ?? defaults.holdingMinutes),
+    taxi: s(p.taxiFuelLb),
+  };
 }

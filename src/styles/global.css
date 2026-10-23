@@ -1783,6 +1783,11 @@ a.list-item:hover {
   color: var(--result);
 }
 
+.status-neutral {
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+
 .data-table tr.is-answer td {
   font-weight: 700;
 }
@@ -1852,5 +1857,100 @@ a.list-item:hover {
 @media (max-width: 560px) {
   .inline-fields.airport-fields {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- resolver desde captura ---------- */
+.progress {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+.capture-review {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 16px;
+  align-items: start;
+}
+
+.capture-review:not(:has(.capture-preview)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.capture-preview {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+
+.capture-text {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.capture-text:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.capture-fields td:first-child {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  white-space: normal;
+}
+
+.card.is-dragging {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+@media (max-width: 700px) {
+  .capture-review {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .capture-preview {
+    max-height: 200px;
+  }
+}
+
+@media (max-width: 560px) {
+  .capture-fields th,
+  .capture-fields td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+
+  .capture-fields th:first-child,
+  .capture-fields td:first-child {
+    position: static;
+    min-width: 0;
+  }
+
+  .capture-fields .status {
+    padding: 2px 6px;
+    font-size: 11px;
   }
 }
