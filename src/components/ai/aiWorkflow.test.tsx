@@ -106,6 +106,17 @@ describe('AeroPerf AI · revisión y resolución', () => {
     await expectRealTool('fuel', '17607,26');
   });
 
+  it('combustible sin aeronave en el enunciado: B737 como supuesto (único modelo del módulo)', async () => {
+    const analysis = parseExerciseText(FUEL)!;
+    analysis.steps[0].fields = analysis.steps[0].fields.filter((f) => f.key !== 'aircraft');
+    const session = createAISession(analysis, undefined, { locale: 'es' });
+    expect(session.steps[0].fields.find((f) => f.key === 'aircraft')).toMatchObject({ value: 'B737', source: 'assumed' });
+    open(session.id);
+    await screen.findByRole('heading', { level: 1 });
+    expect(status('Aeronave')).toBe('Supuesto');
+    expect((screen.getByRole('button', { name: /Confirmar y calcular/ }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
   it('las correcciones del usuario se marcan, se conservan y recalculan', async () => {
     const session = createAISession(parseExerciseText(FUEL)!, undefined, { locale: 'es' });
     open(session.id);

@@ -71,10 +71,11 @@ const resultSummary = (s: AISession) =>
 /**
  * Supuestos explícitos y justificados que AeroPerf ya aplica en sus módulos cuando el enunciado no
  * los indica (se muestran en naranja, «Supuesto», y el usuario puede cambiarlos):
+ * - Plan de combustible y ascenso en ruta: aeronave B737 si no se nombra (son las únicas tablas del módulo).
  * - Plan de combustible: espera a 1 500 ft (FL 015) y 45 min (nacional) o 30 min (internacional).
  */
 export function applyModuleAssumptions(step: AIStep, locale: Locale): AIStep {
-  if (step.module !== 'fuel') return step;
+  if (step.module !== 'fuel' && step.module !== 'en-route-climb') return step;
   const get = (key: string) => step.fields.find((f) => f.key === key);
   const fields = [...step.fields];
   const assume = (key: string, value: string, unit: string, evidence: string) => {
@@ -85,6 +86,9 @@ export function applyModuleAssumptions(step: AIStep, locale: Locale): AIStep {
     else fields.push(field);
   };
   const es = locale === 'es';
+  // estos módulos solo tienen tablas del B737 (otra aeronave en el enunciado la marca el modelo como no soportada)
+  assume('aircraft', 'B737', '', es ? 'El enunciado no nombra la aeronave: este módulo solo tiene las tablas del Boeing 737.' : 'The statement does not name the aircraft: this module only has the Boeing 737 tables.');
+  if (step.module !== 'fuel') return { ...step, fields };
   assume('hfl', '15', 'FL', es ? 'No figura en el enunciado: espera a 1 500 ft (FL 015), como en los ejercicios del curso.' : 'Not in the statement: holding at 1,500 ft (FL 015), as in the course exercises.');
   const scope = SCOPES[routeScope({ origin: get('dep')?.value ?? '', destination: get('dst')?.value ?? '', alternate: get('alt')?.value ?? '' })];
   assume('hm', String(scope.holdingMinutes), 'min', es ? `No figura en el enunciado: ${scope.holdingRule}` : `Not in the statement: holding of ${scope.holdingMinutes} min (${scope.contingencyPct ? 'international flight' : 'domestic flight, RAP'}).`);

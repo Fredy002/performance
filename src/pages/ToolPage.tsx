@@ -36,8 +36,8 @@ export default function ToolPage() {
     return <AIReview key={`${aiId}-${step?.id}`} sessionId={aiId} stepId={step?.id ?? null} />;
   }
   const Component = tool.component;
-  // el mismo asistente central, con el módulo actual como pista (Plan de combustible ya tiene su enunciado)
-  const aiContext = tool.id !== 'fuel' && (AI_MODULES as readonly string[]).includes(tool.id) ? (tool.id as AIModule) : undefined;
+  // el mismo asistente central en cada módulo compatible, con el módulo actual como pista
+  const aiContext = (AI_MODULES as readonly string[]).includes(tool.id) ? (tool.id as AIModule) : undefined;
   // calculadora real con los datos de un ejercicio del asistente: barra para volver o seguir
   const fromId = params.get('from');
   const fromSession = fromId ? getAISession(fromId) : undefined;

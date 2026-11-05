@@ -327,6 +327,9 @@ describe('combustible sin enunciado propio', () => {
     expect(screen.queryByRole('button', { name: /^(Foto|Imagen)$/ })).toBeNull();
     expect(document.querySelector('main textarea')).toBeNull();
     expect(input('Origen').value).toBe('SPJC');
+    // como en los demás módulos, el asistente se abre desde su botón
+    fireEvent.click(screen.getByRole('button', { name: 'Interpretar un enunciado o una imagen con IA' }));
+    expect(screen.getByRole('button', { name: 'Identificar ejercicio' })).toBeTruthy();
     expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
   });
 
