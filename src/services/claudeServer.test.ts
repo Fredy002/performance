@@ -183,3 +183,90 @@ describe('servidor de análisis de fotos con Claude', () => {
     expect((await response.json()).error).toContain('lectura incompleta o inválida');
   });
 });
+
+describe('modo ejercicio del motor AeroPerf AI', () => {
+  const exerciseAnalysis = () => ({
+    text: 'Interpola X entre A = 600 (A1 = 89) y B = 650 (B1 = 96) para C = 622.',
+    steps: [{
+      id: 'step-1', module: 'linear', dependsOn: [], bindings: [],
+      fields: [
+        { key: 'a', value: '600', unit: '', source: 'statement', evidence: 'A = 600', verified: true },
+        { key: 'b', value: '650', unit: '', source: 'statement', evidence: 'B = 650', verified: false },
+        { key: 'c', value: '622', unit: '', source: 'statement', evidence: 'C = 622', verified: false },
+        { key: 'a1', value: '89', unit: '', source: 'statement', evidence: 'A1 = 89', verified: false },
+        { key: 'b1', value: '96', unit: '', source: 'statement', evidence: 'B1 = 96', verified: false },
+      ],
+    }],
+    warnings: [],
+    unsupported: [],
+  });
+
+  it('interpreta un enunciado escrito y devuelve el análisis normalizado', async () => {
+    const providerFetch = vi.fn<typeof fetch>().mockResolvedValueOnce(providerResponse(exerciseAnalysis()));
+    const base = await endpoint({ apiKey: 'k', model: 'test-model', fetch: providerFetch });
+    const response = await post(base, { mode: 'exercise', text: 'Interpola X para C = 622', context: 'linear' });
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.steps[0].module).toBe('linear');
+    expect(body.steps[0].fields.map((f: { value: string }) => f.value)).toEqual(['600', '650', '622', '89', '96']);
+    // la verificación del modelo se descarta: solo el usuario confirma
+    expect(body.steps[0].fields.every((f: { verified: boolean }) => !f.verified)).toBe(true);
+    const upstream = JSON.parse(String(providerFetch.mock.calls[0][1]?.body));
+    expect(upstream.model).toBe('test-model');
+    expect(upstream.output_config.format.schema.properties.steps).toBeDefined();
+    expect(upstream.messages[0].content).toHaveLength(1);
+    expect(upstream.messages[0].content[0].text).toContain('<statement>\nInterpola X para C = 622\n</statement>');
+    expect(upstream.messages[0].content[0].text).toContain('Context hint: the user opened the "linear" module');
+  });
+
+  it('envía la imagen como bloque de imagen junto al texto', async () => {
+    const providerFetch = vi.fn<typeof fetch>().mockResolvedValueOnce(providerResponse(exerciseAnalysis()));
+    const base = await endpoint({ apiKey: 'k', fetch: providerFetch });
+    const response = await post(base, { mode: 'exercise', image: { mediaType: 'image/png', data: PNG } });
+    expect(response.status).toBe(200);
+    const upstream = JSON.parse(String(providerFetch.mock.calls[0][1]?.body));
+    expect(upstream.messages[0].content[0]).toEqual({ type: 'image', source: { type: 'base64', media_type: 'image/png', data: PNG } });
+    expect(upstream.messages[0].content[1].type).toBe('text');
+  });
+
+  it('responde 502 localizado si el modelo devuelve un análisis inválido', async () => {
+    const providerFetch = vi.fn<typeof fetch>().mockResolvedValueOnce(providerResponse({ text: 'x', steps: [{ id: 'a', module: 'weather' }] }));
+    const base = await endpoint({ apiKey: 'k', fetch: providerFetch });
+    const response = await post(base, { mode: 'exercise', text: 'algo' }, { 'Accept-Language': 'en' });
+    expect(response.status).toBe(502);
+    expect((await response.json()).error).toBe('Invalid analysis response.');
+  });
+
+  it('rechaza un módulo de contexto desconocido y una petición sin texto ni imagen, sin llamar a Claude', async () => {
+    const providerFetch = vi.fn<typeof fetch>();
+    const base = await endpoint({ apiKey: 'k', fetch: providerFetch });
+    const badContext = await post(base, { mode: 'exercise', text: 'algo', context: 'weather' });
+    expect(badContext.status).toBe(400);
+    expect((await badContext.json()).error).toBe('Módulo no compatible.');
+    const empty = await post(base, { mode: 'exercise', text: '   ' });
+    expect(empty.status).toBe(400);
+    expect((await empty.json()).error).toBe('Escribe un ejercicio o elige una imagen.');
+    const tooLong = await post(base, { mode: 'exercise', text: 'x'.repeat(20001) });
+    expect(tooLong.status).toBe(413);
+    expect(providerFetch).not.toHaveBeenCalled();
+  });
+
+  it('valida la imagen del modo ejercicio con las mismas reglas', async () => {
+    const providerFetch = vi.fn<typeof fetch>();
+    const base = await endpoint({ apiKey: 'k', fetch: providerFetch });
+    const response = await post(base, { mode: 'exercise', text: 'algo', image: { mediaType: 'image/png', data: Buffer.from('no es png').toString('base64') } });
+    expect(response.status).toBe(400);
+    expect(providerFetch).not.toHaveBeenCalled();
+  });
+
+  it('el modo de enunciado anterior sigue igual', async () => {
+    const providerFetch = vi.fn<typeof fetch>().mockResolvedValueOnce(providerResponse());
+    const base = await endpoint({ apiKey: 'k', fetch: providerFetch });
+    const response = await post(base);
+    expect(response.status).toBe(200);
+    expect((await response.json()).parsed.trip.distanceNm).toBe(750);
+    const upstream = JSON.parse(String(providerFetch.mock.calls[0][1]?.body));
+    expect(upstream.max_tokens).toBe(2048);
+    expect(upstream.output_config.format.schema.properties.parsed).toBeDefined();
+  });
+});

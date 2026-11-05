@@ -250,37 +250,6 @@
   font-size: var(--text-caption);
 }
 
-/* ---------- leyenda de chips (UX-12) ---------- */
-.chip-legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-4) var(--space-12);
-  color: var(--text-muted);
-  font-size: var(--text-caption);
-}
-
-.chip-legend .dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: var(--space-4);
-  border-radius: 50%;
-  vertical-align: middle;
-}
-
-.dot.is-match {
-  background: var(--success);
-}
-
-.dot.is-assumed {
-  background: var(--warning);
-}
-
-.dot.is-missing {
-  background: var(--result);
-}
-
 /* ---------- esqueleto de carga (UX-19) ---------- */
 .skeleton {
   border-radius: var(--radius-card);

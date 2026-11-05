@@ -1,6 +1,7 @@
 import { ArrowRight, Fuel, Spline, Table, X, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
+import { AIIntake } from '@/components/ai/AIIntake';
 import { localizedToolDescription, localizedToolName, sidebarTools, toolPath } from '@/tools/registry';
 import { useI18n } from '@/i18n';
 import { useHistory } from '@/state/history';
@@ -106,6 +107,8 @@ export default function Dashboard() {
         </div>
         <HeroArt />
       </section>
+
+      <AIIntake />
 
       {!onboardingDismissed && <Onboarding />}
 

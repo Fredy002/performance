@@ -49,7 +49,6 @@ describe('ayuda contextual (UX-04)', () => {
     for (const name of ['Tiempo de viaje (T.T)', 'Combustible de viaje (T.F)', 'Combustible a bordo (FOB)', 'Autonomía']) {
       expect(screen.getByRole('button', { name: `Qué es ${name}` })).toBeTruthy();
     }
-    expect(screen.getByText('Leído del enunciado')).toBeTruthy(); // leyenda de chips (UX-12)
     const level = screen.getByRole('button', { name: 'Qué es Nivel de espera' });
     expect(document.getElementById(level.getAttribute('aria-describedby')!)!.textContent).toMatch(/1\s500\sft \(FL\s015\)/);
   });
@@ -167,24 +166,30 @@ describe('orientación y navegación', () => {
   });
 });
 
-describe('vuelo internacional desde el enunciado', () => {
+describe('vuelo internacional desde los datos', () => {
   it('SEGU (Guayaquil) – SPJC: 30 min de espera y 10 % de T.T y T.F en autonomía y FOB', async () => {
     renderAt('#/tools/fuel');
     await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
-    fireEvent.change(screen.getByLabelText('Enunciado del ejercicio'), {
-      target: {
-        value: `Un B737 tiene programado realizar una operación:
-Origen - destino: SEGU(Guayaquil) - SPJC distancia 730 nm F350 (40 HW)
-Destino - alterno: SPJC - SPSO distancia 120 nm F190 (25tw)
-Holding con 73000 lbs
-Combustible para el taxi: 400 lbs`,
-      },
-    });
+    const set = (label: string, value: string, index = 0) => fireEvent.change(screen.getAllByLabelText(label, { exact: true })[index], { target: { value } });
+    set('Origen', 'SEGU');
+    set('Destino', 'SPJC');
+    set('Alterno', 'SPSO');
+    set('Distancia', '730');
+    set('Viento', '40');
+    set('Tipo de viento (origen)', 'HW');
+    set('Nivel de vuelo', '350');
+    set('Distancia', '120', 1);
+    set('Viento', '25', 1);
+    set('Tipo de viento (alterno)', 'TW');
+    set('Nivel de vuelo', '190', 1);
+    set('Peso en espera', '73000');
+    set('Nivel de espera', '15');
+    set('Combustible de taxi', '400');
     const answers = [...document.querySelectorAll('.answer-value')].map((e) => e.firstChild?.textContent);
     // cada paso redondeado a 2 decimales, como a mano: 11207,81 + 1120,78 + 2536,67 + 2342 + 400 = 17607,26
     expect(answers).toEqual(['116,01', '11207,81', '17607,26', '181,45']);
-    // la espera de 30 min es un supuesto del ámbito internacional
-    expect(screen.getByRole('group', { name: 'Datos detectados' }).textContent).toContain('30 min*');
+    // la espera pasa a 30 min por ser internacional
+    expect((screen.getByLabelText('Tiempo de espera') as HTMLInputElement).value).toBe('30');
     expect(document.querySelector('.page-eyebrow')!.textContent).toMatch(/Vuelo internacional/);
     expect(document.querySelector('.calc-note')!.textContent).toMatch(/10 % de T\.F \(1120,78 lb\) y de T\.T \(11,6 min\)/);
   });

@@ -45,7 +45,9 @@ export function HistoryList({ entries, compact }: { entries: HistoryEntry[]; com
                   {entry.summary} · {dateFmt.format(entry.createdAt)}
                 </div>
               </div>
-              <span className="list-item-value">{entry.result}</span>
+              <span className="list-item-value">
+                {entry.result || (entry.aiSession ? t(entry.aiSession.status === 'partial' ? 'ai.history.partial' : 'ai.history.draft') : '')}
+              </span>
             </Link>
             {!compact && (
               <button
