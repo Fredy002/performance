@@ -26,7 +26,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
-  updateSettings({ decimals: 2 });
+  updateSettings({ decimals: 2, locale: 'es' });
 });
 
 describe('calculadoras (regresión)', () => {
@@ -508,8 +508,41 @@ describe('navegación simplificada', () => {
     await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
     const tiles = [...document.querySelectorAll('.action-tile')];
     expect(tiles.map((t) => t.getAttribute('href'))).toEqual(['#/tools/fuel', '#/tools/linear', '#/tables']);
-    const upcoming = screen.getByRole('heading', { name: 'Próximamente', level: 2 }).nextElementSibling!;
-    expect([...upcoming.querySelectorAll('.list-item-title')].map((e) => e.textContent)).toEqual(['Despegue', 'Aterrizaje', 'Peso y centrado']);
-    expect(upcoming.querySelectorAll('a')).toHaveLength(0);
+  });
+
+  it.each([
+    { locale: 'es' as const, heading: 'Otras herramientas', sidebar: 'Menú principal', upcoming: 'Próximamente' },
+    { locale: 'en' as const, heading: 'Other tools', sidebar: 'Main menu', upcoming: 'Coming soon' },
+  ])('el inicio solo muestra otras herramientas del menú lateral ($locale)', async ({ locale, heading, sidebar, upcoming }) => {
+    updateSettings({ locale });
+    renderAt('#/');
+    const section = (await screen.findByRole('heading', { name: heading, level: 2 })).parentElement!;
+    const toolLinks = within(section).getAllByRole('link').map((link) => link.getAttribute('href'));
+    const sidebarLinks = within(screen.getByRole('complementary', { name: sidebar }))
+      .getAllByRole('link')
+      .map((link) => link.getAttribute('href'));
+    expect(toolLinks).toEqual(['#/tools/takeoff-epr', '#/tools/en-route-climb', '#/tools/units']);
+    expect(toolLinks.every((href) => sidebarLinks.includes(href))).toBe(true);
+    expect(screen.queryByRole('heading', { name: upcoming, level: 2 })).toBeNull();
+  });
+
+  it.each([
+    { locale: 'es' as const, dialog: 'Buscar', query: 'viento', tool: 'Componentes de viento' },
+    { locale: 'en' as const, dialog: 'Search', query: 'wind', tool: 'Wind components' },
+  ])('mantiene accesibles las herramientas ocultas mediante la búsqueda ($locale)', async ({ locale, dialog, query, tool }) => {
+    const scrollIntoView = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: vi.fn() });
+    try {
+      updateSettings({ locale });
+      renderAt('#/');
+      fireEvent.click(document.querySelector<HTMLButtonElement>('.search-trigger')!);
+      const palette = screen.getByRole('dialog', { name: dialog });
+      fireEvent.change(within(palette).getByRole('combobox'), { target: { value: query } });
+      fireEvent.click(within(palette).getByRole('option', { name: new RegExp(tool) }));
+      expect(await screen.findByRole('heading', { name: tool, level: 1 })).toBeTruthy();
+    } finally {
+      if (scrollIntoView) Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', scrollIntoView);
+      else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+    }
   });
 });

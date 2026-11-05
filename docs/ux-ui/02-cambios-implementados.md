@@ -107,8 +107,14 @@ Replica las dos resoluciones manuales de las condiciones V-5 (FIGURE 56, 57 y 58
 
 | Cambio | Archivos | Evidencia |
 | --- | --- | --- |
-| Menú lateral simplificado: se ocultan Interpolación doble, Altitud de densidad, Componentes de viento, Pruebas y Próximamente. Solo se quitan del menú: siguen disponibles por su ruta, en el inicio y con «Buscar». | `src/tools/registry.ts` (`hideInSidebar`), `src/components/layout/Sidebar.tsx` | Prueba «el menú lateral muestra solo Calcular y Consultar» |
+| Menú lateral simplificado: se ocultan Interpolación doble, Altitud de densidad, Componentes de viento, Pruebas y Próximamente. Las calculadoras ocultas siguen disponibles por su ruta y con «Buscar»; las pruebas también se encuentran con «Buscar». | `src/tools/registry.ts` (`hideInSidebar`), `src/components/layout/Sidebar.tsx` | Prueba «el menú lateral muestra solo Calcular y Consultar» |
 | «Interpolación lineal» pasa a llamarse **Interpolación**. Las migas no repiten la categoría cuando coincide con el nombre de la herramienta. | `src/tools/registry.ts`, `LinearInterpolation.tsx`, `Topbar.tsx` | Pruebas de regresión actualizadas |
 | Explicación de cómo leer la gráfica de interpolación, bajo el título «Gráfica»: ejes, puntos A y B, lectura de X y zona de extrapolación. Usa los nombres de variables si el usuario los define. | `src/tools/linear/LinearInterpolation.tsx` | `src/tools/linear/chartHelp.test.tsx` |
 | Ayuda de unidades: cada unidad de los campos y de las respuestas (ft, °F, lb, NM, kt, in.Hg, mb, FL…) se subraya con puntos y explica su significado al pasar el ratón, enfocarla o tocarla. Las opciones de unidades (°F/°C, in.Hg/mb, ISA, HW/TW) lo muestran en el `title` y en la ayuda del grupo. Los textos están en un único diccionario. El `InfoTip` se posiciona respecto a la ventana, así que ningún campo ni tabla recorta la burbuja. | `src/content/units.ts`, `src/components/ui/Unit.tsx`, `InfoTip.tsx`, `NumberField.tsx`, `Choice.tsx`, `ResultHero.tsx`, respuestas, `help.css` | `src/ux.test.tsx` («ayuda de unidades»); en Chromium la burbuja de °F se ve completa a 1280 y 390 px |
 | La tarjeta «Gráfica» de Interpolación (con su explicación) queda oculta. El código se conserva y se reactiva con `SHOW_CHART = true`. | `src/tools/linear/LinearInterpolation.tsx` | `src/tools/linear/chartHelp.test.tsx` |
+
+## Inicio alineado con el menú lateral
+
+| Cambio | Archivos | Evidencia |
+| --- | --- | --- |
+| «Otras herramientas» muestra únicamente calculadoras visibles en el menú lateral; se retira «Próximamente» del inicio. Las demás calculadoras mantienen sus rutas y aparecen en el buscador. | `src/pages/Dashboard.tsx`, `src/tools/registry.ts`, `src/components/layout/Sidebar.tsx`, `src/app.test.tsx` | Pruebas de navegación en español e inglés. |

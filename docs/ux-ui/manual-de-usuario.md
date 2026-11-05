@@ -1,6 +1,8 @@
 # Manual de usuario — AeroPerf
 
-Guía breve y visual para usar AeroPerf, la aplicación de cálculos de performance de aeronaves. Actualizado el 4 de noviembre de 2026.
+Guía breve y visual para usar AeroPerf, la aplicación de cálculos de performance de aeronaves. Actualizado el 5 de noviembre de 2026.
+
+> El PDF todavía describe la navegación anterior; consulta esta versión para localizar las herramientas que no aparecen en el menú.
 
 Los números naranjas de cada imagen indican el orden de las acciones.
 
@@ -27,7 +29,7 @@ AeroPerf se abre en el navegador; no necesita usuario ni contraseña. Tus cálcu
 
 ![Pantalla de inicio](capturas/manual-anotadas/01-inicio.png)
 
-1. **Menú:** El menú lateral agrupa las herramientas principales en Calcular y Consultar. La opción resaltada indica dónde estás; el resto de herramientas y las Pruebas se abren desde el inicio o con «Buscar».
+1. **Menú:** El menú lateral agrupa las herramientas principales en Calcular y Consultar. La opción resaltada indica dónde estás; las demás herramientas y las Pruebas se encuentran con «Buscar».
 2. **Cómo empezar:** La primera vez verás tres pasos de orientación. Pulsa «Entendido, ocultar» cuando ya no los necesites.
 3. **Tareas:** Los tres accesos directos llevan a las tareas más frecuentes.
 4. **Buscar:** Busca cualquier herramienta, tabla o ejercicio por su nombre, también los que no están en el menú (por ejemplo «viento» o «pruebas»).

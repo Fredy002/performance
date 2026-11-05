@@ -1,7 +1,7 @@
 import { History, House, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { localizedToolName, localizedToolShortName, readyTools, toolPath } from '@/tools/registry';
+import { localizedToolName, localizedToolShortName, sidebarTools, toolPath } from '@/tools/registry';
 import { useI18n } from '@/i18n';
 import { updateSettings, useSettings } from '@/state/settings';
 import { useHistory } from '@/state/history';
@@ -49,9 +49,7 @@ export function Sidebar({ onNavigate, onClose }: { onNavigate: () => void; onClo
 
         <div className="nav-section">
           <div className="nav-section-title">{t('common.calculate')}</div>
-          {readyTools()
-            .filter((t) => !t.hideInSidebar)
-            .map((tool) => (
+          {sidebarTools().map((tool) => (
             <NavLink key={tool.id} to={toolPath(tool.id)} className={link} onClick={onNavigate} title={locale === 'es' ? tool.name : localizedToolName(tool.id, locale)}>
               <tool.icon size={18} />
               <span className="nav-label">
@@ -70,8 +68,6 @@ export function Sidebar({ onNavigate, onClose }: { onNavigate: () => void; onClo
             <span className="nav-label">{t('common.aircraftTables')}</span>
           </NavLink>
         </div>
-
-        {/* Pruebas, Próximamente y algunas calculadoras siguen disponibles en el inicio y en el buscador */}
       </nav>
 
       <div className="sidebar-footer">

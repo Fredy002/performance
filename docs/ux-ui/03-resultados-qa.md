@@ -66,3 +66,12 @@ Se revisaron las capturas finales de inicio (1280 y 390), combustible, interpola
 - **Safari/iOS y Firefox**: no se probaron. Todas las pruebas en navegador usaron Chromium. El comportamiento táctil del InfoTip se diseñó para Safari, que no enfoca los botones al tocarlos, pero no se verificó en ese navegador.
 - **Pruebas con usuarios**: no hubo sesiones con personas; la evaluación de usuario nuevo es heurística.
 - **axe a 768 px**: no se ejecutó (ver §2).
+
+## 6. Seguimiento: inicio alineado con el menú
+
+| Comprobación | Resultado |
+| --- | --- |
+| Build y TypeScript | `npm run build`: correcto. |
+| Pruebas | `npx vitest run --exclude src/services/claudeServer.test.ts`: 224 pruebas aprobadas en 16 archivos. Las pruebas nuevas comprueban Inicio y búsqueda en español e inglés. |
+| Navegador y pruebas del servidor | No verificadas en esta ejecución: el sandbox bloquea el listener local con `listen EPERM` en `127.0.0.1:5191`. |
+| Manual visual | El Markdown se actualizó; el PDF y las capturas quedan pendientes hasta poder ejecutar la aplicación y regenerarlos. |

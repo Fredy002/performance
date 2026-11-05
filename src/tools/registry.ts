@@ -35,7 +35,7 @@ export interface ToolDef {
   icon: LucideIcon;
   keywords: string[];
   status: 'ready' | 'soon';
-  /** Sigue disponible (ruta, inicio, buscador), pero no aparece en el menú lateral */
+  /** Sigue disponible por su ruta y el buscador, pero no aparece en el menú lateral ni en el inicio */
   hideInSidebar?: boolean;
   component?: LazyExoticComponent<ComponentType>;
 }
@@ -189,6 +189,7 @@ export function localizedCategory(category: ToolCategory, locale: Locale): strin
 
 /** Herramientas disponibles, en el orden del menú (la más usada primero). */
 export const readyTools = () => TOOLS.filter((t) => t.status === 'ready');
+export const sidebarTools = () => readyTools().filter((t) => !t.hideInSidebar);
 export const upcomingTools = () => TOOLS.filter((t) => t.status === 'soon');
 
 export function toolsByCategory(): [ToolCategory, ToolDef[]][] {

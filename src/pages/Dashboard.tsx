@@ -1,7 +1,7 @@
 import { ArrowRight, Fuel, Spline, Table, X, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
-import { localizedToolDescription, localizedToolName, readyTools, toolPath, upcomingTools } from '@/tools/registry';
+import { localizedToolDescription, localizedToolName, sidebarTools, toolPath } from '@/tools/registry';
 import { useI18n } from '@/i18n';
 import { useHistory } from '@/state/history';
 import { updateSettings, useSettings } from '@/state/settings';
@@ -36,7 +36,7 @@ const ACTIONS: { to: string; icon: LucideIcon; tone: Tone; title: 'page.dashboar
   },
 ];
 
-// las tres primeras ya tienen acceso directo arriba
+// estas herramientas ya tienen acceso directo arriba
 const MAIN = new Set(['fuel', 'linear']);
 
 /** Composición decorativa de formas planas en colores de categoría. */
@@ -95,8 +95,7 @@ export default function Dashboard() {
   const { locale, t } = useI18n();
   const history = useHistory();
   const { onboardingDismissed } = useSettings();
-  const others = readyTools().filter((t) => !MAIN.has(t.id));
-  const upcoming = upcomingTools();
+  const others = sidebarTools().filter((tool) => !MAIN.has(tool.id));
 
   return (
     <>
@@ -160,28 +159,6 @@ export default function Dashboard() {
           </Card>
         </section>
       </div>
-
-      {upcoming.length > 0 && (
-        <section className="home-upcoming">
-          <h2 className="section-title">{t('page.dashboard.upcoming')}</h2>
-          <Card flush>
-            <div className="list">
-              {upcoming.map((tool) => (
-                <div key={tool.id} className="list-item upcoming" aria-disabled="true">
-                  <span className="list-item-icon">
-                    <tool.icon size={18} aria-hidden="true" />
-                  </span>
-                  <span className="list-item-main">
-                    <span className="list-item-title">{locale === 'es' ? tool.name : localizedToolName(tool.id, locale)}</span>
-                    <span className="list-item-sub">{locale === 'es' ? tool.description : localizedToolDescription(tool.id, locale)}</span>
-                  </span>
-                  <span className="chip chip-warning">{t('page.dashboard.soon')}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </section>
-      )}
     </>
   );
 }
