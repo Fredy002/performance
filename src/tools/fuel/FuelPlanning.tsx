@@ -20,22 +20,23 @@ import { Alert } from '@/components/ui/Alert';
 import { Disclosure } from '@/components/ui/Disclosure';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { formatPlain } from '@/core/format';
-import { analyzeStatement } from '@/exercises/parseStatement';
+import { analyzeParsedStatement, analyzeStatement } from '@/exercises/parseStatement';
+import type { OcrResult } from '@/services/ocr';
 import { SCOPES, verifiedExercises, type FuelPlanExercise } from '@/exercises/registry';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useDecimals } from '@/state/settings';
 
 const SCOPE = SCOPES.nacional;
 const SOLVED = verifiedExercises();
-// valores de ejemplo: el primer ejercicio verificado
+// Use the first verified exercise as the default example.
 const DEFAULTS = toFuelForm(SOLVED[0].input, SOLVED[0].airports);
-// si el enunciado no indica la espera: FL 015 (como en los ejercicios) y el tiempo del ámbito
+// Apply the exercise holding level and scope duration only when omitted.
 const STATEMENT_DEFAULTS = { holdingFlightLevel: 15, holdingMinutes: SCOPE.holdingMinutes };
 
 const statementText = (e: FuelPlanExercise) => e.statement.join('\n');
 const EXAMPLES = SOLVED.map((e) => ({ id: e.id, label: `${e.airports.origin} – ${e.airports.destination}`, text: statementText(e) }));
 
-/** «SPJC–SPQT»; sin códigos queda vacío */
+/** Format an airport pair, or return an empty label when both codes are absent. */
 const legLabel = (a: string, b: string) => (a || b ? `${a || '?'}–${b || '?'}` : '');
 
 export default function FuelPlanning() {
@@ -49,18 +50,26 @@ export default function FuelPlanning() {
 
   const solved = SOLVED.find((e) => sameFuelForm(v, toFuelForm(e.input, e.airports)));
 
-  // El enunciado es la entrada principal. Si se llega con datos en la URL (historial,
-  // enlace compartido) se muestran esos datos; si coinciden con un ejercicio, su enunciado.
+  // The statement is the primary input. Restore URL data from history or shared links;
+  // show a matching exercise statement when one is available.
   const [text, setText] = useState(() => {
     const fromUrl = FUEL_FORM_KEYS.some((k) => params.has(k));
     if (!fromUrl) return statementText(SOLVED[0]);
     return solved ? statementText(solved) : '';
   });
   const [source, setSource] = useState<'text' | 'form'>(() => (text ? 'text' : 'form'));
+  const [imageAnalysis, setImageAnalysis] = useState<OcrResult>();
+  const [imageStatus, setImageStatus] = useState<'idle' | 'loading' | 'failed'>('idle');
+  const [statementRevision, setStatementRevision] = useState(0);
 
-  const report = useMemo(() => (text.trim() ? analyzeStatement(text, STATEMENT_DEFAULTS) : undefined), [text]);
+  const report = useMemo(
+    () => imageAnalysis
+      ? analyzeParsedStatement(imageAnalysis.parsed, STATEMENT_DEFAULTS, imageAnalysis.warnings)
+      : text.trim() ? analyzeStatement(text, STATEMENT_DEFAULTS) : undefined,
+    [imageAnalysis, text],
+  );
 
-  // con el enunciado completo, los datos se rellenan solos y el ejercicio se resuelve
+  // Populate the form and calculate once the statement has all required data.
   useEffect(() => {
     if (source !== 'text' || !report?.complete) return;
     const next = reportToFuelForm(report, STATEMENT_DEFAULTS);
@@ -68,10 +77,21 @@ export default function FuelPlanning() {
   }, [report, source, form]);
 
   const onText = (t: string) => {
+    setImageStatus('idle');
+    setStatementRevision((revision) => revision + 1);
     setText(t);
+    setImageAnalysis(undefined);
+    setSource('text');
+  };
+  const onImageAnalysis = (result: OcrResult) => {
+    setImageStatus('idle');
+    setText(result.text);
+    setImageAnalysis(result);
     setSource('text');
   };
   const setField = (k: FuelFormKey, x: string) => {
+    setStatementRevision((revision) => revision + 1);
+    setImageStatus('idle');
     form.set(k, x);
     setSource('form');
   };
@@ -84,8 +104,8 @@ export default function FuelPlanning() {
     }
   };
 
-  // mientras el enunciado no esté completo no se muestran respuestas de otros datos
-  const waiting = source === 'text' && !report?.complete;
+  // Hide earlier answers while an image is pending, has failed, or lacks required data.
+  const waiting = imageStatus !== 'idle' || (source === 'text' && !report?.complete);
   const r = waiting ? undefined : plan.result;
   const route = routeFromForm(v);
   const checks = solved && r ? checkExercise(solved, r) : [];
@@ -94,7 +114,11 @@ export default function FuelPlanning() {
 
   const placeholder = waiting ? (
     <div className="answers-placeholder">
-      {text.trim() ? (
+      {imageStatus === 'loading' ? (
+        <span>Claude está interpretando la imagen. Las respuestas aparecerán al terminar.</span>
+      ) : imageStatus === 'failed' ? (
+        <span>No se pudo interpretar la imagen. Vuelve a intentarlo o introduce el enunciado a mano.</span>
+      ) : text.trim() ? (
         <>
           <span>
             Faltan datos en el enunciado: <b>{missing.map((f) => f.label.toLowerCase()).join(', ')}</b>.
@@ -132,7 +156,7 @@ export default function FuelPlanning() {
       />
 
       <div className="grid grid-calc">
-        <StatementBox text={text} onTextChange={onText} report={report} examples={EXAMPLES} editedByHand={source === 'form' && !!text.trim()} />
+        <StatementBox text={text} revision={statementRevision} onTextChange={onText} onImageAnalysis={onImageAnalysis} onAnalysisStatusChange={setImageStatus} report={report} examples={EXAMPLES} editedByHand={source === 'form' && !!text.trim()} />
         <div id="fuel-answers" className="stack scroll-anchor">
           <FuelPlanAnswers
             result={r}

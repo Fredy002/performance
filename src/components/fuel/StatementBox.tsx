@@ -3,12 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
 import type { ParseField, ParseReport } from '@/exercises/parseStatement';
-import { recognizeImage, type OcrProgress } from '@/services/ocr';
+import { recognizeImage, type OcrProgress, type OcrResult } from '@/services/ocr';
 
-/** Confianza del OCR por debajo de la cual el texto suele tener errores. */
-const LOW_CONFIDENCE = 60;
-
-/** Datos agrupados como los piensa el alumno: ruta, viaje, alterno, espera y taxi. */
+/** Group data by route, trip, alternate, holding and taxi. */
 const GROUPS: { label: string; keys: string[] }[] = [
   { label: 'Ruta', keys: ['route'] },
   { label: 'Viaje', keys: ['td', 'tw', 'tfl'] },
@@ -52,48 +49,85 @@ function DataChips({ fields }: { fields: ParseField[] }) {
 
 interface Props {
   text: string;
+  revision: number;
   onTextChange: (text: string) => void;
+  onImageAnalysis: (result: OcrResult) => void;
+  onAnalysisStatusChange: (status: 'loading' | 'failed') => void;
   report?: ParseReport;
   examples: { id: string; label: string; text: string }[];
-  /** El usuario cambió los datos a mano después de escribir el enunciado */
+  /** The user manually edited the data after entering the statement. */
   editedByHand: boolean;
 }
 
 /**
- * Entrada única del ejercicio: escribir, pegar texto, pegar/arrastrar una captura o tomar una foto.
- * El texto reconocido aparece en el mismo cuadro para poder corregirlo.
+ * A single exercise input supports text, pasted or dropped images, and camera photos.
+ * Show the Claude-interpreted statement in the same editable text area.
  */
-export function StatementBox({ text, onTextChange, report, examples, editedByHand }: Props) {
+export function StatementBox({ text, revision, onTextChange, onImageAnalysis, onAnalysisStatusChange, report, examples, editedByHand }: Props) {
   const [progress, setProgress] = useState<OcrProgress>();
-  const [confidence, setConfidence] = useState<number>();
   const [error, setError] = useState<string>();
   const [dragging, setDragging] = useState(false);
   const cameraRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  // el listener de pegado se registra una vez: lee siempre la última función
-  const onTextRef = useRef(onTextChange);
-  onTextRef.current = onTextChange;
+  const busyRef = useRef(false);
+  const mountedRef = useRef(true);
+  const requestRef = useRef(0);
+  // The paste listener always reads the latest parent callback.
+  const onAnalysisRef = useRef(onImageAnalysis);
+  onAnalysisRef.current = onImageAnalysis;
+  const onStatusRef = useRef(onAnalysisStatusChange);
+  onStatusRef.current = onAnalysisStatusChange;
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      requestRef.current += 1;
+    };
+  }, []);
+
+  // Discard pending responses when an example is restored or the statement changes.
+  useEffect(() => {
+    setError(undefined);
+    if (busyRef.current) {
+      requestRef.current += 1;
+      busyRef.current = false;
+      setProgress(undefined);
+    }
+  }, [revision]);
 
   const readImage = async (file: Blob) => {
+    if (busyRef.current) return;
     if (!file.type.startsWith('image/')) {
       setError('El archivo no es una imagen.');
       return;
     }
+    busyRef.current = true;
+    const request = ++requestRef.current;
+    const current = () => mountedRef.current && requestRef.current === request;
     setError(undefined);
-    setConfidence(undefined);
-    setProgress({ stage: 'engine', progress: 0, status: 'Preparando…' });
+    onStatusRef.current('loading');
+    setProgress({ stage: 'prepare', progress: 0, status: 'Preparando la imagen…' });
     try {
-      const res = await recognizeImage(file, setProgress);
-      setConfidence(res.confidence);
-      onTextRef.current(res.text.trim());
-    } catch {
-      setError('No se pudo leer la imagen. Revisa la conexión (la primera vez se descarga el lector) o escribe el enunciado.');
+      const res = await recognizeImage(file, (next) => {
+        if (current()) setProgress(next);
+      });
+      if (current()) onAnalysisRef.current(res);
+    } catch (cause) {
+      if (current()) {
+        onStatusRef.current('failed');
+        const detail = cause instanceof Error ? cause.message : 'Revisa la conexión o escribe el enunciado.';
+        setError(`No se pudo analizar la imagen con Claude. ${detail}`);
+      }
     } finally {
-      setProgress(undefined);
+      if (current()) {
+        busyRef.current = false;
+        setProgress(undefined);
+      }
     }
   };
 
-  // Ctrl+V con una captura en el portapapeles
+  // Handle an image pasted from the clipboard.
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
       const file = [...(e.clipboardData?.items ?? [])].find((i) => i.type.startsWith('image/'))?.getAsFile();
@@ -131,10 +165,11 @@ export function StatementBox({ text, onTextChange, report, examples, editedByHan
           className="select select-compact"
           aria-label="Cargar un ejemplo"
           value=""
+          disabled={!!progress}
           onChange={(e) => {
             const ex = examples.find((x) => x.id === e.target.value);
             if (ex) {
-              setConfidence(undefined);
+              setError(undefined);
               onTextChange(ex.text);
             }
           }}
@@ -172,7 +207,7 @@ export function StatementBox({ text, onTextChange, report, examples, editedByHan
           disabled={!!progress}
           placeholder={'Escribe o pega el enunciado, por ejemplo:\nOrigen - destino: SPUR - SPJC 750 nm F350 (50 TW)\nDestino - alterno: SPJC - SPSO 145 nm F190 (30 HW)\nHolding con 92500 lbs · Taxi: 400 lbs'}
           onChange={(e) => {
-            setConfidence(undefined);
+            setError(undefined);
             onTextChange(e.target.value);
           }}
         />
@@ -185,14 +220,14 @@ export function StatementBox({ text, onTextChange, report, examples, editedByHan
             <ImageUp size={16} /> Imagen
           </button>
           {text && (
-            <button className="btn btn-ghost btn-icon" onClick={() => onTextChange('')} aria-label="Borrar el enunciado" title="Borrar">
+            <button className="btn btn-ghost btn-icon" onClick={() => onTextChange('')} disabled={!!progress} aria-label="Borrar el enunciado" title="Borrar">
               <Trash2 size={16} />
             </button>
           )}
           {status && <span className={`status ${status.cls} statement-status`}>{status.label}</span>}
         </div>
-        <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden onChange={onFile} aria-label="Tomar foto del enunciado" />
-        <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} aria-label="Subir imagen del enunciado" />
+        <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden disabled={!!progress} onChange={onFile} aria-label="Tomar foto del enunciado" />
+        <input ref={fileRef} type="file" accept="image/*" hidden disabled={!!progress} onChange={onFile} aria-label="Subir imagen del enunciado" />
 
         {progress && (
           <div className="stack gap-8" role="status">
@@ -200,17 +235,11 @@ export function StatementBox({ text, onTextChange, report, examples, editedByHan
             <div className="progress">
               <div className="progress-bar" style={{ width: `${Math.round(progress.progress * 100)}%` }} />
             </div>
-            {progress.stage === 'engine' && <span className="field-hint">Solo la primera vez: se descargan unos 5 MB.</span>}
+            {progress.stage === 'analyze' && <span className="field-hint">Claude está interpretando la imagen; espera unos segundos.</span>}
           </div>
         )}
 
         {error && <Alert kind="error">{error}</Alert>}
-        {confidence !== undefined && confidence < LOW_CONFIDENCE && (
-          <Alert kind="warning">
-            La imagen se leyó con poca claridad ({Math.round(confidence)} %). Corrige el texto; si es letra manuscrita, escribe el enunciado.
-          </Alert>
-        )}
-
         {report && !progress && <DataChips fields={report.fields} />}
         {report?.warnings.map((w) => (
           <Alert key={w} kind="warning">
@@ -219,8 +248,9 @@ export function StatementBox({ text, onTextChange, report, examples, editedByHan
         ))}
 
         <p className="field-hint">
-          También puedes pegar una captura (Ctrl+V) o arrastrarla aquí. La imagen se lee en tu dispositivo; la letra manuscrita
-          no se reconoce bien.{report?.fields.some((f) => f.status === 'assumed') && ' * Supuesto: no figura en el enunciado.'}
+          También puedes pegar una captura (Ctrl+V) o arrastrarla aquí. La imagen se envía a Claude para interpretar el
+          enunciado. Si un dato no se distingue, queda pendiente para que lo completes.
+          {report?.fields.some((f) => f.status === 'assumed') && ' * Supuesto: no figura en el enunciado.'}
         </p>
       </div>
     </Card>

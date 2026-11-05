@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { analyzeStatement, normalizeStatement, parseStatement } from './parseStatement';
+import { analyzeParsedStatement, analyzeStatement, normalizeStatement, parseStatement, type ParsedStatement } from './parseStatement';
 import { EXERCISES } from './registry';
 
 const DEFAULTS = { holdingFlightLevel: 15, holdingMinutes: 45 };
@@ -101,5 +101,56 @@ describe('enunciados de los ejercicios registrados', () => {
       expect(r.parsed.holding.weightLb).toBe(e.input.holding.weightLb);
       expect(r.parsed.taxiFuelLb).toBe(e.input.taxiFuelLb);
     }
+  });
+});
+
+
+describe('datos estructurados leídos por Claude', () => {
+  const parsed = (): ParsedStatement => ({
+    aircraft: 'B737',
+    trip: { from: 'SPUR', to: 'SPJC', distanceNm: 750, windKt: 50, windKind: 'TW' },
+    alternate: { from: 'SPJC', to: 'SPSO', distanceNm: 145, windKt: 30, windKind: 'HW' },
+    holding: { weightLb: 92500 },
+    taxiFuelLb: 400,
+  });
+
+  it('construye el informe directamente y conserva los supuestos separados de lo leído', () => {
+    const data = parsed();
+    const report = analyzeParsedStatement(data, DEFAULTS);
+    expect(report.complete).toBe(true);
+    expect(report.parsed).toEqual(data);
+    expect(report.airports).toEqual({ origin: 'SPUR', destination: 'SPJC', alternate: 'SPSO' });
+    expect(report.fields.find((field) => field.key === 'hfl')).toMatchObject({ status: 'assumed', value: 'FL 015' });
+    expect(report.fields.find((field) => field.key === 'hm')).toMatchObject({ status: 'assumed', value: '45 min' });
+    expect(data.holding).toEqual({ weightLb: 92500 });
+  });
+
+  it('no inventa datos ausentes y conserva la advertencia de lectura', () => {
+    const data = parsed();
+    delete data.taxiFuelLb;
+    delete data.alternate.windKind;
+    const report = analyzeParsedStatement(data, DEFAULTS, ['No se distingue el combustible de taxi.']);
+    expect(report.complete).toBe(false);
+    expect(report.fields.filter((field) => field.required && field.status === 'missing').map((field) => field.key)).toEqual(['aw', 'taxi']);
+    expect(report.warnings).toContain('No se distingue el combustible de taxi.');
+  });
+
+  it('un viento cero y un taxi cero leídos explícitamente no cuentan como ausentes', () => {
+    const data = parsed();
+    data.trip.windKt = 0;
+    data.taxiFuelLb = 0;
+    const report = analyzeParsedStatement(data, DEFAULTS);
+    expect(report.complete).toBe(true);
+    expect(report.fields.find((field) => field.key === 'tw')).toMatchObject({ status: 'found', value: '0 kt TW' });
+    expect(report.fields.find((field) => field.key === 'taxi')).toMatchObject({ status: 'found', value: '0 lb' });
+  });
+
+  it('mantiene la validación de aeronave y ruta para datos de una imagen', () => {
+    const data = parsed();
+    data.aircraft = 'B727';
+    data.alternate.from = 'SPQT';
+    const report = analyzeParsedStatement(data, DEFAULTS);
+    expect(report.warnings.join(' ')).toContain('B727');
+    expect(report.warnings.join(' ')).toContain('no coincide con el origen del tramo al alterno');
   });
 });

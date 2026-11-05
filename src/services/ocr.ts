@@ -1,80 +1,75 @@
-/**
- * Reconocimiento de texto (OCR) en el navegador con Tesseract.js.
- * - La librería se importa bajo demanda: no pesa en la carga inicial de la app.
- * - El motor (WASM) y el modelo de español se descargan del CDN jsDelivr con versiones
- *   fijas la primera vez (~5 MB) y quedan en la caché del navegador.
- * - La imagen se procesa en el dispositivo: no se envía a ningún servidor.
- * Funciona bien con texto impreso o capturas de pantalla; no con letra manuscrita.
- */
+import { IMAGE_MEDIA_TYPES, MAX_IMAGE_BYTES, normalizeImageAnalysis, type ImageAnalysis } from './statementAnalysis';
 
 export interface OcrProgress {
-  stage: 'engine' | 'recognize';
-  /** 0–1 */
+  stage: 'prepare' | 'analyze';
   progress: number;
   status: string;
 }
 
-export interface OcrResult {
-  text: string;
-  /** Confianza media 0–100 */
-  confidence: number;
-}
+export type OcrResult = ImageAnalysis;
+type Listener = (progress: OcrProgress) => void;
 
-type Listener = (p: OcrProgress) => void;
-
-let listener: Listener | undefined;
-let workerPromise: Promise<import('tesseract.js').Worker> | undefined;
-
-const STATUS: Record<string, string> = {
-  'loading tesseract core': 'Descargando el motor de reconocimiento…',
-  'initializing tesseract': 'Iniciando el motor…',
-  'loading language traineddata': 'Descargando el modelo de español…',
-  'initializing api': 'Preparando el reconocimiento…',
-  'recognizing text': 'Reconociendo el texto…',
-};
-
-function getWorker() {
-  if (!workerPromise) {
-    workerPromise = import('tesseract.js').then(({ createWorker }) =>
-      createWorker('spa', 1, {
-        logger: (m: { status: string; progress: number }) =>
-          listener?.({
-            stage: m.status === 'recognizing text' ? 'recognize' : 'engine',
-            progress: m.progress,
-            status: STATUS[m.status] ?? m.status,
-          }),
-      }),
-    );
-    // si falla (sin conexión la primera vez), se podrá reintentar
-    workerPromise.catch(() => (workerPromise = undefined));
-  }
-  return workerPromise;
-}
-
-/** Reduce fotos muy grandes (móvil) para acelerar el reconocimiento sin perder legibilidad. */
+/** Resize mobile photos before upload; Claude interprets their content. */
 async function prepareImage(file: Blob, maxSide = 2400): Promise<Blob> {
   if (typeof createImageBitmap !== 'function') return file;
+  const bitmap = await createImageBitmap(file).catch(() => undefined);
+  if (!bitmap) return file;
   try {
-    const bmp = await createImageBitmap(file);
-    const scale = Math.min(1, maxSide / Math.max(bmp.width, bmp.height));
-    if (scale === 1) return file;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    if (scale === 1 && file.size <= MAX_IMAGE_BYTES) return file;
     const canvas = document.createElement('canvas');
-    canvas.width = Math.round(bmp.width * scale);
-    canvas.height = Math.round(bmp.height * scale);
-    canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
-    return await new Promise<Blob>((res) => canvas.toBlob((b) => res(b ?? file), 'image/png'));
-  } catch {
-    return file;
-  }
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const context = canvas.getContext('2d');
+    if (!context) return file;
+    context.fillStyle = 'white';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    return await new Promise<Blob>(resolve => canvas.toBlob(blob => resolve(blob ?? file), 'image/jpeg', 0.92));
+  } finally { bitmap.close(); }
 }
 
+function toBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('No se pudo abrir la imagen. Prueba con otro archivo.'));
+    reader.onload = () => {
+      const data = typeof reader.result === 'string' ? reader.result.split(',')[1] : undefined;
+      if (!data) reject(new Error('No se pudo abrir la imagen. Prueba con otro archivo.'));
+      else resolve(data);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+/** Call the application server without exposing the Claude credential to the browser. */
 export async function recognizeImage(file: Blob, onProgress?: Listener): Promise<OcrResult> {
-  listener = onProgress;
+  if (!(IMAGE_MEDIA_TYPES as readonly string[]).includes(file.type)) throw new Error('Usa una imagen JPEG, PNG, GIF o WebP.');
+  if (!file.size) throw new Error('La imagen está vacía. Elige otra foto.');
+  if (file.size > 25 * 1024 * 1024) throw new Error('La foto es demasiado grande. Usa una imagen de menos de 25 MB.');
+  onProgress?.({ stage: 'prepare', progress: 0.1, status: 'Preparando la imagen…' });
+  const image = await prepareImage(file);
+  if (image.size > MAX_IMAGE_BYTES) throw new Error('La imagen supera 5 MB después de prepararla. Recorta el enunciado y vuelve a intentarlo.');
+  const data = await toBase64(image);
+  onProgress?.({ stage: 'analyze', progress: 0.35, status: 'Claude está interpretando el enunciado…' });
+  let response: Response;
   try {
-    const [worker, image] = await Promise.all([getWorker(), prepareImage(file)]);
-    const { data } = await worker.recognize(image);
-    return { text: data.text, confidence: data.confidence };
-  } finally {
-    listener = undefined;
+    response = await fetch(import.meta.env.VITE_STATEMENT_API_URL?.trim() || '/api/analyze-statement', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: { data, mediaType: image.type } }),
+      signal: AbortSignal.timeout(65000),
+    });
+  } catch (error) {
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) throw new Error('Claude tardó demasiado en responder. Vuelve a intentarlo.');
+    throw new Error('No se pudo conectar con el análisis de Claude. Revisa la conexión y que el servidor esté en marcha.');
   }
+  const body: unknown = await response.json().catch(() => undefined);
+  if (!response.ok) {
+    const message = body && typeof body === 'object' && 'error' in body && typeof body.error === 'string' ? body.error : undefined;
+    throw new Error(message || 'El análisis de Claude no está disponible. Revisa la configuración del servidor.');
+  }
+  const result = normalizeImageAnalysis(body);
+  onProgress?.({ stage: 'analyze', progress: 1, status: 'Enunciado interpretado por Claude.' });
+  return result;
 }

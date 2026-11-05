@@ -37,14 +37,22 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
 
 ```bash
 npm install
-npm run dev      # servidor de desarrollo
-npm test         # tests del núcleo de cálculo
-npm run build    # build estático en dist/
+cp .env.example .env.local  # set ANTHROPIC_API_KEY only in this local file
+npm run dev      # frontend and image-analysis endpoint
+npm test         # calculation, interface and server tests
+npm run build    # frontend production build in dist/
+npm start        # serve dist/ and the Claude API at http://127.0.0.1:3000
 ```
+
+Requiere Node.js 22.18 o posterior para ejecutar el servidor TypeScript sin dependencias adicionales.
+La clave de API se lee en el servidor desde `ANTHROPIC_API_KEY`; `.env.local` está ignorado por Git.
 
 ## Arquitectura
 
 ```
+server/
+  index.ts         Servidor de producción: archivos de dist/ y endpoint de captura
+  claude.ts        Integración de Claude, validación y límites del endpoint
 src/
   core/            Funciones puras (interpolación, ISA, viento, unidades) + tests
   data/tables/     Tablas digitalizadas (datos tipados + ayuda) y su texto fuente
@@ -88,26 +96,71 @@ ejercicio resuelto en Planificación de combustible; su ruta de Pruebas redirige
 Distancias entre 60 y 260 NM se interpolan entre esas dos filas (la tabla no publica las
 intermedias) y el desarrollo lo indica.
 
-## Resolver desde una captura (OCR)
+## Resolver desde una captura con Claude
 
-Análisis de dependencias y decisión:
+Las fotos, capturas y las imágenes pegadas o arrastradas se envían a nuestro endpoint
+`POST /api/analyze-statement`. El servidor llama a la API de visión de Claude para
+interpretar el enunciado completo y devolver datos estructurados. Ya no se usa
+Tesseract para leer las imágenes. La foto sale del dispositivo y se procesa en Anthropic.
 
-| Opción | Coste / requisitos | Impresos y capturas | Manuscrito | Decisión |
-|---|---|---|---|---|
-| **Tesseract.js 7** (Apache-2.0) | Gratis, sin servidor ni claves; WASM + modelo español desde jsDelivr (~5 MB, solo la 1.ª vez) | ✅ ~93 % de confianza, < 2 s | ❌ ~37 %, ilegible | **Usada** |
-| IA de visión (Claude, Google Vision…) | Necesita clave de API y un servidor intermedio para no exponerla; coste por imagen | ✅ | ✅ | No incluida (requiere decidir clave y backend) |
-| Text Detection API del navegador | Solo Chrome con flags | – | – | No viable |
-| PaddleOCR / onnxruntime-web | Modelos pesados (> 10 MB), integración compleja | ✅ | ⚠️ | Descartada |
+- La clave se configura en `ANTHROPIC_API_KEY`, solo en el servidor; nunca se incluye
+  en `src/`, variables `VITE_`, enlaces ni almacenamiento del navegador.
+- `ANTHROPIC_MODEL` permite cambiar el modelo; el valor inicial es `claude-sonnet-5-5`.
+  `ANTHROPIC_WORKSPACE_ID` es opcional para las claves que necesitan seleccionar un workspace.
+- Los datos ausentes o ilegibles se conservan como pendientes para corregirlos. El modelo
+  no sustituye las tablas ni el núcleo de cálculo de combustible de la app.
+- Los supuestos del ejercicio, como FL 015 y 45 min de espera nacional cuando no se indican,
+  siguen mostrándose como «Supuesto». Si faltan datos imprescindibles, la app no resuelve.
+- El enunciado escrito o pegado como texto sigue disponible sin llamada a Claude.
+- Si la clave no está configurada, vence o la API falla, la interfaz muestra el error y
+  permite corregir o introducir el enunciado a mano.
 
-- `src/services/ocr.ts`: Tesseract.js se importa bajo demanda (no pesa en la carga inicial); la
-  imagen se procesa en el dispositivo y no se envía a ningún servidor.
-- `src/exercises/parseStatement.ts`: convierte el texto (OCR o escrito) en datos; tolera errores
-  típicos de OCR («8737» → B737, «Ibs» → lbs). Si el enunciado no indica la espera, se asume
-  FL 015 y 45 min (vuelo nacional) y se marca como «Supuesto».
-- Si faltan datos imprescindibles no resuelve: muestra qué falta y permite corregir el texto.
+La integración usa [Messages API](https://platform.claude.com/docs/en/api/messages/create),
+[imágenes de visión](https://platform.claude.com/docs/en/build-with-claude/vision) y
+[salida JSON estructurada](https://platform.claude.com/docs/en/build-with-claude/structured-outputs).
+
+## Despliegue con servidor Node
+
+Para servir frontend y API desde el mismo origen:
+
+```bash
+npm install
+cp .env.example .env.local
+# Set ANTHROPIC_API_KEY in .env.local or your hosting secrets.
+npm run build
+npm start
+```
+
+`npm start` ejecuta `node --env-file-if-exists=.env.local server/index.ts`. Escucha en
+`127.0.0.1:3000` por defecto. En un hosting que necesita escuchar en todas las interfaces,
+configura `HOST=0.0.0.0`; `PORT` permite elegir el puerto. Publica este servidor detrás del
+HTTPS y los controles de acceso de tu hosting. El servidor entrega únicamente archivos
+contenidos en `dist/` y el endpoint de análisis; no publica `.env.local` ni archivos del repo.
+
+Si el frontend y la API están en orígenes diferentes, configura antes de compilar:
+
+```dotenv
+# Public frontend build environment:
+VITE_STATEMENT_API_URL=https://api.example.com/api/analyze-statement
+
+# Private server environment:
+ANTHROPIC_API_KEY=tu_clave
+CLAUDE_ALLOWED_ORIGIN=https://tu-usuario.github.io
+```
+
+`CLAUDE_ALLOWED_ORIGIN` debe coincidir exactamente con el origen del frontend, sin la
+ruta `/performance/` ni barra final. Usa un origen concreto; no `*`. Cambiar una variable
+`VITE_` requiere compilar otra vez el frontend. Cambiar la clave requiere reiniciar el servidor.
 
 ## Despliegue en GitHub Pages
 
-El workflow `.github/workflows/deploy.yml` compila y publica la app en cada push a `main`.
+El workflow `.github/workflows/deploy.yml` compila y publica el frontend en cada push a `main`.
 Activación (una sola vez): **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 La app queda en `https://<usuario>.github.io/performance/`.
+
+GitHub Pages solo aloja archivos estáticos: no ejecuta el servidor Node ni guarda la clave
+para llamar a Claude. Para analizar imágenes allí, despliega la API aparte, configura
+`VITE_STATEMENT_API_URL` en el entorno del build del workflow y `CLAUDE_ALLOWED_ORIGIN` en
+el backend como se indica arriba. No añadas la clave a secretos o variables con prefijo
+`VITE_`. Sin backend configurado, las calculadoras y el enunciado escrito siguen funcionando;
+el análisis de fotos requiere la API.

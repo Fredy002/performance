@@ -1,14 +1,14 @@
 /**
- * Lectura de un enunciado de planificación de combustible a partir de texto libre
- * (escrito, pegado o reconocido por OCR desde una captura).
+ * Parse a fuel-planning statement entered or pasted as text.
+ * Photos interpreted by Claude pass their data directly to analyzeParsedStatement.
  *
- * Formato típico:
+ * Typical input format:
  *   Origen - destino: SPUR - SPJC distancia 750 nm F350 (50 TW)
  *   Destino - alterno: SPJC - SPSO distancia 145 nm F190 (30 HW)
  *   Holding con 92 500 lbs
  *   Combustible para el taxi: 400 lbs
  *
- * Es tolerante a errores típicos de OCR («8737» por B737, «Ibs» por lbs, «4O0» por 400).
+ * Tolerate common transcription errors such as 8737 for B737, Ibs for lbs, and 4O0 for 400.
  */
 import type { RouteAirports } from '@/data/airports';
 import type { WindKind } from '@/data/tables/types';
@@ -31,9 +31,9 @@ export interface ParsedStatement {
 }
 
 export interface ParseDefaults {
-  /** Nivel de espera si el enunciado no lo indica (FL 015 en los ejercicios del curso) */
+  /** Default holding level when omitted from the statement (FL 015 in these exercises). */
   holdingFlightLevel: number;
-  /** Tiempo de espera si no se indica (45 min en vuelos nacionales, según la RAP) */
+  /** Default holding duration when omitted (45 min for domestic flights under RAP). */
   holdingMinutes: number;
 }
 
@@ -49,12 +49,12 @@ export interface ParseReport {
   parsed: ParsedStatement;
   airports: RouteAirports;
   fields: ParseField[];
-  /** Faltan datos imprescindibles para resolver */
+  /** Whether all required calculation inputs are available. */
   complete: boolean;
   warnings: string[];
 }
 
-/* ---------- normalización ---------- */
+/* ---------- normalization ---------- */
 
 export function normalizeStatement(text: string): string {
   let t = text
@@ -63,15 +63,15 @@ export function normalizeStatement(text: string): string {
     .toUpperCase()
     .replace(/[–—−‒]/g, '-')
     .replace(/[“”«»]/g, '"');
-  // errores típicos de OCR
+  // Common transcription errors.
   t = t.replace(/\b[1I]BS\b|\bL8S\b|\bLBS?\b|\bLIBRAS\b|(?<=\d\s?)BS\b/g, 'LBS');
   t = t.replace(/\b8(7\d7)\b/g, 'B$1');
-  // dígitos confundidos con letras dentro de números («4O0» → 400, «l5» → 15)
+  // Replace letters that look like digits inside numeric tokens.
   t = t.replace(/\b[\dOIL]*\d[\dOIL]*\b/g, (tok) => tok.replace(/O/g, '0').replace(/[IL]/g, '1'));
   return t;
 }
 
-/** Corrige un código OACI leído por OCR (dígitos que parecen letras) y lo valida. */
+/** Correct digit-shaped letters in a transcribed ICAO code and validate it. */
 function icao(raw: string): string | undefined {
   const c = raw.replace(/0/g, 'O').replace(/1/g, 'I').replace(/5/g, 'S').replace(/8/g, 'B');
   return /^[A-Z]{4}$/.test(c) ? c : undefined;
@@ -84,7 +84,7 @@ function num(raw: string): number {
   return Number(s.replace(',', '.'));
 }
 
-/* ---------- segmentos ---------- */
+/* ---------- segments ---------- */
 
 type SegmentName = 'trip' | 'alternate' | 'holding' | 'taxi' | 'questions';
 
@@ -102,10 +102,10 @@ function segments(t: string): Partial<Record<SegmentName, string>> {
     const m = re.exec(t);
     if (m && !found.some((f) => f.name === name)) found.push({ name, at: m.index });
   }
-  // «Origen - destino» contiene «DESTINO»: el alterno solo cuenta si va después del origen
+  // Only treat the alternate marker as a separate segment after the trip marker.
   found.sort((a, b) => a.at - b.at);
   const out: Partial<Record<SegmentName, string>> = {};
-  // sin «Origen»: el primer tramo es lo que haya antes del primer marcador
+  // Without an origin marker, the text before the first marker is the trip.
   if (!found.some((f) => f.name === 'trip')) out.trip = t.slice(0, found[0]?.at);
   found.forEach((f, i) => {
     out[f.name] = t.slice(f.at, i + 1 < found.length ? found[i + 1].at : undefined);
@@ -113,7 +113,7 @@ function segments(t: string): Partial<Record<SegmentName, string>> {
   return out;
 }
 
-/* ---------- campos ---------- */
+/* ---------- fields ---------- */
 
 function parseLeg(seg: string | undefined): ParsedLeg {
   if (!seg) return {};
@@ -174,13 +174,17 @@ export function parseStatement(text: string): ParsedStatement {
   };
 }
 
-/* ---------- informe para la interfaz ---------- */
+/* ---------- UI report ---------- */
 
 const fmtFl = (fl: number) => `FL ${String(fl).padStart(3, '0')}`;
 
 export function analyzeStatement(text: string, defaults: ParseDefaults): ParseReport {
-  const p = parseStatement(text);
-  const warnings: string[] = [];
+  return analyzeParsedStatement(parseStatement(text), defaults);
+}
+
+/** Build a report from interpreted data, such as an image analyzed by Claude. */
+export function analyzeParsedStatement(p: ParsedStatement, defaults: ParseDefaults, notices: string[] = []): ParseReport {
+  const warnings = [...notices];
   const fields: ParseField[] = [];
   const add = (key: string, label: string, required: boolean, value: string | undefined, assumed?: string) =>
     fields.push({
