@@ -32,13 +32,13 @@ afterEach(() => {
 describe('calculadoras (regresión)', () => {
   it('interpolación lineal: ejemplo de referencia = 92,08', async () => {
     renderAt('#/tools/linear');
-    await screen.findByRole('heading', { name: 'Interpolación lineal' });
+    await screen.findByRole('heading', { name: 'Interpolación', level: 1 });
     expect(output('Resultado X').textContent).toBe('92,08');
   });
 
   it('interpolación lineal: recalcula al editar y avisa de extrapolación', async () => {
     renderAt('#/tools/linear');
-    await screen.findByRole('heading', { name: 'Interpolación lineal' });
+    await screen.findByRole('heading', { name: 'Interpolación', level: 1 });
     fireEvent.change(screen.getByLabelText('C, tu dato'), { target: { value: '625' } });
     expect(output('Resultado X').textContent).toBe('92,5');
     fireEvent.change(screen.getByLabelText('C, tu dato'), { target: { value: '700' } });
@@ -49,7 +49,7 @@ describe('calculadoras (regresión)', () => {
 
   it('interpolación lineal: acepta coma decimal y valores desde la URL', async () => {
     renderAt('#/tools/linear?a=0&b=10&c=2,5&a1=0&b1=100');
-    await screen.findByRole('heading', { name: 'Interpolación lineal' });
+    await screen.findByRole('heading', { name: 'Interpolación', level: 1 });
     expect(output('Resultado X').textContent).toBe('25');
   });
 
@@ -73,7 +73,7 @@ describe('calculadoras (regresión)', () => {
 
   it('guardar un cálculo lo añade al historial', async () => {
     renderAt('#/tools/linear');
-    await screen.findByRole('heading', { name: 'Interpolación lineal' });
+    await screen.findByRole('heading', { name: 'Interpolación', level: 1 });
     fireEvent.click(screen.getByRole('button', { name: /Guardar/ }));
     expect(JSON.parse(localStorage.getItem('aeroperf.history')!)[0]).toMatchObject({ toolId: 'linear', result: '92,08' });
   });
@@ -149,10 +149,13 @@ describe('tablas de performance de aeronaves', () => {
 const answerValues = () => [...document.querySelectorAll('.answer-value')].map((e) => e.firstChild?.textContent);
 
 describe('pruebas', () => {
-  it('el menú lateral tiene la sección Pruebas', async () => {
+  it('Pruebas no aparece en el menú lateral, pero su página sigue disponible', async () => {
     renderAt('#/');
-    const link = await screen.findByRole('link', { name: 'Pruebas' });
-    expect(link.getAttribute('href')).toBe('#/pruebas');
+    await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
+    expect(within(screen.getByRole('complementary', { name: 'Menú principal' })).queryByRole('link', { name: 'Pruebas' })).toBeNull();
+    cleanup();
+    renderAt('#/pruebas');
+    expect(await screen.findByRole('heading', { name: 'Pruebas', level: 1 })).toBeTruthy();
   });
 
   it('lista solo los pendientes y enlaza los ya verificados a su herramienta', async () => {
@@ -473,19 +476,22 @@ describe('resolver desde una captura', () => {
 });
 
 describe('navegación simplificada', () => {
-  it('el menú agrupa en Calcular, Consultar, Pruebas y Próximamente', async () => {
+  it('el menú lateral muestra solo Calcular y Consultar, sin las opciones ocultas', async () => {
     renderAt('#/');
     await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
     const titles = [...document.querySelectorAll('.sidebar .nav-section-title')].map((e) => e.textContent);
-    expect(titles).toEqual(['Calcular', 'Consultar', 'Pruebas', 'Próximamente']);
-    // las herramientas pendientes siguen a la vista, sin enlace y marcadas «Pronto»
-    const pending = [...document.querySelectorAll('.sidebar .nav-link.disabled')];
-    expect(pending.map((e) => e.querySelector('.nav-label')!.textContent)).toEqual(['Despegue', 'Aterrizaje', 'Peso y centrado']);
-    pending.forEach((e) => {
-      expect(e.tagName).toBe('SPAN');
-      expect(e.querySelector('.nav-badge')!.textContent).toBe('Pronto');
-    });
+    expect(titles).toEqual(['Calcular', 'Consultar']);
+    const labels = [...document.querySelectorAll('.sidebar .nav-label')].map((e) => e.textContent);
+    expect(labels).toContain('Interpolación');
+    for (const hidden of ['Interpolación doble', 'Altitud de densidad', 'Componentes de viento', 'Pruebas', 'Despegue', 'Aterrizaje', 'Peso y centrado']) {
+      expect(labels).not.toContain(hidden);
+    }
+    expect(document.querySelector('.sidebar .nav-link.disabled')).toBeNull();
     expect(document.querySelector('.sidebar .nav-section-title + .nav-link')!.textContent).toBe('Plan de combustible');
+    // ocultas solo del menú: siguen abriéndose por su ruta
+    cleanup();
+    renderAt('#/tools/wind');
+    expect(await screen.findByRole('heading', { name: 'Componentes de viento', level: 1 })).toBeTruthy();
   });
 
   it('barra inferior del móvil con los accesos principales', async () => {

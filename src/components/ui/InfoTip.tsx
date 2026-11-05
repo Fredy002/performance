@@ -1,23 +1,34 @@
 import { Info } from 'lucide-react';
-import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
 interface Props {
-  /** Concepto que explica (p. ej. «FOB»): da nombre al botón, «Qué es FOB». */
+  /** Concepto que explica (p. ej. «FOB» o «°F»): da nombre al botón, «Qué es FOB». */
   label: string;
   /** Explicación breve: una o dos frases. */
   children: ReactNode;
+  /**
+   * Contenido visible del botón en lugar del icono ⓘ (p. ej. la unidad «°F»).
+   * Se muestra subrayado con puntos para indicar que tiene ayuda.
+   */
+  trigger?: ReactNode;
 }
+
+const MARGIN = 8;
+const GAP = 6;
 
 /**
  * Ayuda contextual. Funciona con ratón (hover), teclado (foco, Escape) y toque
  * (abre y cierra al tocar). El texto está siempre en el DOM y enlazado con
  * aria-describedby, así que los lectores de pantalla lo anuncian al enfocar.
+ * La burbuja se posiciona respecto a la ventana: no la recortan los campos ni
+ * las tablas con desplazamiento.
  */
-export function InfoTip({ label, children }: Props) {
+export function InfoTip({ label, children, trigger }: Props) {
   const id = useId();
   const [open, setOpen] = useState(false);
-  const [shift, setShift] = useState(0);
+  const [pos, setPos] = useState<CSSProperties>();
   const wrapRef = useRef<HTMLSpanElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
   const tipRef = useRef<HTMLSpanElement>(null);
   // un toque o clic genera foco + clic: el clic no debe cerrar lo que el foco acaba de abrir
   const pointerFocus = useRef(false);
@@ -28,23 +39,30 @@ export function InfoTip({ label, children }: Props) {
     const onDown = (e: PointerEvent) => {
       if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
     };
+    // la burbuja es fija en la ventana: al desplazar la página se cierra
+    const onScroll = () => setOpen(false);
     document.addEventListener('keydown', onKey);
     document.addEventListener('pointerdown', onDown);
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', onScroll);
     return () => {
       document.removeEventListener('keydown', onKey);
       document.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('resize', onScroll);
     };
   }, [open]);
 
-  // mantiene la burbuja dentro de la ventana en pantallas estrechas
+  // encima del botón, centrada y dentro de la ventana; debajo si no cabe arriba
   useLayoutEffect(() => {
-    if (!open) return setShift(0);
-    const r = tipRef.current?.getBoundingClientRect();
-    if (!r || !r.width) return;
-    const margin = 8;
-    const max = window.innerWidth - margin;
-    if (r.right > max) setShift(max - r.right);
-    else if (r.left < margin) setShift(margin - r.left);
+    if (!open) return setPos(undefined);
+    const b = btnRef.current?.getBoundingClientRect();
+    const t = tipRef.current?.getBoundingClientRect();
+    if (!b || !t || !t.width) return;
+    const left = Math.min(Math.max(b.left + b.width / 2 - t.width / 2, MARGIN), window.innerWidth - t.width - MARGIN);
+    const above = b.top - t.height - GAP;
+    const top = above >= MARGIN ? above : b.bottom + GAP;
+    setPos({ left, top });
   }, [open]);
 
   return (
@@ -57,7 +75,8 @@ export function InfoTip({ label, children }: Props) {
     >
       <button
         type="button"
-        className="infotip-trigger"
+        ref={btnRef}
+        className={`infotip-trigger${trigger ? ' is-text' : ''}`}
         aria-label={`Qué es ${label}`}
         aria-describedby={id}
         aria-expanded={open}
@@ -77,14 +96,15 @@ export function InfoTip({ label, children }: Props) {
           } else setOpen((o) => !o);
         }}
       >
-        <Info size={14} aria-hidden="true" />
+        {trigger ?? <Info size={14} aria-hidden="true" />}
       </button>
       <span
         role="tooltip"
         id={id}
         ref={tipRef}
         className="infotip-bubble"
-        style={shift ? { translate: `${shift}px 0` } : undefined}
+        // hasta medirla, invisible en su sitio para no parpadear
+        style={pos ?? (open ? { visibility: 'hidden', left: 0, top: 0 } : undefined)}
       >
         {children}
       </span>

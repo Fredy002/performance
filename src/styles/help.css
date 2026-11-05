@@ -76,10 +76,9 @@
 }
 
 .infotip-bubble {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  z-index: 90;
+  /* fija en la ventana: la posición la calcula InfoTip (no la recortan campos ni tablas) */
+  position: fixed;
+  z-index: 150;
   width: max-content;
   max-width: min(280px, calc(100vw - 32px));
   padding: var(--space-8) var(--space-12);
@@ -94,7 +93,6 @@
   text-align: left;
   text-transform: none;
   white-space: normal;
-  transform: translateX(-50%);
   /* cerrada no ocupa espacio (evita scroll horizontal); aria-describedby sigue leyendo el texto */
   display: none;
   animation: fade var(--dur-fast) var(--ease-standard);
@@ -425,4 +423,45 @@
   padding-block: 4px;
   margin-block: -4px;
   text-align: center;
+}
+
+/* unidad con ayuda (°F, ft, lb…): el texto de la unidad es el botón, subrayado con puntos */
+.infotip-trigger.is-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 24px;
+  height: auto;
+  min-height: 24px;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-xs);
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.infotip-trigger.is-text:hover,
+.infotip.is-open .infotip-trigger.is-text {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+/* sobre fondo oscuro (resultado principal) */
+.result-hero .infotip-trigger.is-text:hover,
+.result-hero .infotip.is-open .infotip-trigger.is-text {
+  background: rgb(255 255 255 / 12%);
+  color: inherit;
+}
+
+.infotip-line {
+  display: block;
+}
+
+.infotip-line + .infotip-line,
+.infotip-bubble > :not(:first-child).infotip-line {
+  margin-top: var(--space-4);
 }

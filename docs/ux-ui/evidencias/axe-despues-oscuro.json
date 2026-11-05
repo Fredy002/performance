@@ -49,6 +49,54 @@
   },
   {
     "viewport": "1280",
+    "route": "epr-despegue",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "prueba-epr-g5",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "prueba-epr-r5",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "ascenso-ruta",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "prueba-ascenso-combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "prueba-ascenso-distancia",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
     "route": "conversor",
     "overflow": 0,
     "errors": [],
@@ -153,6 +201,54 @@
   },
   {
     "viewport": "768",
+    "route": "epr-despegue",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "prueba-epr-g5",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "prueba-epr-r5",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "ascenso-ruta",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "prueba-ascenso-combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "prueba-ascenso-distancia",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
     "route": "conversor",
     "overflow": 0,
     "errors": [],
@@ -250,6 +346,54 @@
   {
     "viewport": "390",
     "route": "viento",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "epr-despegue",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "prueba-epr-g5",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "prueba-epr-r5",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "ascenso-ruta",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "prueba-ascenso-combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "prueba-ascenso-distancia",
     "overflow": 0,
     "errors": [],
     "axe": [],

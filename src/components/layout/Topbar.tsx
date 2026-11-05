@@ -34,8 +34,13 @@ export function Topbar({ onSearch }: { onSearch: () => void }) {
               Inicio
             </Link>
             <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
-            <span className="breadcrumb-text desktop-only">{CATEGORIES[tool.category]}</span>
-            <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
+            {/* sin repetir la categoría cuando coincide con el nombre (Interpolación › Interpolación) */}
+            {CATEGORIES[tool.category] !== tool.name && (
+              <>
+                <span className="breadcrumb-text desktop-only">{CATEGORIES[tool.category]}</span>
+                <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
+              </>
+            )}
             <strong aria-current="page">{tool.name}</strong>
           </>
         ) : exercise ? (

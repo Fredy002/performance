@@ -27,10 +27,10 @@ AeroPerf se abre en el navegador; no necesita usuario ni contraseña. Tus cálcu
 
 ![Pantalla de inicio](capturas/manual-anotadas/01-inicio.png)
 
-1. **Menú:** El menú lateral agrupa las herramientas por tarea: Calcular, Consultar y Pruebas. La opción resaltada indica dónde estás.
+1. **Menú:** El menú lateral agrupa las herramientas principales en Calcular y Consultar. La opción resaltada indica dónde estás; el resto de herramientas y las Pruebas se abren desde el inicio o con «Buscar».
 2. **Cómo empezar:** La primera vez verás tres pasos de orientación. Pulsa «Entendido, ocultar» cuando ya no los necesites.
 3. **Tareas:** Los tres accesos directos llevan a las tareas más frecuentes.
-4. **Buscar:** Busca cualquier herramienta, tabla o ejercicio por su nombre.
+4. **Buscar:** Busca cualquier herramienta, tabla o ejercicio por su nombre, también los que no están en el menú (por ejemplo «viento» o «pruebas»).
 
 **Resultado:** Sabes dónde está cada herramienta y cómo empezar.
 
@@ -73,12 +73,12 @@ La planificación de combustible calcula el tiempo y el combustible de viaje (T.
 
 Todas las calculadoras funcionan igual: escribe los datos, lee el resultado y, si quieres, guárdalo o compártelo. Se usa como ejemplo la interpolación lineal.
 
-### Interpolación lineal
+### Interpolación
 
-![Interpolación lineal](capturas/manual-anotadas/05-interpolar.png)
+![Interpolación](capturas/manual-anotadas/05-interpolar.png)
 
 1. **Datos:** Escribe las dos filas de la tabla que rodean tu dato (A y B), tu dato (C) y los valores de la tabla (A1 y B1).
-2. **Resultado:** X se calcula al escribir. Debajo verás la gráfica y el desarrollo paso a paso.
+2. **Resultado:** X se calcula al escribir. Al lado verás la gráfica, con una explicación de cómo leerla, y el desarrollo paso a paso.
 3. **Guardar:** «Guardar» lo añade al historial. «Compartir» copia un enlace con los mismos datos.
 4. **Ejemplo / Vaciar:** «Ejemplo» carga datos de muestra y «Vaciar» borra los campos. Ambos se pueden deshacer.
 
@@ -89,7 +89,7 @@ Todas las calculadoras funcionan igual: escribe los datos, lee el resultado y, s
 ![Usar las ayudas ⓘ](capturas/manual-anotadas/06-ayuda.png)
 
 1. **Toca el icono:** Pasa el ratón, toca o enfoca con el teclado el icono ⓘ junto a un campo o sigla.
-2. **Explicación:** Una o dos frases dicen qué es el dato y qué escribir. Se cierra al tocar fuera o con Esc.
+2. **Explicación:** Una o dos frases dicen qué es el dato y qué escribir. Se cierra al tocar fuera o con Esc. Las unidades subrayadas con puntos (ft, °F, lb, NM…) también explican su significado.
 
 **Resultado:** Entiendes el dato sin salir de la pantalla.
 
@@ -170,7 +170,7 @@ Las tablas de performance (suplemento FAA) se consultan con su ayuda de uso. Las
 
 ![Revisar una prueba](capturas/manual-anotadas/10-pruebas.png)
 
-1. **Pendiente:** Abre una prueba para comparar cada paso de la app con la resolución manual.
+1. **Pendiente:** Abre Pruebas con «Buscar» (escribe «pruebas») y elige una para comparar cada paso de la app con la resolución manual.
 2. **Verificados:** Los ejercicios ya verificados se abren directamente en su herramienta.
 
 **Resultado:** Cada paso se marca como «Coincide», «Redondeo» o «Revisar».

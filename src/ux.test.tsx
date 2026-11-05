@@ -58,7 +58,7 @@ describe('ayuda contextual (UX-04)', () => {
 describe('validación por campo (UX-03)', () => {
   it('un valor no numérico se explica bajo el campo y en el aviso', async () => {
     renderAt('#/tools/linear');
-    await screen.findByRole('heading', { name: 'Interpolación lineal' });
+    await screen.findByRole('heading', { name: 'Interpolación', level: 1 });
     const a = screen.getByLabelText('A, fila inferior de la tabla');
     fireEvent.change(a, { target: { value: 'abc' } });
     expect(a.getAttribute('aria-invalid')).toBe('true');
@@ -70,7 +70,7 @@ describe('validación por campo (UX-03)', () => {
 
   it('un campo vacío se nombra en la orientación', async () => {
     renderAt('#/tools/linear');
-    await screen.findByRole('heading', { name: 'Interpolación lineal' });
+    await screen.findByRole('heading', { name: 'Interpolación', level: 1 });
     fireEvent.change(screen.getByLabelText('B1, valor de la tabla para B'), { target: { value: '' } });
     expect(screen.getByText(/Completa B1 para obtener X/)).toBeTruthy();
     expect(screen.getByText('Guardar se activa cuando hay un resultado.')).toBeTruthy(); // UX-06
@@ -88,7 +88,7 @@ describe('validación por campo (UX-03)', () => {
 describe('deshacer (UX-07)', () => {
   it('«Ejemplo» se puede deshacer', async () => {
     renderAt('#/tools/linear');
-    await screen.findByRole('heading', { name: 'Interpolación lineal' });
+    await screen.findByRole('heading', { name: 'Interpolación', level: 1 });
     const c = screen.getByLabelText('C, tu dato') as HTMLInputElement;
     fireEvent.change(c, { target: { value: '640' } });
     fireEvent.click(screen.getByRole('button', { name: 'Ejemplo' }));
@@ -101,7 +101,7 @@ describe('deshacer (UX-07)', () => {
     addHistory({ toolId: 'linear', href: '/tools/linear', summary: 'prueba', result: '92,08' });
     renderAt('#/history');
     await screen.findByRole('heading', { name: 'Historial', level: 1 });
-    fireEvent.click(screen.getByRole('button', { name: /Eliminar del historial: Interpolación lineal, 92,08/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Eliminar del historial: Interpolación, 92,08/ }));
     expect(screen.getByText('Aún no hay cálculos guardados')).toBeTruthy();
     const status = screen.getAllByRole('status').find((s) => s.classList.contains('toast-region'))!;
     expect(status.textContent).toMatch(/Cálculo eliminado/);
@@ -158,7 +158,7 @@ describe('orientación y navegación', () => {
 
   it('las acciones muestran su texto, también sin hover (UX-02)', async () => {
     renderAt('#/tools/linear');
-    await screen.findByRole('heading', { name: 'Interpolación lineal' });
+    await screen.findByRole('heading', { name: 'Interpolación', level: 1 });
     for (const name of ['Vaciar', 'Ejemplo', 'Compartir', 'Guardar']) {
       const btn = screen.getByRole('button', { name });
       expect(btn.textContent?.trim()).toBe(name);
@@ -267,5 +267,32 @@ describe('Ascenso en ruta (B737)', () => {
     await screen.findByRole('heading', { name: 'Distancia en ascenso en ruta · condiciones V-5', level: 1 });
     expect(screen.getByText('4/4 pasos coinciden')).toBeTruthy();
     expect(screen.getByText('Resolución: 61,33')).toBeTruthy();
+  });
+});
+
+describe('ayuda de unidades', () => {
+  it('cada unidad de un campo explica su significado (°F → grados Fahrenheit)', async () => {
+    renderAt('#/tools/takeoff-epr');
+    await screen.findByRole('heading', { name: 'EPR de despegue', level: 1 });
+    const f = screen.getByRole('button', { name: 'Qué es °F' });
+    expect(document.getElementById(f.getAttribute('aria-describedby')!)!.textContent).toMatch(/Grados Fahrenheit/);
+    fireEvent.click(f);
+    expect(f.getAttribute('aria-expanded')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Qué es ft' })).toBeTruthy();
+  });
+
+  it('las opciones que son unidades muestran su significado al pasar el ratón y en la ayuda del grupo', async () => {
+    renderAt('#/tools/takeoff-epr');
+    await screen.findByRole('heading', { name: 'EPR de despegue', level: 1 });
+    const group = screen.getByRole('group', { name: 'Unidad del reglaje' });
+    expect(within(group).getByRole('button', { name: 'mb' }).getAttribute('title')).toMatch(/Milibares/);
+    const tip = screen.getByRole('button', { name: 'Qué es Unidad del reglaje' });
+    expect(document.getElementById(tip.getAttribute('aria-describedby')!)!.textContent).toMatch(/Pulgadas de mercurio.*Milibares/s);
+  });
+
+  it('las respuestas también explican sus unidades', async () => {
+    renderAt('#/tools/en-route-climb');
+    await screen.findByRole('heading', { name: 'Ascenso en ruta', level: 1 });
+    expect(screen.getAllByRole('button', { name: 'Qué es NM' }).length).toBeGreaterThan(0);
   });
 });
