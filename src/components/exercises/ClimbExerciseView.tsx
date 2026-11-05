@@ -11,10 +11,12 @@ import { solveEnRouteClimb } from '@/core/enRouteClimb';
 import type { ClimbExercise } from '@/exercises/registry';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useDecimals } from '@/state/settings';
+import { useI18n, type MessageKey } from '@/i18n';
 
 /** Prueba de ascenso en ruta: la app resuelve el escenario y lo compara con la resolución manual. */
 export function ClimbExerciseView({ exercise }: { exercise: ClimbExercise }) {
   const decimals = useDecimals();
+  const { t } = useI18n();
   const defaults = useMemo(() => toClimbForm(exercise.input), [exercise]);
   const form = useFormValues(defaults);
   const plan = useEnRouteClimb(form.values, decimals);
@@ -28,21 +30,21 @@ export function ClimbExerciseView({ exercise }: { exercise: ClimbExercise }) {
       <PageHeader
         eyebrow={
           <>
-            <ClipboardCheck size={14} /> Pruebas · {exercise.aircraft} · condiciones {exercise.scenario}
+            <ClipboardCheck size={14} /> {t('exercise.list.eyebrow')} · {exercise.aircraft} · {t('exercise.scope.climb', { scenario: exercise.scenario })}
           </>
         }
-        title={exercise.title}
-        subtitle={exercise.summary}
+        title={t(`exercise.${exercise.id}.title` as MessageKey)}
+        subtitle={t(`exercise.${exercise.id}.summary` as MessageKey)}
         actions={
           !isOriginal && (
             <button className="btn" onClick={form.reset}>
-              <RotateCcw size={16} /> Restaurar enunciado
+              <RotateCcw size={16} /> {t('exercise.detail.restore')}
             </button>
           )
         }
       />
       <div className="page-badges">
-        <span className="chip chip-warning">Pendiente de verificación</span>
+        <span className="chip chip-warning">{t('exercise.detail.pending')}</span>
       </div>
 
       <div className="grid grid-calc">
@@ -55,7 +57,7 @@ export function ClimbExerciseView({ exercise }: { exercise: ClimbExercise }) {
             answer &&
             key === exercise.asks && (
               <div className="row answer-footer">
-                <span className="answer-footer-text">Resolución: {answer.step.written}</span>
+                <span className="answer-footer-text">{t('exercise.detail.solution', { value: answer.step.written })}</span>
                 <StatusChip status={answer.cmp.status} diff={answer.cmp.diff} />
               </div>
             )
@@ -64,7 +66,7 @@ export function ClimbExerciseView({ exercise }: { exercise: ClimbExercise }) {
       </div>
 
       <div className="calc-section">
-        <Card title="Datos">
+        <Card title={t('exercise.detail.data')}>
           <ClimbForm values={form.values} set={form.set} />
         </Card>
       </div>
@@ -77,17 +79,17 @@ export function ClimbExerciseView({ exercise }: { exercise: ClimbExercise }) {
 
       {plan.result && (
         <>
-          <h2 className="section-title">Desarrollo</h2>
+          <h2 className="section-title">{t('exercise.detail.development')}</h2>
           <ClimbSteps result={plan.result} input={plan.input} decimals={decimals} />
         </>
       )}
 
-      <h2 className="section-title">Validación con la resolución manual</h2>
+      <h2 className="section-title">{t('exercise.detail.validation')}</h2>
       {!isOriginal ? (
         <Alert kind="info">
-          Has cambiado los datos del enunciado: la validación solo se aplica a los datos originales.{' '}
+          {t('exercise.detail.changed')}{' '}
           <button className="btn btn-sm alert-action" onClick={form.reset}>
-            Restaurar enunciado
+            {t('exercise.detail.restore')}
           </button>
         </Alert>
       ) : (
@@ -95,8 +97,7 @@ export function ClimbExerciseView({ exercise }: { exercise: ClimbExercise }) {
       )}
 
       <p className="calc-footnote row">
-        <Table size={14} /> Los valores salen de las tablas digitalizadas (figuras 56, 57 y 58) y del mismo núcleo de cálculo que usa la
-        herramienta Ascenso en ruta.
+        <Table size={14} /> {t('exercise.detail.valuesFromTables')}
       </p>
     </>
   );

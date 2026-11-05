@@ -151,7 +151,7 @@ describe('lectura de tablas con interpolación', () => {
   });
 });
 
-import { formatPlain } from './format';
+import { formatNumber as formatNumberLocale, formatPlain } from './format';
 
 describe('formatPlain', () => {
   it('formatea como en el cuaderno', () => {
@@ -160,6 +160,8 @@ describe('formatPlain', () => {
     expect(formatPlain(433)).toBe('433');
     expect(formatPlain(11.696074, 3)).toBe('11,696');
     expect(formatPlain(-0.0001)).toBe('0');
+    expect(formatPlain(1234.56, 2, 'en-US')).toBe('1234.56');
+    expect(formatNumberLocale(1234.56, 2, 'en-US')).toBe('1,234.56');
   });
 });
 

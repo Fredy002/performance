@@ -1,5 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { IMAGE_ANALYSIS_SCHEMA, IMAGE_MEDIA_TYPES, MAX_IMAGE_BYTES, normalizeImageAnalysis } from '../src/services/statementAnalysis.ts';
+import { localizeServiceMessage } from '../src/i18n/messages/services.ts';
+import type { Locale } from '../src/i18n/types.ts';
 
 export interface ClaudeOptions {
   apiKey?: string;
@@ -30,6 +32,11 @@ text debe conservar solo el enunciado y preguntas, sin cálculos de la solución
 function reply(res: ServerResponse, status: number, data: unknown) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
   res.end(JSON.stringify(data));
+}
+
+function requestLocale(req: IncomingMessage): Locale {
+  const header = req.headers['accept-language'];
+  return typeof header === 'string' && header.split(',')[0].trim().toLowerCase().startsWith('en') ? 'en' : 'es';
 }
 
 function readBody(req: IncomingMessage): Promise<unknown> {
@@ -72,21 +79,46 @@ export function createClaudeMiddleware(options: ClaudeOptions = {}) {
   let activeRequests = 0;
   return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     if (req.url?.split('?')[0] !== '/api/analyze-statement') { next(); return; }
+    const locale = requestLocale(req);
     const origin = req.headers.origin;
     if (origin) {
       let sameOrigin = false;
       try { const parsed = new URL(origin); sameOrigin = /^https?:$/.test(parsed.protocol) && parsed.host === req.headers.host; } catch { /* Invalid origin. */ }
-      if (!sameOrigin && origin !== options.allowedOrigin) { reply(res, 403, { error: 'Este origen no está autorizado para analizar imágenes.' }); return; }
+      if (!sameOrigin && origin !== options.allowedOrigin) {
+        reply(res, 403, { error: localizeServiceMessage(locale, 'Este origen no está autorizado para analizar imágenes.') });
+        return;
+      }
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Vary', 'Origin');
     }
     if (req.method === 'OPTIONS') {
-      res.writeHead(204, { 'Access-Control-Allow-Methods': 'POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Cache-Control': 'no-store' }); res.end(); return;
+      res.writeHead(204, {
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Accept-Language',
+        'Cache-Control': 'no-store',
+      });
+      res.end();
+      return;
     }
-    if (req.method !== 'POST') { res.setHeader('Allow', 'POST, OPTIONS'); reply(res, 405, { error: 'Usa POST para analizar una imagen.' }); return; }
-    if (!req.headers['content-type']?.toLowerCase().startsWith('application/json')) { reply(res, 415, { error: 'Envía la imagen en una solicitud JSON.' }); return; }
-    if (!options.apiKey?.trim()) { reply(res, 503, { error: 'Configura ANTHROPIC_API_KEY en el servidor para analizar fotos con Claude.' }); return; }
-    if (activeRequests >= 2) { reply(res, 429, { error: 'Ya hay imágenes en análisis. Espera unos segundos y vuelve a intentarlo.' }); return; }
+    if (req.method !== 'POST') {
+      res.setHeader('Allow', 'POST, OPTIONS');
+      reply(res, 405, { error: localizeServiceMessage(locale, 'Usa POST para analizar una imagen.') });
+      return;
+    }
+    if (!req.headers['content-type']?.toLowerCase().startsWith('application/json')) {
+      reply(res, 415, { error: localizeServiceMessage(locale, 'Envía la imagen en una solicitud JSON.') });
+      return;
+    }
+    if (!options.apiKey?.trim()) {
+      reply(res, 503, {
+        error: localizeServiceMessage(locale, 'Configura ANTHROPIC_API_KEY en el servidor para analizar fotos con Claude.'),
+      });
+      return;
+    }
+    if (activeRequests >= 2) {
+      reply(res, 429, { error: localizeServiceMessage(locale, 'Ya hay imágenes en análisis. Espera unos segundos y vuelve a intentarlo.') });
+      return;
+    }
     activeRequests++;
     try {
       const image = imageFromBody(await readBody(req));
@@ -127,9 +159,14 @@ export function createClaudeMiddleware(options: ClaudeOptions = {}) {
       catch { throw new ApiError(502, 'Claude devolvió una lectura incompleta o inválida. Reintenta con una imagen más clara.'); }
       reply(res, 200, analysis);
     } catch (error) {
-      if (error instanceof ApiError) reply(res, error.status, { error: error.message });
-      else if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) reply(res, 504, { error: 'Claude tardó demasiado en responder. Vuelve a intentarlo.' });
-      else reply(res, 502, { error: 'No se pudo conectar con Claude. Revisa la conexión del servidor y vuelve a intentarlo.' });
+      if (error instanceof ApiError) reply(res, error.status, { error: localizeServiceMessage(locale, error.message) });
+      else if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+        reply(res, 504, { error: localizeServiceMessage(locale, 'Claude tardó demasiado en responder. Vuelve a intentarlo.') });
+      } else {
+        reply(res, 502, {
+          error: localizeServiceMessage(locale, 'No se pudo conectar con Claude. Revisa la conexión del servidor y vuelve a intentarlo.'),
+        });
+      }
     } finally { activeRequests--; }
   };
 }

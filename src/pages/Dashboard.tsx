@@ -1,37 +1,38 @@
 import { ArrowRight, Fuel, Spline, Table, X, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
-import { readyTools, toolPath, upcomingTools } from '@/tools/registry';
+import { localizedToolDescription, localizedToolName, readyTools, toolPath, upcomingTools } from '@/tools/registry';
+import { useI18n } from '@/i18n';
 import { useHistory } from '@/state/history';
 import { updateSettings, useSettings } from '@/state/settings';
 import { HistoryList } from './History';
 
 type Tone = 'accent' | 'yellow' | 'mint';
 
-const ACTIONS: { to: string; icon: LucideIcon; tone: Tone; title: string; text: string; cta: string }[] = [
+const ACTIONS: { to: string; icon: LucideIcon; tone: Tone; title: 'page.dashboard.action.fuelTitle' | 'page.dashboard.action.interpolateTitle' | 'page.dashboard.action.tablesTitle'; text: 'page.dashboard.action.fuelText' | 'page.dashboard.action.interpolateText' | 'page.dashboard.action.tablesText'; cta: 'page.dashboard.action.fuelCta' | 'page.dashboard.action.interpolateCta' | 'page.dashboard.action.tablesCta' }[] = [
   {
     to: toolPath('fuel'),
     tone: 'accent',
     icon: Fuel,
-    title: 'Planificación de combustible',
-    text: 'Pega o fotografía el enunciado y obtén T.T, T.F, FOB y autonomía.',
-    cta: 'Resolver un ejercicio',
+    title: 'page.dashboard.action.fuelTitle',
+    text: 'page.dashboard.action.fuelText',
+    cta: 'page.dashboard.action.fuelCta',
   },
   {
     to: toolPath('linear'),
     tone: 'yellow',
     icon: Spline,
-    title: 'Interpolar un valor',
-    text: 'Entre dos filas de una tabla del manual: A y B dan X.',
-    cta: 'Interpolar',
+    title: 'page.dashboard.action.interpolateTitle',
+    text: 'page.dashboard.action.interpolateText',
+    cta: 'page.dashboard.action.interpolateCta',
   },
   {
     to: '/tables',
     tone: 'mint',
     icon: Table,
-    title: 'Consultar tablas',
-    text: 'Planificación de vuelo y espera del B737, con ayuda de uso.',
-    cta: 'Ver tablas',
+    title: 'page.dashboard.action.tablesTitle',
+    text: 'page.dashboard.action.tablesText',
+    cta: 'page.dashboard.action.tablesCta',
   },
 ];
 
@@ -53,43 +54,45 @@ function HeroArt() {
 
 /** UX-05: orientación de primer uso, breve y descartable (se recuerda en Ajustes). */
 function Onboarding() {
+  const { t } = useI18n();
   return (
     <Card
       className="onboarding"
-      title="Cómo empezar"
+      title={t('page.dashboard.getStarted')}
       action={
         <button className="btn btn-ghost btn-sm" onClick={() => updateSettings({ onboardingDismissed: true })}>
-          <X size={16} aria-hidden="true" /> Entendido, ocultar
+          <X size={16} aria-hidden="true" /> {t('page.dashboard.dismissOnboarding')}
         </button>
       }
     >
       <ol className="onboarding-steps">
         <li>
           <span>
-            <b>Elige una tarea</b>
-            Usa los accesos de abajo, el menú o «Buscar»
+            <b>{t('page.dashboard.chooseTask')}</b>
+            {t('page.dashboard.chooseTaskHint')}
             <span className="desktop-only"> ({typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform) ? '⌘' : 'Ctrl'} K)</span>.
           </span>
         </li>
         <li>
           <span>
-            <b>Escribe tus datos</b>
-            Cada calculadora trae un ejemplo. Toca ⓘ junto a un campo si no sabes qué poner.
+            <b>{t('page.dashboard.enterData')}</b>
+            {t('page.dashboard.enterDataHint')}
           </span>
         </li>
         <li>
           <span>
-            <b>Revisa y guarda</b>
-            El resultado se actualiza al escribir. «Guardar» lo deja en el historial; «Compartir» copia un enlace.
+            <b>{t('page.dashboard.reviewSave')}</b>
+            {t('page.dashboard.reviewSaveHint')}
           </span>
         </li>
       </ol>
-      <p className="onboarding-note">Tus cálculos y ajustes se guardan solo en este navegador.</p>
+      <p className="onboarding-note">{t('page.dashboard.storageNote')}</p>
     </Card>
   );
 }
 
 export default function Dashboard() {
+  const { locale, t } = useI18n();
   const history = useHistory();
   const { onboardingDismissed } = useSettings();
   const others = readyTools().filter((t) => !MAIN.has(t.id));
@@ -99,8 +102,8 @@ export default function Dashboard() {
     <>
       <section className="home-hero">
         <div className="home-hero-copy">
-          <h1>¿Qué quieres resolver?</h1>
-          <p>Cálculos de performance con las tablas del manual y su desarrollo paso a paso.</p>
+          <h1>{t('page.dashboard.heroTitle')}</h1>
+          <p>{t('page.dashboard.heroSubtitle')}</p>
         </div>
         <HeroArt />
       </section>
@@ -113,10 +116,10 @@ export default function Dashboard() {
             <span className={`action-icon tone-${a.tone}`}>
               <a.icon size={20} />
             </span>
-            <span className="action-title">{a.title}</span>
-            <span className="action-text">{a.text}</span>
+            <span className="action-title">{t(a.title)}</span>
+            <span className="action-text">{t(a.text)}</span>
             <span className="action-cta">
-              {a.cta} <ArrowRight size={16} />
+              {t(a.cta)} <ArrowRight size={16} />
             </span>
           </Link>
         ))}
@@ -125,18 +128,18 @@ export default function Dashboard() {
       <div className="grid grid-2 home-columns">
         <section>
           <h2 className="section-title section-title-flush">
-            Otras herramientas
+            {t('page.dashboard.otherTools')}
           </h2>
           <Card flush>
             <div className="list">
-              {others.map((t) => (
-                <Link key={t.id} to={toolPath(t.id)} className="list-item">
+              {others.map((tool) => (
+                <Link key={tool.id} to={toolPath(tool.id)} className="list-item">
                   <span className="list-item-icon">
-                    <t.icon size={18} />
+                    <tool.icon size={18} />
                   </span>
                   <span className="list-item-main">
-                    <span className="list-item-title">{t.name}</span>
-                    <span className="list-item-sub">{t.description}</span>
+                    <span className="list-item-title">{locale === 'es' ? tool.name : localizedToolName(tool.id, locale)}</span>
+                    <span className="list-item-sub">{locale === 'es' ? tool.description : localizedToolDescription(tool.id, locale)}</span>
                   </span>
                   <ArrowRight size={16} className="list-item-arrow" aria-hidden="true" />
                 </Link>
@@ -147,9 +150,9 @@ export default function Dashboard() {
 
         <section>
           <h2 className="section-title section-title-flush">
-            Actividad reciente
+            {t('page.dashboard.recentActivity')}
             {history.length > 0 && (
-              <Link to="/history">Ver todo</Link>
+              <Link to="/history">{t('page.dashboard.viewAll')}</Link>
             )}
           </h2>
           <Card flush>
@@ -160,19 +163,19 @@ export default function Dashboard() {
 
       {upcoming.length > 0 && (
         <section className="home-upcoming">
-          <h2 className="section-title">Próximamente</h2>
+          <h2 className="section-title">{t('page.dashboard.upcoming')}</h2>
           <Card flush>
             <div className="list">
-              {upcoming.map((t) => (
-                <div key={t.id} className="list-item upcoming" aria-disabled="true">
+              {upcoming.map((tool) => (
+                <div key={tool.id} className="list-item upcoming" aria-disabled="true">
                   <span className="list-item-icon">
-                    <t.icon size={18} aria-hidden="true" />
+                    <tool.icon size={18} aria-hidden="true" />
                   </span>
                   <span className="list-item-main">
-                    <span className="list-item-title">{t.name}</span>
-                    <span className="list-item-sub">{t.description}</span>
+                    <span className="list-item-title">{locale === 'es' ? tool.name : localizedToolName(tool.id, locale)}</span>
+                    <span className="list-item-sub">{locale === 'es' ? tool.description : localizedToolDescription(tool.id, locale)}</span>
                   </span>
-                  <span className="chip chip-warning">Pronto</span>
+                  <span className="chip chip-warning">{t('page.dashboard.soon')}</span>
                 </div>
               ))}
             </div>

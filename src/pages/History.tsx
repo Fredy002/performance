@@ -3,24 +3,25 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { useI18n } from '@/i18n';
 import { clearHistory, removeHistory, restoreHistory, useHistory, type HistoryEntry } from '@/state/history';
 import { showToast } from '@/state/toast';
-import { CATEGORIES, getTool, TOOLS, toolPath } from '@/tools/registry';
-
-const dateFmt = new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+import { CATEGORIES, getTool, localizedCategory, localizedToolName, TOOLS, toolPath } from '@/tools/registry';
 
 export function HistoryList({ entries, compact }: { entries: HistoryEntry[]; compact?: boolean }) {
+  const { locale, t } = useI18n();
+  const dateFmt = new Intl.DateTimeFormat(locale === 'es' ? 'es-ES' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' });
   if (entries.length === 0) {
     return (
       <div className="empty">
         <HistoryIcon size={32} aria-hidden="true" />
         <div>
-          <div className="empty-title">Aún no hay cálculos guardados</div>
-          <div>Pulsa «Guardar» en cualquier calculadora para verlo aquí.</div>
+          <div className="empty-title">{t('page.history.emptyTitle')}</div>
+          <div>{t('page.history.emptyBody')}</div>
         </div>
         {!compact && (
           <Link to={toolPath('fuel')} className="btn btn-primary">
-            Resolver un ejercicio
+            {t('page.history.solveExercise')}
           </Link>
         )}
       </div>
@@ -28,37 +29,38 @@ export function HistoryList({ entries, compact }: { entries: HistoryEntry[]; com
   }
   return (
     <div className="list">
-      {entries.map((e) => {
-        const tool = getTool(e.toolId);
+      {entries.map((entry) => {
+        const tool = getTool(entry.toolId);
         const Icon = tool?.icon ?? HistoryIcon;
+        const toolName = tool ? locale === 'es' ? tool.name : localizedToolName(tool.id, locale) : entry.toolId;
         return (
-          <div key={e.id} className="history-row">
-            <Link to={e.href} className="list-item" title="Abrir este cálculo">
+          <div key={entry.id} className="history-row">
+            <Link to={entry.href} className="list-item" title={t('page.history.openCalculation')}>
               <span className="list-item-icon">
                 <Icon size={18} />
               </span>
               <div className="list-item-main">
-                <div className="list-item-title">{tool?.name ?? e.toolId}</div>
+                <div className="list-item-title">{toolName}</div>
                 <div className="list-item-sub">
-                  {e.summary} · {dateFmt.format(e.createdAt)}
+                  {entry.summary} · {dateFmt.format(entry.createdAt)}
                 </div>
               </div>
-              <span className="list-item-value">{e.result}</span>
+              <span className="list-item-value">{entry.result}</span>
             </Link>
             {!compact && (
               <button
                 className="btn btn-ghost btn-icon"
                 onClick={() => {
-                  const removed = removeHistory(e.id);
+                  const removed = removeHistory(entry.id);
                   if (removed) {
-                    showToast('Cálculo eliminado del historial', {
+                    showToast(t('page.history.deleteToast'), {
                       kind: 'info',
-                      action: { label: 'Deshacer', run: () => restoreHistory([removed]) },
+                      action: { label: t('page.history.undo'), run: () => restoreHistory([removed]) },
                     });
                   }
                 }}
-                aria-label={`Eliminar del historial: ${tool?.name ?? e.toolId}, ${e.result}`}
-                title="Eliminar del historial"
+                aria-label={t('page.history.deleteLabel', { tool: toolName, result: entry.result })}
+                title={t('page.history.deleteTitle')}
               >
                 <Trash2 size={16} />
               </button>
@@ -71,42 +73,51 @@ export function HistoryList({ entries, compact }: { entries: HistoryEntry[]; com
 }
 
 export default function HistoryPage() {
+  const { locale, t } = useI18n();
   const history = useHistory();
   const [filter, setFilter] = useState('all');
-  const usedTools = TOOLS.filter((t) => history.some((h) => h.toolId === t.id));
-  const shown = filter === 'all' ? history : history.filter((h) => h.toolId === filter);
+  const usedTools = TOOLS.filter((tool) => history.some((entry) => entry.toolId === tool.id));
+  const shown = filter === 'all' ? history : history.filter((entry) => entry.toolId === filter);
 
   return (
     <>
       <PageHeader
-        title="Historial"
-        subtitle="Cálculos guardados en este navegador. Pulsa uno para reabrirlo con los mismos datos."
+        title={t('page.history.title')}
+        subtitle={t('page.history.subtitle')}
         actions={
           history.length > 0 && (
             <button
               className="btn"
               onClick={() => {
-                if (!confirm(`¿Borrar los ${history.length} cálculos del historial? Podrás deshacerlo durante unos segundos.`)) return;
+                const confirmKey = history.length === 1 ? 'page.history.clearConfirmOne' : 'page.history.clearConfirm';
+                if (!confirm(t(confirmKey, { count: history.length }))) return;
                 const removed = clearHistory();
-                showToast('Historial borrado', {
+                showToast(t('page.history.clearToast'), {
                   kind: 'info',
-                  action: { label: 'Deshacer', run: () => restoreHistory(removed.map((entry, index) => ({ entry, index }))) },
+                  action: { label: t('page.history.undo'), run: () => restoreHistory(removed.map((entry, index) => ({ entry, index }))) },
                 });
               }}
             >
-              <Trash2 size={16} /> Borrar todo
+              <Trash2 size={16} /> {t('page.history.clearAll')}
             </button>
           )
         }
       />
       {usedTools.length > 1 && (
-        <div className="segmented history-filter" role="group" aria-label="Filtrar por herramienta">
+        <div className="segmented history-filter" role="group" aria-label={t('page.history.filter')}>
           <button aria-pressed={filter === 'all'} onClick={() => setFilter('all')}>
-            Todas
+            {t('page.history.allTools')}
           </button>
-          {usedTools.map((t) => (
-            <button key={t.id} aria-pressed={filter === t.id} onClick={() => setFilter(t.id)} title={CATEGORIES[t.category]}>
-              <t.icon size={14} /> {t.name}
+          {usedTools.map((tool) => (
+            <button
+              key={tool.id}
+              aria-pressed={filter === tool.id}
+              onClick={() => setFilter(tool.id)}
+              title={tool.category === 'performance'
+                ? t('common.aircraftPerformance')
+                : locale === 'es' ? CATEGORIES[tool.category] : localizedCategory(tool.category, locale)}
+            >
+              <tool.icon size={14} /> {localizedToolName(tool.id, locale)}
             </button>
           ))}
         </div>

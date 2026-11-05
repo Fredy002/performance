@@ -1,15 +1,9 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/Card';
 import type { HoldingCell, HoldingTable } from '@/data/tables';
+import { useI18n } from '@/i18n';
 
 type Param = 'all' | 'epr' | 'ias' | 'ff';
-
-const PARAMS: { id: Param; label: string }[] = [
-  { id: 'all', label: 'Todo' },
-  { id: 'epr', label: 'EPR' },
-  { id: 'ias', label: 'IAS (kt)' },
-  { id: 'ff', label: 'FF / motor (lb/h)' },
-];
 
 const flLabel = (fl: number) => `FL ${String(fl).padStart(3, '0')}`;
 
@@ -27,14 +21,21 @@ function Cell({ c, param }: { c: HoldingCell; param: Param }) {
 }
 
 export function HoldingView({ table }: { table: HoldingTable }) {
+  const { t } = useI18n();
   const [param, setParam] = useState<Param>('all');
+  const params: { id: Param; label: string }[] = [
+    { id: 'all', label: t('table.all') },
+    { id: 'epr', label: 'EPR' },
+    { id: 'ias', label: t('table.ias') },
+    { id: 'ff', label: t('table.ffPerEngine') },
+  ];
   return (
     <div className="stack">
       <Card
-        title="Datos de la tabla"
+        title={t('table.tableData')}
         action={
-          <div className="segmented" role="group" aria-label="Parámetro a mostrar">
-            {PARAMS.map((p) => (
+          <div className="segmented" role="group" aria-label={t('table.parameterToShow')}>
+            {params.map((p) => (
               <button key={p.id} aria-pressed={param === p.id} onClick={() => setParam(p.id)}>
                 {p.label}
               </button>
@@ -45,21 +46,21 @@ export function HoldingView({ table }: { table: HoldingTable }) {
       >
         <div className="row card-inset table-toolbar">
           <span className="muted">
-            Columnas: peso bruto (×1000 lb) · Filas: nivel de vuelo
+            {t('table.columnsWeightRowsFlightLevel')}
           </span>
           {param === 'all' && (
             <span className="legend">
               <span className="legend-epr"><i /> EPR</span>
-              <span className="legend-ias"><i /> IAS kt</span>
-              <span className="legend-ff"><i /> FF por motor lb/h</span>
+              <span className="legend-ias"><i /> {t('table.legendIas')}</span>
+              <span className="legend-ff"><i /> {t('table.legendFf')}</span>
             </span>
           )}
         </div>
-        <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
+        <div className="data-table-wrap" tabIndex={0} role="region" aria-label={t('table.scrollable')}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>FL \ Peso</th>
+                <th>{t('table.flightLevelWeight')}</th>
                 {table.weightsKlb.map((w) => (
                   <th key={w}>{w}</th>
                 ))}
@@ -81,16 +82,16 @@ export function HoldingView({ table }: { table: HoldingTable }) {
         </div>
       </Card>
       <div className="grid grid-2">
-        <Card title="Combustible de espera">
+        <Card title={t('table.holdingFuel')}>
           <div className="formula-box">
-            <span>Consumo total = FF por motor × {table.engines}</span>
-            <span>Combustible = Consumo total × minutos ÷ 60</span>
+            <span>{t('table.totalFuelFlowFormula', { engines: table.engines })}</span>
+            <span>{t('table.holdingFuelFormula')}</span>
           </div>
           <p className="calc-note">
-            Ejemplo: FL 200, 100 000 lb → 2 390 lb/h por motor → 4 780 lb/h. En 30 min de espera: 2 390 lb.
+            {t('table.holdingExample')}
           </p>
         </Card>
-        <Card title="Observaciones sobre la fuente">
+        <Card title={t('table.sourceObservations')}>
           <div className="help-block">
             <ul>
               {table.sourceRemarks.map((r) => (

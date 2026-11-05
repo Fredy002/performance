@@ -3,16 +3,19 @@ import { Card } from '@/components/ui/Card';
 import { formatPlain } from '@/core/format';
 import { useDecimals } from '@/state/settings';
 import { FIG67_ABBREVIATED_FLIGHT_PLANNING as F67, windCorrection, type ConditionsTable } from '@/data/tables';
+import { getTableDisplay } from '@/data/tables/localization';
+import { useI18n } from '@/i18n';
 
 export function ConditionsView({ table }: { table: ConditionsTable }) {
+  const { t, locale } = useI18n();
   const decimals = useDecimals();
   // sin separador de miles para que todas las filas se lean igual; decimales de Ajustes
   const lb = (v: number) => formatPlain(v, decimals);
   const min = (v: number) => formatPlain(v, decimals);
   return (
     <div className="stack">
-      <Card title="Datos de la tabla" flush>
-        <div className="data-table-wrap after-header" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
+      <Card title={t('table.tableData')} flush>
+        <div className="data-table-wrap after-header" tabIndex={0} role="region" aria-label={t('table.scrollable')}>
           <table className="data-table">
             <thead>
               <tr>
@@ -24,13 +27,13 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
             </thead>
             <tbody>
               <tr>
-                <td>DISTANCE (NM)</td>
+                <td>{t('table.distance')}</td>
                 {table.conditions.map((c) => (
                   <td key={c.id}>{c.distanceNm}</td>
                 ))}
               </tr>
               <tr>
-                <td>AVG WIND COMP (KTS)</td>
+                <td>{t('table.averageWind')}</td>
                 {table.conditions.map((c) => (
                   <td key={c.id} className={c.wind.kind === 'HW' ? 'text-result' : 'text-success'}>
                     {c.wind.speedKt} {c.wind.kind}
@@ -42,23 +45,23 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
         </div>
       </Card>
 
-      <Card title="Ejemplo resuelto" flush>
+      <Card title={t('table.solvedExample')} flush>
         <p className="card-inset muted">
-          Resultado de aplicar el procedimiento a cada condición, con los valores de la{' '}
-          <Link to={`/tables/${F67.id}`}>{F67.title.toLowerCase()}</Link>.
+          {t('table.solvedExample.intro')}{' '}
+          <Link to={`/tables/${F67.id}`}>{getTableDisplay(F67, locale).title.toLowerCase()}</Link>.
         </p>
-        <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
+        <div className="data-table-wrap" tabIndex={0} role="region" aria-label={t('table.scrollable')}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Cond.</th>
+                <th>{t('table.condition')}</th>
                 <th>TAS</th>
-                <th>Tiempo calma</th>
-                <th>Δ tiempo</th>
-                <th>Tiempo</th>
-                <th>Comb. calma</th>
-                <th>Δ comb.</th>
-                <th>Combustible</th>
+                <th>{t('table.timeCalm')}</th>
+                <th>{t('table.deltaTime')}</th>
+                <th>{t('table.time')}</th>
+                <th>{t('table.fuelCalm')}</th>
+                <th>{t('table.deltaFuel')}</th>
+                <th>{t('table.fuel')}</th>
               </tr>
             </thead>
             <tbody>

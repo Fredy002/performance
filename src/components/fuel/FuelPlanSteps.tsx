@@ -4,11 +4,12 @@ import type { FuelPlanResult, LegResult } from '@/core/fuelPlanning';
 import type { WindKind } from '@/data/tables/types';
 import type { FuelPlanInput } from '@/core/fuelPlanning';
 import { EMPTY_ROUTE, type RouteAirports } from '@/data/airports';
+import { useI18n } from '@/i18n';
 
 type Fmt = (v: number) => string;
 
 /** Lectura de la tabla (exacta o interpolada) y corrección por viento de un tramo. */
-function LegSteps({ leg, windKt, kind, timeTag, fuelTag, p }: { leg: LegResult; windKt: number; kind: WindKind; timeTag: string; fuelTag: string; p: Fmt }) {
+function LegSteps({ leg, windKt, kind, timeTag, fuelTag, p, f, t }: { leg: LegResult; windKt: number; kind: WindKind; timeTag: string; fuelTag: string; p: Fmt; f: Fmt; t: (key: import('@/i18n').MessageKey, values?: Record<string, string | number>) => string }) {
   const { lookup } = leg;
   const [r1, r2] = lookup.rows;
   const op = kind === 'HW' ? '+' : '−';
@@ -16,7 +17,7 @@ function LegSteps({ leg, windKt, kind, timeTag, fuelTag, p }: { leg: LegResult; 
     <div className="calc-line" key={label}>
       <span className="calc-label">{label}</span>
       <span>
-        {a1} + ({b1} − {a1})({formatPlain(lookup.distanceNm, 2)} − {r1.distanceNm}) / ({r2.distanceNm} − {r1.distanceNm}) = <b>{p(x)}</b>
+        {f(a1)} + ({f(b1)} − {f(a1)})({f(lookup.distanceNm)} − {f(r1.distanceNm)}) / ({f(r2.distanceNm)} − {f(r1.distanceNm)}) = <b>{p(x)}</b>
       </span>
     </div>
   );
@@ -25,35 +26,32 @@ function LegSteps({ leg, windKt, kind, timeTag, fuelTag, p }: { leg: LegResult; 
       {lookup.interpolated ? (
         <>
           <p className="calc-text">
-            {formatPlain(lookup.distanceNm, 2)} NM no está en la tabla: se interpola entre las filas de {r1.distanceNm} y{' '}
-            {r2.distanceNm} NM.
+            {t('fuel.stepLegInterpolated', { distance: f(lookup.distanceNm), lower: f(r1.distanceNm), upper: f(r2.distanceNm) })}
           </p>
           {lookup.gap && (
             <div className="alert alert-warning" role="note">
               <span>
-                Entre {lookup.gap.afterNm} y {lookup.gap.beforeNm} NM la tabla no publica filas intermedias: se interpola
-                directamente entre ambas (método del curso). Es una aproximación.
+                {t('fuel.stepGap', { lower: f(lookup.gap.afterNm), upper: f(lookup.gap.beforeNm) })}
               </span>
             </div>
           )}
           {interpLine('TAS', r1.tasKt, r2.tasKt, lookup.tasKt)}
-          {interpLine('Tiempo', r1.airTimeMin, r2.airTimeMin, lookup.airTimeMin)}
-          {interpLine('Combustible', r1.fuelLb, r2.fuelLb, lookup.fuelLb)}
+          {interpLine(t('fuel.stepTimeLabel'), r1.airTimeMin, r2.airTimeMin, lookup.airTimeMin)}
+          {interpLine(t('fuel.stepFuelLabel'), r1.fuelLb, r2.fuelLb, lookup.fuelLb)}
         </>
       ) : (
         <div className="calc-line">
-          <span className="calc-label">Tabla</span>
+          <span className="calc-label">{t('fuel.stepTable')}</span>
           <span>
-            Fila exacta de {lookup.distanceNm} NM → TAS <b>{p(lookup.tasKt)}</b> kt · tiempo <b>{p(lookup.airTimeMin)}</b> min ·
-            combustible <b>{p(lookup.fuelLb)}</b> lb
+            {t('fuel.stepExactRow', { distance: f(lookup.distanceNm), tas: p(lookup.tasKt), time: p(lookup.airTimeMin), fuel: p(lookup.fuelLb) })}
           </span>
         </div>
       )}
       <p className="calc-text">
-        Viento de {kind === 'HW' ? 'cara (HW): se suma' : 'cola (TW): se resta'}.
+        {t(kind === 'HW' ? 'fuel.stepWindHead' : 'fuel.stepWindTail')}.
       </p>
       <div className="calc-line">
-        <span className="calc-label">Δ tiempo</span>
+        <span className="calc-label">{t('fuel.stepDeltaTime')}</span>
         <span>
           {p(lookup.airTimeMin)} × {p(windKt)} ÷ {p(lookup.tasKt)} = <b>{p(Math.abs(leg.deltaTimeMin))}</b>
         </span>
@@ -65,7 +63,7 @@ function LegSteps({ leg, windKt, kind, timeTag, fuelTag, p }: { leg: LegResult; 
         </span>
       </div>
       <div className="calc-line">
-        <span className="calc-label">Δ combustible</span>
+        <span className="calc-label">{t('fuel.stepDeltaFuel')}</span>
         <span>
           {p(lookup.fuelLb)} × {p(windKt)} ÷ {p(lookup.tasKt)} = <b>{p(Math.abs(leg.deltaFuelLb))}</b>
         </span>
@@ -80,21 +78,26 @@ function LegSteps({ leg, windKt, kind, timeTag, fuelTag, p }: { leg: LegResult; 
   );
 }
 
-function HoldingSteps({ r, weightLb, p }: { r: FuelPlanResult['holding']; weightLb: number; p: Fmt }) {
+function HoldingSteps({ r, weightLb, p, f, t, numberLocale }: { r: FuelPlanResult['holding']; weightLb: number; p: Fmt; f: Fmt; numberLocale: string; t: (key: import('@/i18n').MessageKey, values?: Record<string, string | number>) => string }) {
   const h = r.lookup;
-  const fl = (v: number) => `FL ${String(v).padStart(3, '0')}`;
+  const fl = (v: number) => `FL ${formatPlain(v, 0, numberLocale).padStart(3, '0')}`;
   return (
     <div className="stack gap-12">
       <div className="calc-line">
-        <span className="calc-label">Tabla</span>
+        <span className="calc-label">{t('fuel.stepTable')}</span>
         <span>
-          {fl(h.flightLevel)} · {formatPlain(weightLb, 0)} lb →{' '}
-          {h.interpolated && `interpolado entre ${h.flightLevels.map(fl).join(' y ')} / ${h.weightsKlb.map((w) => w * 1000).join(' y ')} lb → `}
-          FF <b>{p(h.ffPerEngineLbHr)}</b> lb/h por motor (EPR {formatPlain(h.epr, 2)} · IAS {formatPlain(h.iasKt, 0)} kt)
+          {t('fuel.stepHoldingTable', {
+            level: fl(h.flightLevel).replace('FL ', ''),
+            weight: f(weightLb),
+            interpolation: h.interpolated ? t('fuel.stepInterpolatedBetween', { levels: h.flightLevels.map(fl).join(t('fuel.and')), weights: h.weightsKlb.map((w) => f(w * 1000)).join(t('fuel.and')) }) : '',
+            flow: p(h.ffPerEngineLbHr),
+            epr: f(h.epr),
+            ias: f(h.iasKt),
+          })}
         </span>
       </div>
       <div className="calc-line">
-        <span className="calc-label">Por motor</span>
+        <span className="calc-label">{t('fuel.stepPerEngine')}</span>
         <span>
           {p(h.ffPerEngineLbHr)} × {p(r.minutes)} ÷ 60 = <b>{p(r.fuelPerEngineLb)}</b> lb
         </span>
@@ -102,7 +105,7 @@ function HoldingSteps({ r, weightLb, p }: { r: FuelPlanResult['holding']; weight
       <div className="calc-line">
         <span className="calc-label">H.F</span>
         <span>
-          {p(r.fuelPerEngineLb)} × {r.engines} motores = <b>{p(r.fuelLb)}</b> lb
+          {p(r.fuelPerEngineLb)} × {t('fuel.stepEngines', { count: r.engines })} = <b>{p(r.fuelLb)}</b> lb
         </span>
       </div>
     </div>
@@ -124,38 +127,41 @@ export function FuelPlanSteps({
   /** Título «Desarrollo» encima (no hace falta dentro de una sección plegable) */
   heading?: boolean;
 }) {
-  const p: Fmt = (v) => formatPlain(v, decimals);
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
+  const p: Fmt = (v) => formatPlain(v, decimals, numberLocale);
+  const f: Fmt = (v) => formatPlain(v, 2, numberLocale);
   // «SPJC → SPQT · » si hay códigos escritos
   const leg = (a: string, b: string) => (a || b ? `${a || '····'} → ${b || '····'} · ` : '');
   return (
     <>
-      {heading && <h2 className="section-title">Desarrollo</h2>}
+      {heading && <h2 className="section-title">{t('calc.steps')}</h2>}
       <div className="grid grid-2">
-        <Card title={`1. Origen – destino · ${leg(airports.origin, airports.destination)}${formatPlain(input.trip.distanceNm, 2)} NM`}>
-          <LegSteps leg={r.trip} windKt={input.trip.windKt} kind={input.trip.windKind} timeTag="T.T" fuelTag="T.F" p={p} />
+        <Card title={t('fuel.stepTripLeg', { leg: leg(airports.origin, airports.destination), distance: f(input.trip.distanceNm) })}>
+          <LegSteps leg={r.trip} windKt={input.trip.windKt} kind={input.trip.windKind} timeTag="T.T" fuelTag="T.F" p={p} f={f} t={t} />
         </Card>
-        <Card title={`2. Destino – alterno · ${leg(airports.destination, airports.alternate)}${formatPlain(input.alternate.distanceNm, 2)} NM`}>
-          <LegSteps leg={r.alternate} windKt={input.alternate.windKt} kind={input.alternate.windKind} timeTag="A.T" fuelTag="A.F" p={p} />
+        <Card title={t('fuel.stepAlternateLeg', { leg: leg(airports.destination, airports.alternate), distance: f(input.alternate.distanceNm) })}>
+          <LegSteps leg={r.alternate} windKt={input.alternate.windKt} kind={input.alternate.windKind} timeTag="A.T" fuelTag="A.F" p={p} f={f} t={t} />
         </Card>
-        <Card title="3. Espera (holding)">
-          <HoldingSteps r={r.holding} weightLb={input.holding.weightLb} p={p} />
+        <Card title={t('fuel.stepHolding')}>
+          <HoldingSteps r={r.holding} weightLb={input.holding.weightLb} p={p} f={f} t={t} numberLocale={numberLocale} />
         </Card>
-        <Card title="4. Resumen">
+        <Card title={t('fuel.stepSummary')}>
           {r.contingency.pct > 0 && (
             <div className="stack gap-12 calc-section-sm">
               <p className="calc-text">
-                Vuelo internacional: se suma el {formatPlain(r.contingency.pct * 100, 0)} % de T.T y de T.F.
+                {t('fuel.stepInternational', { percent: formatPlain(r.contingency.pct * 100, 0, numberLocale) })}
               </p>
               <div className="calc-line">
-                <span className="calc-label">{formatPlain(r.contingency.pct * 100, 0)} % T.T</span>
+                <span className="calc-label">{formatPlain(r.contingency.pct * 100, 0, numberLocale)} % T.T</span>
                 <span>
-                  {p(r.trip.timeMin)} × {formatPlain(r.contingency.pct, 2)} = <b>{p(r.contingency.timeMin)}</b> min
+                  {p(r.trip.timeMin)} × {f(r.contingency.pct)} = <b>{p(r.contingency.timeMin)}</b> min
                 </span>
               </div>
               <div className="calc-line">
-                <span className="calc-label">{formatPlain(r.contingency.pct * 100, 0)} % T.F</span>
+                <span className="calc-label">{formatPlain(r.contingency.pct * 100, 0, numberLocale)} % T.F</span>
                 <span>
-                  {p(r.trip.fuelLb)} × {formatPlain(r.contingency.pct, 2)} = <b>{p(r.contingency.fuelLb)}</b> lb
+                  {p(r.trip.fuelLb)} × {f(r.contingency.pct)} = <b>{p(r.contingency.fuelLb)}</b> lb
                 </span>
               </div>
             </div>
@@ -166,15 +172,15 @@ export function FuelPlanSteps({
               <div className="v">{p(r.trip.timeMin)}</div>
               {r.contingency.pct > 0 && (
                 <>
-                  <div className="k">{formatPlain(r.contingency.pct * 100, 0)} % T.T</div>
+                  <div className="k">{formatPlain(r.contingency.pct * 100, 0, numberLocale)} % T.T</div>
                   <div className="v">{p(r.contingency.timeMin)}</div>
                 </>
               )}
-              <div className="k">A.T</div>
+              <div className="k">{t('fuel.stepAlternateTime')}</div>
               <div className="v">{p(r.alternate.timeMin)}</div>
-              <div className="k">T.H (espera)</div>
+              <div className="k">{t('fuel.stepHoldingTime')}</div>
               <div className="v">{p(r.holding.minutes)}</div>
-              <div className="k kv-total">Autonomía (min)</div>
+              <div className="k kv-total">{t('fuel.stepEnduranceMinutes')}</div>
               <div className="v kv-total">{p(r.enduranceMin)}</div>
             </div>
             <div className="kv">
@@ -182,15 +188,15 @@ export function FuelPlanSteps({
               <div className="v">{p(r.trip.fuelLb)}</div>
               {r.contingency.pct > 0 && (
                 <>
-                  <div className="k">{formatPlain(r.contingency.pct * 100, 0)} % T.F</div>
+                  <div className="k">{formatPlain(r.contingency.pct * 100, 0, numberLocale)} % T.F</div>
                   <div className="v">{p(r.contingency.fuelLb)}</div>
                 </>
               )}
-              <div className="k">A.F</div>
+              <div className="k">{t('fuel.stepAlternateFuel')}</div>
               <div className="v">{p(r.alternate.fuelLb)}</div>
               <div className="k">H.F</div>
               <div className="v">{p(r.holding.fuelLb)}</div>
-              <div className="k">Taxi</div>
+              <div className="k">{t('fuel.stepTaxi')}</div>
               <div className="v">{p(r.taxiFuelLb)}</div>
               <div className="k kv-total">FOB (lb)</div>
               <div className="v kv-total">{p(r.fobLb)}</div>

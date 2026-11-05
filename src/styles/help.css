@@ -415,6 +415,14 @@
   white-space: nowrap;
 }
 
+@media (max-width: 640px) {
+  .epr-form .segmented,
+  .climb-form .segmented {
+    flex-wrap: wrap;
+    max-width: 100%;
+  }
+}
+
 /* enlaces dentro de notas y ayudas: área táctil de 24 px sin mover el texto (WCAG 2.5.8) */
 .calc-note a,
 .help-block a {

@@ -1,40 +1,38 @@
 import { ArrowRight, Table } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { PERFORMANCE_TABLE_GROUPS, getTable, type PerformanceTable } from '@/data/tables';
-
-const KIND_LABEL: Record<PerformanceTable['kind'], string> = {
-  conditions: 'Datos de ejercicio',
-  'flight-planning': 'Tabla de 1 entrada',
-  holding: 'Tabla de 2 entradas',
-  figure: 'Tabla de referencia',
-};
+import { PERFORMANCE_TABLE_GROUPS, getTable } from '@/data/tables';
+import { getTableAircraft, getTableDisplay, getTableGroupDisplay } from '@/data/tables/localization';
+import { useI18n } from '@/i18n';
 
 export default function TablesLibrary() {
+  const { t, locale } = useI18n();
   return (
     <>
       <PageHeader
-        eyebrow={<><Table size={14} /> Referencia</>}
-        title="Tablas de performance de aeronaves"
-        subtitle="Tablas de referencia para ejercicios de performance, con datos, unidades y guía de uso. La planificación abreviada y la espera B737 alimentan la calculadora de combustible; las demás se consultan por separado."
+        eyebrow={<><Table size={14} /> {t('table.library.eyebrow')}</>}
+        title={t('table.library.title')}
+        subtitle={t('table.library.subtitle')}
       />
       <div className="grid grid-3">
         {PERFORMANCE_TABLE_GROUPS.map((group) => {
-          const t = getTable(group.primaryId)!;
+          const table = getTable(group.primaryId)!;
+          const tableDisplay = getTableDisplay(table, locale);
+          const groupDisplay = getTableGroupDisplay(group, locale);
           return (
-            <Link key={t.id} to={`/tables/${t.id}`} className="card tool-card">
+            <Link key={table.id} to={`/tables/${table.id}`} className="card tool-card">
               <span className="tool-card-icon tone-yellow">
                 <Table size={20} />
               </span>
               <div className="tool-card-body">
-                <div className="chip chip-accent">{t.category}</div>
-                <h2 className="tool-card-title">{group.title}</h2>
-                <p>{group.summary ?? t.summary}</p>
+                <div className="chip chip-accent">{tableDisplay.category}</div>
+                <h2 className="tool-card-title">{groupDisplay.title}</h2>
+                <p>{groupDisplay.summary || tableDisplay.summary}</p>
               </div>
               <div className="tool-card-footer">
-                <span className="chip">{t.aircraft ?? KIND_LABEL[t.kind]}</span>
+                <span className="chip">{getTableAircraft(table, locale) ?? t(`table.kind.${table.kind}`)}</span>
                 <span className="tool-card-cta">
-                  Ver tabla <ArrowRight size={14} />
+                  {t('table.library.view')} <ArrowRight size={14} />
                 </span>
               </div>
             </Link>

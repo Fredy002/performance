@@ -318,6 +318,22 @@
   margin-left: auto;
 }
 
+.language-select {
+  flex-shrink: 0;
+  height: 36px;
+  padding: 0 var(--space-8);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+}
+
+.language-select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* atajo de teclado */
 kbd {
   display: inline-flex;
@@ -643,6 +659,11 @@ kbd {
   .search-trigger span,
   .search-trigger kbd {
     display: none;
+  }
+
+  .language-select {
+    width: 52px;
+    padding: 0 var(--space-4);
   }
 
   /* hueco inferior para la barra de navegación */

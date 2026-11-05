@@ -9,11 +9,11 @@ import { Card } from '@/components/ui/Card';
 import { Disclosure } from '@/components/ui/Disclosure';
 import { InfoTip } from '@/components/ui/InfoTip';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { HELP } from '@/content/help';
 import { formatPlain } from '@/core/format';
 import { B727_TAKEOFF_SCENARIOS, B737_TAKEOFF_SCENARIOS } from '@/data/tables/takeoffEprData';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useDecimals } from '@/state/settings';
+import { useI18n } from '@/i18n';
 
 const G5 = B727_TAKEOFF_SCENARIOS.find((s) => s.id === 'G-5')!;
 // los enlaces y el historial previos (sin `av`) son del B727: ese sigue siendo el ejemplo por defecto
@@ -25,18 +25,20 @@ const SCENARIOS = [
     id: s.id,
     aircraft: 'b737' as const,
     form: toEprForm(b737ScenarioCase(s)),
-    note: `peso ${s.weightKlb} 000 lb · flaps ${s.flapsDeg}° · viento ${Math.abs(s.windKt)} kt ${s.windKt >= 0 ? 'HW' : 'TW'} · pendiente ${Math.abs(s.slopePct)} % ${s.slopePct >= 0 ? 'UP' : 'DN'} · CG ${s.cgStation}`,
+    noteData: { weight: s.weightKlb, flaps: s.flapsDeg, wind: Math.abs(s.windKt), windType: s.windKt >= 0 ? 'HW' : 'TW', slope: Math.abs(s.slopePct), slopeType: s.slopePct >= 0 ? 'UP' : 'DN', cg: s.cgStation },
   })),
   ...B727_TAKEOFF_SCENARIOS.map((s) => ({
     id: s.id,
     aircraft: 'b727' as const,
     form: toEprForm(b727ScenarioCase(s)),
-    note: `peso ${s.grossWeightKlb} 000 lb · flaps ${s.flapsDeg}° · CG ${s.cgStation}`,
+    noteData: { weight: s.grossWeightKlb, flaps: s.flapsDeg, cg: s.cgStation },
   })),
 ];
 
 export default function TakeoffEpr() {
   const decimals = useDecimals();
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const form = useFormValues(DEFAULTS);
   const v = form.values;
   const aircraft = formAircraft(v);
@@ -45,9 +47,9 @@ export default function TakeoffEpr() {
   const scenario = SCENARIOS.find((s) => s.aircraft === aircraft && EPR_FORM_KEYS.every((k) => (aircraft === 'b737' && k === 'b6') || s.form[k] === v[k]));
   const resultText =
     plan.aircraft === 'b737'
-      ? plan.result && `EPR ${formatPlain(plan.result.final, 2)}`
-      : plan.result && `EPR 1 y 3: ${formatPlain(plan.result.eng13.final, 2)} · motor 2: ${formatPlain(plan.result.eng2.final, 2)}`;
-  const placeholder = <div className="empty">{plan.error ? 'Revisa los datos.' : 'Completa elevación, reglaje y temperatura con números.'}</div>;
+      ? plan.result && `EPR ${formatPlain(plan.result.final, 2, numberLocale)}`
+      : plan.result && `${t('takeoff.answerEng13')}: ${formatPlain(plan.result.eng13.final, 2, numberLocale)} · ${t('takeoff.answerEng2')}: ${formatPlain(plan.result.eng2.final, 2, numberLocale)}`;
+  const placeholder = <div className="empty">{plan.error ? t('calc.reviewData') : t('takeoff.complete')}</div>;
   const name = aircraft === 'b737' ? 'Boeing 737' : 'Boeing 727';
 
   return (
@@ -55,17 +57,17 @@ export default function TakeoffEpr() {
       <PageHeader
         eyebrow={
           <>
-            <Gauge size={14} /> {name} · Despegue
+            <Gauge size={14} /> {name} · {t('takeoff.departure')}
           </>
         }
-        title="EPR de despegue"
-        subtitle="EPR máximo de despegue a partir de la elevación, el reglaje altimétrico, la temperatura y los sangrados, con las tablas del B737 o del B727."
+        title={t('takeoff.title')}
+        subtitle={t('takeoff.subtitle')}
         actions={
           <ToolActions
             toolId="takeoff-epr"
             href={form.href}
             canSave={!!plan.result}
-            summary={`${name}${scenario ? ` ${scenario.id}` : ''} · Elev ${v.elev} ft · ${v.qnh} ${v.qu === 'mb' ? 'mb' : 'in.Hg'} · ${v.oat} °${v.tu}`}
+            summary={`${name}${scenario ? ` ${scenario.id}` : ''} · ${t('takeoff.summaryElevation')} ${formatPlain(Number(v.elev), decimals, numberLocale)} ft · ${formatPlain(Number(v.qnh), 1, numberLocale)} ${v.qu === 'mb' ? 'mb' : 'in.Hg'} · ${formatPlain(Number(v.oat), 1, numberLocale)} °${v.tu}`}
             result={resultText || ''}
             onReset={form.reset}
             capture={() => {
@@ -78,12 +80,12 @@ export default function TakeoffEpr() {
 
       <div className="grid grid-calc">
         <Card
-          title="Condiciones"
+          title={t('calc.conditions')}
           action={
             <span className="with-help">
               <select
                 className="select select-compact"
-                aria-label="Cargar condiciones R-1 a R-5 (B737) o G-1 a G-5 (B727)"
+                aria-label={t('takeoff.loadConditionsAria')}
                 value={scenario?.id ?? ''}
                 onChange={(e) => {
                   const s = SCENARIOS.find((x) => x.id === e.target.value);
@@ -91,16 +93,16 @@ export default function TakeoffEpr() {
                 }}
               >
                 <option value="" disabled>
-                  Condiciones…
+                  {t('calc.loadConditions')}
                 </option>
-                <optgroup label="Boeing 737 (FIGURE 53)">
+                <optgroup label={t('takeoff.scenarioLabel737')}>
                   {SCENARIOS.filter((s) => s.aircraft === 'b737').map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.id}
                     </option>
                   ))}
                 </optgroup>
-                <optgroup label="Boeing 727 (FIGURE 81)">
+                <optgroup label={t('takeoff.scenarioLabel727')}>
                   {SCENARIOS.filter((s) => s.aircraft === 'b727').map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.id}
@@ -108,14 +110,14 @@ export default function TakeoffEpr() {
                   ))}
                 </optgroup>
               </select>
-              <InfoTip label="las condiciones de los ejercicios">{HELP.takeoffScenario}</InfoTip>
+              <InfoTip label={t('takeoff.loadConditionsAria')}>{t('help.takeoffScenario')}</InfoTip>
             </span>
           }
         >
           <TakeoffEprForm values={v} set={form.set} />
           {scenario && (
             <p className="calc-note">
-              Condiciones {scenario.id}: {scenario.note}. No intervienen en el EPR.
+              {t(scenario.aircraft === 'b737' ? 'takeoff.scenarioNote737' : 'takeoff.scenarioNote727', scenario.noteData)}
             </p>
           )}
         </Card>
@@ -131,36 +133,32 @@ export default function TakeoffEpr() {
 
       <div className="calc-section">
         <Disclosure
-          title="Desarrollo paso a paso"
-          meta={plan.result ? `Altitud de presión ${formatPlain(plan.result.pressure.pressureAltitudeFt, 0)} ft` : undefined}
+          title={t('calc.steps')}
+          meta={plan.result ? t('takeoff.pressureAltitudeMeta', { value: formatPlain(plan.result.pressure.pressureAltitudeFt, 0, numberLocale) }) : undefined}
           defaultOpen
         >
           {!plan.result ? (
-            <p className="calc-text">Aparece cuando hay respuestas.</p>
+            <p className="calc-text">{t('calc.appearsWhenReady')}</p>
           ) : plan.aircraft === 'b737' ? (
             <B737EprSteps result={plan.result} input={plan.input} decimals={decimals} />
           ) : (
             <TakeoffEprSteps result={plan.result} input={plan.input} decimals={decimals} />
           )}
         </Disclosure>
-        <Disclosure title="Cómo se calcula">
+        <Disclosure title={t('calc.howCalculated')}>
           <div className="help-block">
             <ul>
               <li>
-                <b>Altitud de presión</b> = elevación + corrección del reglaje (tabla de{' '}
-                <Link to="/tables/reglaje-altimetrico-altitud-presion">reglaje altimétrico a altitud de presión</Link>).
+                <b>{t('takeoff.pressureAltitude')}</b> {t('takeoff.pressureAltitudeHow')}
+                <Link to="/tables/reglaje-altimetrico-altitud-presion">{t('takeoff.altimeterTable')}</Link>).
               </li>
               <li>
-                <b>Boeing 737</b> (<Link to="/tables/performance-despegue-b737">performance de despegue del B737</Link>): ① límite por
-                temperatura en la fila TEMP LIMIT EPR (aire acondicionado OFF: +0,03); ② límite por presión en los recuadros PRESS,
-                interpolando entre ellos; ③ se usa el menor. El antihielo de motor no corrige.
+                <b>{t('takeoff.b737How')}<Link to="/tables/performance-despegue-b737">{t('takeoff.b737Table')}</Link>{t('takeoff.b737Formula')}</b>
               </li>
               <li>
-                <b>Boeing 727</b> (<Link to="/tables/performance-despegue-b727">performance de despegue del B727</Link>): tabla MAX TAKEOFF EPR
-                por altitud de presión y OAT, interpolando A1 + (B1 − A1)(C − A) / (B − A); desde 3856 ft se usa la última fila. Correcciones:
-                aire acondicionado de 1 y 3 OFF +0,04; antihielo del motor 2 ON −0,03; 6.ª etapa ON con 10 °C (50 °F) o más −0,05 al motor 2.
+                <b>{t('takeoff.b727How')}<Link to="/tables/performance-despegue-b727">{t('takeoff.b727Table')}</Link>{t('takeoff.b727Explanation')}</b>
               </li>
-              <li>El resultado se redondea a 2 decimales, como los valores de las tablas.</li>
+              <li>{t('takeoff.roundingExplanation')}</li>
             </ul>
           </div>
         </Disclosure>

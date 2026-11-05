@@ -1,9 +1,11 @@
 import { ClipboardCheck, CornerDownLeft, ScanText, History, LayoutDashboard, Search, Settings, Table, type LucideIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CATEGORIES, TOOLS, toolPath } from '@/tools/registry';
+import { CATEGORIES, localizedCategory, localizedToolName, TOOLS, toolPath } from '@/tools/registry';
 import { PERFORMANCE_TABLE_GROUPS, getTable } from '@/data/tables';
-import { EXERCISES } from '@/exercises/registry';
+import { getTableDisplay, getTableGroupDisplay } from '@/data/tables/localization';
+import { EXERCISES, getExerciseDisplay } from '@/exercises/registry';
+import { useI18n } from '@/i18n';
 
 interface Item {
   id: string;
@@ -16,60 +18,70 @@ interface Item {
 
 const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-const ITEMS: Item[] = [
-  ...TOOLS.filter((t) => t.status === 'ready').map((t) => ({
-    id: t.id,
-    label: t.name,
-    hint: CATEGORIES[t.category],
-    icon: t.icon,
-    to: toolPath(t.id),
-    keywords: normalize([t.name, t.description, ...t.keywords].join(' ')),
-  })),
-  ...PERFORMANCE_TABLE_GROUPS.map((group) => {
-    const t = getTable(group.primaryId)!;
-    return {
-      id: `table-${t.id}`,
-      label: group.title,
-      hint: `Tabla · ${t.category}`,
-      icon: Table,
-      to: `/tables/${t.id}`,
-      keywords: normalize([group.title, group.summary ?? t.summary, ...group.variants.map(variant => getTable(variant.id)?.title ?? ''), t.source.originalTitle, t.category, t.aircraft ?? '', 'tabla performance aeronave'].join(' ')),
-    };
-  }),
-  ...EXERCISES.map((e) => ({
-    id: `exercise-${e.id}`,
-    label: e.title,
-    hint: e.status === 'verified' ? `Ejercicio resuelto · ${e.aircraft}` : `Prueba · ${e.aircraft}`,
-    icon: ClipboardCheck,
-    // los verificados se abren en su herramienta (la ruta de pruebas redirige)
-    to: `/pruebas/${e.id}`,
-    keywords: normalize([e.title, e.summary, e.aircraft, 'prueba ejercicio validar'].join(' ')),
-  })),
-  {
-    id: 'capture',
-    label: 'Resolver ejercicio desde una captura',
-    hint: 'Planificación de combustible',
-    icon: ScanText,
-    to: '/tools/fuel',
-    keywords: 'captura foto camara imagen ocr escanear resolver ejercicio enunciado',
-  },
-  { id: 'pruebas', label: 'Pruebas', hint: 'Navegación', icon: ClipboardCheck, to: '/pruebas', keywords: 'pruebas ejercicios validar' },
-  { id: 'tables', label: 'Tablas de performance de aeronaves', hint: 'Navegación', icon: Table, to: '/tables', keywords: 'tablas referencia performance aeronaves' },
-  { id: 'dash', label: 'Panel', hint: 'Navegación', icon: LayoutDashboard, to: '/', keywords: 'panel dashboard inicio' },
-  { id: 'hist', label: 'Historial', hint: 'Navegación', icon: History, to: '/history', keywords: 'historial guardados' },
-  { id: 'set', label: 'Ajustes', hint: 'Navegación', icon: Settings, to: '/settings', keywords: 'ajustes tema decimales' },
-];
-
 export function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { locale, t } = useI18n();
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const items = useMemo<Item[]>(() => [
+    ...TOOLS.filter((tool) => tool.status === 'ready').map((tool) => ({
+      id: tool.id,
+      label: locale === 'es' ? tool.name : localizedToolName(tool.id, locale),
+      hint: tool.category === 'performance'
+        ? t('common.aircraftPerformance')
+        : locale === 'es' ? CATEGORIES[tool.category] : localizedCategory(tool.category, locale),
+      icon: tool.icon,
+      to: toolPath(tool.id),
+      keywords: normalize([tool.name, tool.description, ...tool.keywords].join(' ')),
+    })),
+    ...PERFORMANCE_TABLE_GROUPS.map((group) => {
+      const table = getTable(group.primaryId)!;
+      const tableDisplay = getTableDisplay(table, locale);
+      const groupDisplay = getTableGroupDisplay(group, locale);
+      return {
+        id: `table-${table.id}`,
+        label: groupDisplay.title,
+        hint: t('common.tableCategory', { category: tableDisplay.category }),
+        icon: Table,
+        to: `/tables/${table.id}`,
+        keywords: normalize([group.title, groupDisplay.title, group.summary ?? table.summary, groupDisplay.summary, ...group.variants.map(variant => getTable(variant.id)?.title ?? ''), table.source.originalTitle, tableDisplay.title, table.category, tableDisplay.category, table.aircraft ?? '', 'tabla performance aeronave'].join(' ')),
+      };
+    }),
+    ...EXERCISES.map((exercise) => {
+      const display = getExerciseDisplay(exercise, locale);
+      return {
+        id: `exercise-${exercise.id}`,
+        label: display.title,
+        hint: exercise.status === 'verified'
+          ? t('common.solvedExercise', { aircraft: exercise.aircraft })
+          : t('common.exercise', { aircraft: exercise.aircraft }),
+        icon: ClipboardCheck,
+        // los verificados se abren en su herramienta (la ruta de pruebas redirige)
+        to: `/pruebas/${exercise.id}`,
+        keywords: normalize([exercise.title, exercise.summary, display.title, display.summary, exercise.aircraft, 'prueba ejercicio validar'].join(' ')),
+      };
+    }),
+    {
+      id: 'capture',
+      label: t('common.captureExercise'),
+      hint: t('common.fuelPlanning'),
+      icon: ScanText,
+      to: '/tools/fuel',
+      keywords: 'captura foto camara imagen ocr escanear resolver ejercicio enunciado',
+    },
+    { id: 'pruebas', label: t('common.exercises'), hint: t('common.navigation'), icon: ClipboardCheck, to: '/pruebas', keywords: 'pruebas ejercicios validar' },
+    { id: 'tables', label: t('common.tableNavigation'), hint: t('common.navigation'), icon: Table, to: '/tables', keywords: 'tablas referencia performance aeronaves' },
+    { id: 'dash', label: t('common.dashboard'), hint: t('common.navigation'), icon: LayoutDashboard, to: '/', keywords: 'panel dashboard inicio' },
+    { id: 'hist', label: t('common.history'), hint: t('common.navigation'), icon: History, to: '/history', keywords: 'historial guardados' },
+    { id: 'set', label: t('common.settings'), hint: t('common.navigation'), icon: Settings, to: '/settings', keywords: 'ajustes tema decimales' },
+  ], [locale, t]);
+
   const results = useMemo(() => {
     const terms = normalize(query).split(/\s+/).filter(Boolean);
-    return ITEMS.filter((i) => terms.every((t) => i.keywords.includes(t) || normalize(i.label).includes(t)));
-  }, [query]);
+    return items.filter((i) => terms.every((term) => i.keywords.includes(term) || normalize(i.label).includes(term)));
+  }, [items, query]);
 
   useEffect(() => {
     if (open) {
@@ -101,7 +113,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         className="palette"
         role="dialog"
         aria-modal="true"
-        aria-label="Buscar"
+        aria-label={t('common.searchDialog')}
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={(e) => {
           if (e.key === 'Escape') onClose();
@@ -120,8 +132,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar herramientas, tablas, ejercicios…"
-            aria-label="Buscar herramientas, tablas y ejercicios"
+            placeholder={t('common.searchPlaceholder')}
+            aria-label={t('common.searchToolsTablesExercises')}
             role="combobox"
             aria-expanded="true"
             aria-controls="palette-list"
@@ -132,8 +144,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         <div className="palette-list" id="palette-list" role="listbox">
           {results.length === 0 && (
             <div className="empty" role="status">
-              <div className="empty-title">Sin resultados para «{query}»</div>
-              <div>Prueba con «combustible», «viento», «tabla» o «espera».</div>
+              <div className="empty-title">{t('common.noResults', { query })}</div>
+              <div>{t('common.searchSuggestions')}</div>
             </div>
           )}
           {results.map((item, i) => (

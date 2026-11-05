@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { InfoTip } from '@/components/ui/InfoTip';
-import { HELP } from '@/content/help';
 import { findAirport, INTERNATIONAL_AIRPORTS, isIcaoCode, normalizeIcao, PERU_AIRPORTS } from '@/data/airports';
+import { useI18n } from '@/i18n';
 
 export const AIRPORTS_DATALIST_ID = 'peru-airports';
 
@@ -26,30 +26,31 @@ interface Props {
 
 /** Código OACI de un aeropuerto: 4 letras, en mayúsculas, con el nombre debajo si se conoce. */
 export function AirportField({ label, value, onChange }: Props) {
+  const { t } = useI18n();
   const id = useId();
   const code = normalizeIcao(value);
   const airport = findAirport(code);
   const invalid = code !== '' && code.length === 4 && !isIcaoCode(code);
   const hint = !code
-    ? 'Código OACI, p. ej. SPJC'
+    ? t('fuel.airportIcaoHint')
     : airport
       ? `${airport.city}${airport.country ? ` (${airport.country})` : ''} · ${airport.name}`
       : code.length < 4
-        ? 'El código OACI tiene 4 letras'
+        ? t('fuel.airportCodeLength')
         : invalid
-          ? 'Solo letras (A–Z)'
-          : 'No está en la lista de referencia';
+          ? t('fuel.airportLettersOnly')
+          : t('fuel.airportNotListed');
   return (
     <div className="field">
       <span className="field-label-row">
         <label className="field-label" htmlFor={id}>
           {label}
         </label>
-        <InfoTip label="el código OACI">{HELP.icao}</InfoTip>
+        <InfoTip label={t('fuel.icaoLabel')}>{t('help.icao')}</InfoTip>
       </span>
       <div className={`field-control${invalid ? ' invalid' : ''}`}>
         <span className="field-tag tag-sm" aria-hidden="true">
-          OACI
+          {t('fuel.icao')}
         </span>
         <input
           id={id}

@@ -39,6 +39,16 @@ describe('cliente de análisis de imágenes', () => {
     expect(request.mock.calls[0][0]).toBe('https://api.example.test/api/analyze-statement');
   });
 
+  it('envía el idioma seleccionado al backend y localiza validaciones de imagen', async () => {
+    const request = vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify(result())));
+    vi.stubGlobal('fetch', request);
+    await recognizeImage(image(), undefined, 'en');
+    expect(new Headers(request.mock.calls[0][1]?.headers).get('Accept-Language')).toBe('en');
+    await expect(
+      recognizeImage(new File(['document'], 'file.pdf', { type: 'application/pdf' }), undefined, 'en'),
+    ).rejects.toThrow('Use a JPEG, PNG, GIF, or WebP image.');
+  });
+
   it('rechaza archivos no compatibles antes de subirlos', async () => {
     const request = vi.fn<typeof fetch>();
     vi.stubGlobal('fetch', request);
