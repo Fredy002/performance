@@ -61,7 +61,7 @@ export default function LinearInterpolation() {
             <Spline size={14} /> Interpolación
           </>
         }
-        title="Interpolación lineal"
+        title="Interpolación"
         subtitle="Introduce los dos valores tabulados que rodean tu dato (A y B) y sus resultados (A1 y B1). La calculadora obtiene X para el valor C."
         actions={
           <ToolActions
@@ -186,7 +186,30 @@ export default function LinearInterpolation() {
         <div className="stack">
           <Card title="Gráfica">
             {r ? (
-              <InterpolationChart a={a} b={b} c={c} a1={a1} b1={b1} x={r.x} decimals={decimals} xLabel={xName} yLabel={yName} />
+              <div className="stack gap-16">
+                {/* cómo leer la gráfica, con los nombres de las variables si el usuario los escribió */}
+                <div className="help-block chart-help">
+                  <ul>
+                    <li>
+                      El eje horizontal es {form.values.xn ? `«${xName}»` : 'el dato de entrada'} (A, C y B) y el vertical,{' '}
+                      {form.values.yn ? `«${yName}»` : 'el resultado'} (A1, X y B1).
+                    </li>
+                    <li>
+                      Los círculos <b>A</b> y <b>B</b> son las dos filas de la tabla. La línea que los une supone que entre ellas el valor cambia
+                      de forma recta: eso es interpolar.
+                    </li>
+                    <li>
+                      Para leer tu resultado, sube en vertical desde tu dato C ({fmt(c)}) hasta la línea (punto rojo) y sigue en horizontal hasta el
+                      eje vertical: ahí está <b>X = {fmt(r.x)}</b>. Las líneas rojas discontinuas marcan ese recorrido.
+                    </li>
+                    <li>
+                      La prolongación discontinua de la línea, fuera de A y B, es zona de extrapolación: si C cae ahí, el resultado es menos fiable y
+                      la app te avisa.
+                    </li>
+                  </ul>
+                </div>
+                <InterpolationChart a={a} b={b} c={c} a1={a1} b1={b1} x={r.x} decimals={decimals} xLabel={xName} yLabel={yName} />
+              </div>
             ) : (
               <div className="empty">
                 <Spline size={32} aria-hidden="true" />

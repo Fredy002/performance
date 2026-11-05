@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Choice } from '@/components/ui/Choice';
 import { InfoTip } from '@/components/ui/InfoTip';
+import { Unit } from '@/components/ui/Unit';
 import { NumberField, numberError } from '@/components/ui/NumberField';
 import { HELP } from '@/content/help';
 import type { ClimbInput, ClimbRead, ClimbResult } from '@/core/enRouteClimb';
@@ -37,7 +38,9 @@ export function ClimbAnswers({ result: r, decimals, placeholder, footer }: { res
               </div>
               <div className="answer-value">
                 {p(r.fuelLb)}
-                <small>lb</small>
+                <small>
+                  <Unit symbol="lb" />
+                </small>
               </div>
               {footer?.('fuel')}
             </div>
@@ -47,7 +50,9 @@ export function ClimbAnswers({ result: r, decimals, placeholder, footer }: { res
               </div>
               <div className="answer-value">
                 {p(r.distNm)}
-                <small>NM</small>
+                <small>
+                  <Unit symbol="NM" />
+                </small>
               </div>
               {footer?.('distance')}
             </div>

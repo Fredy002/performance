@@ -1,7 +1,7 @@
-import { ClipboardCheck, History, House, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table, X } from 'lucide-react';
+import { History, House, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { readyTools, toolPath, upcomingTools } from '@/tools/registry';
+import { readyTools, toolPath } from '@/tools/registry';
 import { updateSettings, useSettings } from '@/state/settings';
 import { useHistory } from '@/state/history';
 
@@ -47,7 +47,9 @@ export function Sidebar({ onNavigate, onClose }: { onNavigate: () => void; onClo
 
         <div className="nav-section">
           <div className="nav-section-title">Calcular</div>
-          {readyTools().map((t) => (
+          {readyTools()
+            .filter((t) => !t.hideInSidebar)
+            .map((t) => (
             <NavLink key={t.id} to={toolPath(t.id)} className={link} onClick={onNavigate} title={t.name}>
               <t.icon size={18} />
               <span className="nav-label">{t.shortName ?? t.name}</span>
@@ -63,24 +65,7 @@ export function Sidebar({ onNavigate, onClose }: { onNavigate: () => void; onClo
           </NavLink>
         </div>
 
-        <div className="nav-section">
-          <div className="nav-section-title">Pruebas</div>
-          <NavLink to="/pruebas" className={link} onClick={onNavigate} title="Pruebas">
-            <ClipboardCheck size={18} />
-            <span className="nav-label">Pruebas</span>
-          </NavLink>
-        </div>
-
-        <div className="nav-section">
-          <div className="nav-section-title">Próximamente</div>
-          {upcomingTools().map((t) => (
-            <span key={t.id} className="nav-link disabled" title={`${t.name}: ${t.description} (en desarrollo)`} aria-disabled="true">
-              <t.icon size={18} />
-              <span className="nav-label">{t.shortName ?? t.name}</span>
-              <span className="nav-badge">Pronto</span>
-            </span>
-          ))}
-        </div>
+        {/* Pruebas, Próximamente y algunas calculadoras siguen disponibles en el inicio y en el buscador */}
       </nav>
 
       <div className="sidebar-footer">

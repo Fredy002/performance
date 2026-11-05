@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Unit } from './Unit';
 
 interface Props {
   label: ReactNode;
@@ -13,7 +14,11 @@ export function ResultHero({ label, value, unit, meta }: Props) {
       <div className="result-hero-label">{label}</div>
       <div className="result-hero-value">
         {value}
-        {unit && <small>{unit}</small>}
+        {unit && (
+          <small>
+            <Unit symbol={unit} />
+          </small>
+        )}
       </div>
       {meta && meta.length > 0 && (
         <div className="result-hero-meta">

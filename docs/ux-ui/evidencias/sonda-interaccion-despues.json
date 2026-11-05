@@ -87,7 +87,7 @@
     "id": "UX-04",
     "name": "InfoTip se abre al tocar y queda dentro de la pantalla",
     "pass": true,
-    "detail": "{\"x\":8,\"y\":327.859375,\"width\":280,\"height\":76.046875}"
+    "detail": "{\"x\":8,\"y\":307.5625,\"width\":280,\"height\":96.0625}"
   },
   {
     "id": "UX-04",

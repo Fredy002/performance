@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from 'react';
 import { InfoTip } from './InfoTip';
+import { Unit } from './Unit';
 
 interface Props {
   label?: ReactNode;
@@ -56,7 +57,11 @@ export function NumberField({ label, tag, value, onChange, unit, hint, help, err
           onChange={(e) => onChange(e.target.value)}
           onFocus={(e) => e.target.select()}
         />
-        {unit && <span className="field-unit">{unit}</span>}
+        {unit && (
+          <span className="field-unit">
+            <Unit symbol={unit} />
+          </span>
+        )}
         {!label && help && (
           <span className="field-help-inline">
             <InfoTip label={helpName}>{help}</InfoTip>

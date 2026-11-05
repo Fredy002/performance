@@ -34,6 +34,8 @@ export interface ToolDef {
   icon: LucideIcon;
   keywords: string[];
   status: 'ready' | 'soon';
+  /** Sigue disponible (ruta, inicio, buscador), pero no aparece en el menú lateral */
+  hideInSidebar?: boolean;
   component?: LazyExoticComponent<ComponentType>;
 }
 
@@ -80,7 +82,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     id: 'linear',
-    name: 'Interpolación lineal',
+    name: 'Interpolación',
     description: 'Calcula un valor intermedio entre dos puntos de una tabla de performance de la aeronave.',
     category: 'interpolation',
     icon: Spline,
@@ -90,6 +92,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     id: 'bilinear',
+    hideInSidebar: true,
     name: 'Interpolación doble',
     description: 'Interpola en dos variables a la vez (p. ej. altitud de presión y temperatura).',
     category: 'interpolation',
@@ -100,6 +103,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     id: 'density-altitude',
+    hideInSidebar: true,
     name: 'Altitud de densidad',
     description: 'Altitud de presión, desviación ISA y altitud de densidad desde elevación, QNH y OAT.',
     category: 'atmosphere',
@@ -110,6 +114,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     id: 'wind',
+    hideInSidebar: true,
     name: 'Componentes de viento',
     description: 'Viento de cara/cola y cruzado respecto al rumbo de pista.',
     category: 'atmosphere',

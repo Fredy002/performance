@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Card } from '@/components/ui/Card';
 import { InfoTip } from '@/components/ui/InfoTip';
+import { Unit } from '@/components/ui/Unit';
 import { HELP } from '@/content/help';
 import { formatPlain } from '@/core/format';
 import type { FuelPlanResult } from '@/core/fuelPlanning';
@@ -37,7 +38,9 @@ export function FuelPlanAnswers({ result: r, error, decimals, footer, badge, pla
                 </div>
                 <div className="answer-value">
                   {formatPlain(a.pick(r), decimals)}
-                  <small>{a.unit}</small>
+                  <small>
+                    <Unit symbol={a.unit} />
+                  </small>
                 </div>
                 {footer?.(a.key)}
               </div>
