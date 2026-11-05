@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from 'react';
 import { InfoTip } from './InfoTip';
 import { Unit } from './Unit';
+import { useI18n } from '@/i18n';
 
 interface Props {
   label?: ReactNode;
@@ -22,10 +23,11 @@ interface Props {
 
 /** Campo numérico con etiqueta lateral (estilo de la tabla de referencia). */
 export function NumberField({ label, tag, value, onChange, unit, hint, help, error, srLabel, invalid, placeholder, autoFocus }: Props) {
+  const { t } = useI18n();
   const id = useId();
   const msgId = `${id}-msg`;
   const isInvalid = invalid || !!error;
-  const helpName = typeof label === 'string' ? label : typeof tag === 'string' ? tag : (srLabel ?? 'este campo');
+  const helpName = typeof label === 'string' ? label : typeof tag === 'string' ? tag : (srLabel ?? t('ui.invalidField'));
   const message = error ?? hint;
   return (
     <div className="field">

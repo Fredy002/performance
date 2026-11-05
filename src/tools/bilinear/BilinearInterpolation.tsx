@@ -4,7 +4,6 @@ import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
 import { InfoTip } from '@/components/ui/InfoTip';
 import { NumberField, numberError } from '@/components/ui/NumberField';
-import { HELP } from '@/content/help';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ResultHero } from '@/components/ui/ResultHero';
 import { ToolActions } from '@/components/ToolActions';
@@ -12,6 +11,7 @@ import { formatNumber } from '@/core/format';
 import { bilinearInterpolate, InterpolationError, type BilinearResult } from '@/core/interpolation';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useSettings } from '@/state/settings';
+import { useI18n, type MessageKey } from '@/i18n';
 
 const DEFAULTS = {
   x1: '10', x: '14', x2: '20',
@@ -25,55 +25,44 @@ const TAG: Record<keyof typeof DEFAULTS, string> = {
   x1: 'X1', x: 'X', x2: 'X2', y1: 'Y1', y: 'Y', y2: 'Y2', q11: 'Q11', q21: 'Q21', q12: 'Q12', q22: 'Q22',
 };
 
-const DESCRIPTION: Record<keyof typeof DEFAULTS, string> = {
-  x1: 'columna inferior',
-  x: 'valor buscado en las columnas',
-  x2: 'columna superior',
-  y1: 'fila inferior',
-  y: 'valor buscado en las filas',
-  y2: 'fila superior',
-  q11: 'valor de la tabla en X1 y Y1',
-  q21: 'valor de la tabla en X2 y Y1',
-  q12: 'valor de la tabla en X1 y Y2',
-  q22: 'valor de la tabla en X2 y Y2',
-};
-
 export default function BilinearInterpolation() {
   const { decimals } = useSettings();
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const form = useFormValues(DEFAULTS);
   const n = form.numbers;
-  const fmt = (v: number) => formatNumber(v, decimals);
+  const fmt = (v: number) => formatNumber(v, decimals, numberLocale);
 
   const incomplete = NUMERIC_KEYS.some((k) => Number.isNaN(n[k]));
 
   const outcome = useMemo((): { result?: BilinearResult; error?: string } => {
     if (incomplete) return {};
     // mensajes en los términos de esta tabla (X1/X2, Y1/Y2), no los de la lineal
-    if (n.x1 === n.x2) return { error: 'X1 y X2 no pueden ser iguales: escribe las dos columnas de la tabla que rodean X.' };
-    if (n.y1 === n.y2) return { error: 'Y1 y Y2 no pueden ser iguales: escribe las dos filas de la tabla que rodean Y.' };
+    if (n.x1 === n.x2) return { error: t('bilinear.sameX') };
+    if (n.y1 === n.y2) return { error: t('bilinear.sameY') };
     try {
       return { result: bilinearInterpolate(n) };
     } catch (e) {
-      return { error: e instanceof InterpolationError ? e.message : 'Error de cálculo' };
+      return { error: e instanceof InterpolationError ? t(e.message.startsWith('A y B') ? 'linear.error.equal' : 'linear.error.invalid') : t('linear.calculationError') };
     }
   }, [n, incomplete]);
 
   const r = outcome.result;
-  const wrong = NUMERIC_KEYS.filter((k) => numberError(form.values[k], n[k], HELP.invalidNumber)).map((k) => TAG[k]);
+  const wrong = NUMERIC_KEYS.filter((k) => numberError(form.values[k], n[k], t('help.invalidNumber'))).map((k) => TAG[k]);
   // UX-01: cada celda con sigla visible y nombre accesible descriptivo
   const field = (k: keyof typeof DEFAULTS) => (
     <NumberField
       tag={TAG[k]}
-      srLabel={`${TAG[k]}, ${DESCRIPTION[k]}`}
+      srLabel={`${TAG[k]}, ${t(`bilinear.description.${k}` as MessageKey)}`}
       value={form.values[k]}
       onChange={(v) => form.set(k, v)}
-      invalid={!!numberError(form.values[k], n[k], HELP.invalidNumber)}
+      invalid={!!numberError(form.values[k], n[k], t('help.invalidNumber'))}
     />
   );
   const output = (label: string, v: number | undefined, strong = false) => (
     <div className="field-control">
       <span className="field-tag result" aria-hidden="true">{label}</span>
-      <output className={`result-output${strong ? '' : ' is-secondary'}`} aria-label={`${label}: ${v === undefined ? 'sin calcular' : fmt(v)}`}>
+      <output className={`result-output${strong ? '' : ' is-secondary'}`} aria-label={t('bilinear.resultAria', { label, value: v === undefined ? t('linear.uncalculated') : fmt(v) })}>
         {v === undefined ? '—' : fmt(v)}
       </output>
     </div>
@@ -82,9 +71,9 @@ export default function BilinearInterpolation() {
   return (
     <>
       <PageHeader
-        eyebrow={<><Grid3x3 size={14} /> Interpolación</>}
-        title="Interpolación doble"
-        subtitle="Para tablas de dos entradas (p. ej. temperatura en columnas y altitud de presión en filas). Se interpola primero en cada fila (R1, R2) y después entre filas."
+        eyebrow={<><Grid3x3 size={14} /> {t('linear.eyebrow')}</>}
+        title={t('bilinear.title')}
+        subtitle={t('bilinear.subtitle')}
         actions={
           <ToolActions
             toolId="bilinear"
@@ -103,24 +92,24 @@ export default function BilinearInterpolation() {
       />
 
       <div className="grid grid-calc">
-        <Card title="Tabla de doble entrada">
-          <div className="table-wrap" tabIndex={0} role="region" aria-label="Tabla de doble entrada, desplazable">
+        <Card title={t('bilinear.table')}>
+          <div className="table-wrap" tabIndex={0} role="region" aria-label={t('bilinear.scrollRegion')}>
             <table className="matrix">
               <thead>
                 <tr>
                   <th scope="col">
                     <span className="matrix-axis">
-                      Y \ X <InfoTip label="X e Y">{HELP.bilinearAxes}</InfoTip>
+                      Y \ X <InfoTip label={t('bilinear.axesLabel')}>{t('help.bilinearAxes')}</InfoTip>
                     </span>
                   </th>
-                  <th scope="col">Inferior</th>
-                  <th scope="col">Buscado</th>
-                  <th scope="col">Superior</th>
+                  <th scope="col">{t('bilinear.lower')}</th>
+                  <th scope="col">{t('bilinear.sought')}</th>
+                  <th scope="col">{t('bilinear.upper')}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row"><span className="sr-only">Columnas X</span></th>
+                  <th scope="row"><span className="sr-only">{t('bilinear.columnsX')}</span></th>
                   <td>{field('x1')}</td>
                   <td>{field('x')}</td>
                   <td>{field('x2')}</td>
@@ -147,10 +136,10 @@ export default function BilinearInterpolation() {
             </table>
           </div>
           <p className="calc-caption with-help">
-            Q11–Q22: valores de la tabla en cada cruce. <InfoTip label="Q11 a Q22">{HELP.bilinearCells}</InfoTip>
+            {t('bilinear.cellsCaption')} <InfoTip label={t('bilinear.cellsLabel')}>{t('help.bilinearCells')}</InfoTip>
           </p>
           <p className="calc-caption">
-            Ejemplo: distancia de despegue (m) con temperatura 10–20 °C en columnas y altitud de presión 2000–4000 ft en filas.
+            {t('bilinear.example')}
           </p>
         </Card>
 
@@ -158,20 +147,20 @@ export default function BilinearInterpolation() {
           {outcome.error && <Alert kind="error">{outcome.error}</Alert>}
           {wrong.length > 0 && (
             <Alert kind="error">
-              Revisa {wrong.join(', ')}: {HELP.invalidNumber.charAt(0).toLowerCase() + HELP.invalidNumber.slice(1)}
+              {t('linear.check', { fields: wrong.join(', '), error: t('help.invalidNumber').charAt(0).toLowerCase() + t('help.invalidNumber').slice(1) })}
             </Alert>
           )}
           {incomplete && !outcome.error && wrong.length === 0 && (
-            <Alert kind="info">Completa las diez casillas de la tabla. Usa «Ejemplo» si quieres ver cómo funciona.</Alert>
+            <Alert kind="info">{t('bilinear.complete')}</Alert>
           )}
           {r?.extrapolated && (
             <Alert kind="warning">
-              <b>Extrapolación:</b> algún valor buscado queda fuera del rango tabulado.
+              <b>{t('bilinear.extrapolation')}</b> {t('bilinear.outOfRange')}
             </Alert>
           )}
           {r && (
             <ResultHero
-              label="Valor interpolado"
+              label={t('bilinear.result')}
               value={fmt(r.value)}
               meta={[
                 { label: 'R1 (fila Y1)', value: fmt(r.r1) },
@@ -179,11 +168,11 @@ export default function BilinearInterpolation() {
               ]}
             />
           )}
-          <Card title="Desarrollo">
+          <Card title={t('bilinear.steps')}>
             <ol className="steps">
               <li>
                 <div>
-                  <div>Interpolar en la fila Y1 sobre X</div>
+                  <div>{t('bilinear.rowX')}</div>
                   <span className="mono muted">
                     R1 = Q11 + (Q21 − Q11)(X − X1)/(X2 − X1){r && ` = ${fmt(r.r1)}`}
                   </span>
@@ -191,7 +180,7 @@ export default function BilinearInterpolation() {
               </li>
               <li>
                 <div>
-                  <div>Interpolar en la fila Y2 sobre X</div>
+                  <div>{t('bilinear.rowX2')}</div>
                   <span className="mono muted">
                     R2 = Q12 + (Q22 − Q12)(X − X1)/(X2 − X1){r && ` = ${fmt(r.r2)}`}
                   </span>
@@ -199,9 +188,9 @@ export default function BilinearInterpolation() {
               </li>
               <li>
                 <div>
-                  <div>Interpolar entre R1 y R2 sobre Y</div>
+                  <div>{t('bilinear.betweenRows')}</div>
                   <span className="mono muted">
-                    Valor = R1 + (R2 − R1)(Y − Y1)/(Y2 − Y1){r && ` = ${fmt(r.value)}`}
+                    {t('bilinear.valueTerm')} = R1 + (R2 − R1)(Y − Y1)/(Y2 − Y1){r && ` = ${fmt(r.value)}`}
                   </span>
                 </div>
               </li>

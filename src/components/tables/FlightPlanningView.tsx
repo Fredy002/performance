@@ -3,16 +3,18 @@ import { Card } from '@/components/ui/Card';
 import { formatNumber } from '@/core/format';
 import type { FlightPlanningTable } from '@/data/tables';
 import { useDecimals } from '@/state/settings';
+import { useI18n } from '@/i18n';
 
 // Números tal cual la fuente (sin separador de miles, que es-ES solo aplica desde 5 cifras)
 const ft = (v: number) => String(v);
 
 export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
+  const { t } = useI18n();
   const decimals = useDecimals();
   const ex = table.windCorrection.example;
   return (
     <div className="grid grid-calc">
-      <Card title="Datos de la tabla" flush>
+      <Card title={t('table.tableData')} flush>
         <div className="row card-inset">
           {table.profile.map((p) => (
             <span key={p} className="chip">
@@ -20,15 +22,15 @@ export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
             </span>
           ))}
         </div>
-        <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
+        <div className="data-table-wrap" tabIndex={0} role="region" aria-label={t('table.scrollable')}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Dist. NM</th>
-                <th>Rec. alt. ft</th>
-                <th>TAS kt</th>
-                <th>Air time min</th>
-                <th>Fuel lb</th>
+                <th>{t('table.flightDistance')}</th>
+                <th>{t('table.recommendedAltitude')}</th>
+                <th>{t('table.trueAirspeed')}</th>
+                <th>{t('table.airTime')}</th>
+                <th>{t('table.fuelPounds')}</th>
               </tr>
             </thead>
             <tbody>
@@ -48,7 +50,7 @@ export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
                     {gap && (
                       <tr className="gap-row">
                         <td colSpan={5}>
-                          ═ Filas {gap.afterNm + 10}–{gap.beforeNm - 10} NM omitidas en la fuente ═
+                          ═ {t('table.omittedRows', { from: gap.afterNm + 10, to: gap.beforeNm - 10 })} ═
                         </td>
                       </tr>
                     )}
@@ -61,7 +63,7 @@ export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
       </Card>
 
       <div className="stack">
-        <Card title="Corrección por viento">
+        <Card title={t('table.windCorrection')}>
           <div className="formula-box">
             {table.windCorrection.formulas.map((f) => (
               <span key={f}>{f}</span>
@@ -71,16 +73,16 @@ export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
             {table.windCorrection.rule}
           </p>
           <p className="calc-note">
-            Viento de cara (HW): se suma. Viento de cola (TW): se resta.
+            {t('table.headwindTailwind')}
           </p>
         </Card>
-        <Card title={`Ejemplo de la fuente · ${ex.distanceNm} NM`}>
+        <Card title={t('table.sourceExample', { distance: ex.distanceNm })}>
           <div className="kv">
-            <div className="k">Tiempo en calma</div>
+            <div className="k">{t('table.timeCalmLabel')}</div>
             <div className="v">{ex.timeMin} min</div>
-            <div className="k">Combustible en calma</div>
+            <div className="k">{t('table.fuelCalmLabel')}</div>
             <div className="v">{ft(ex.fuelLb)} lb</div>
-            <div className="k">Componente de viento</div>
+            <div className="k">{t('table.windComponent')}</div>
             <div className="v">{ex.windKt} kt</div>
             <div className="k">Δ tiempo = {ex.timeMin} × {ex.windKt} ÷ {ex.tasKt}</div>
             <div className="v">{formatNumber((ex.timeMin * ex.windKt) / ex.tasKt, decimals)} min</div>

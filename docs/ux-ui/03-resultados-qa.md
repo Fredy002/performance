@@ -8,7 +8,7 @@ Validación final del 4 de noviembre de 2026 sobre el código final de esta rama
 | --- | --- |
 | `npx tsc -b` | Sin errores |
 | `npm run build` | Correcto (`dist/`, bundle principal de 430,5 kB, 134,7 kB gzip) |
-| `npx vitest run` | **234 pruebas aprobadas en 15 archivos**: 153 previas, 14 de la auditoría UX, 11 de vuelos internacionales, 3 de redondeo decimal, 32 de EPR de despegue (B727 y B737), 15 de ascenso en ruta y 6 de la explicación de la gráfica y la ayuda de unidades. Los avisos de jsdom sobre `window.scrollTo` ya existían y no son fallos. |
+| `npx vitest run` | **232 pruebas aprobadas en 15 archivos**: 153 previas, 14 de la auditoría UX, 11 de vuelos internacionales, 3 de redondeo decimal, 32 de EPR de despegue (B727 y B737), 15 de ascenso en ruta, 3 de ayuda de unidades y 1 de la gráfica oculta. Los avisos de jsdom sobre `window.scrollTo` ya existían y no son fallos. |
 
 ## 2. Barrido automático en navegador
 

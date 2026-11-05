@@ -9,10 +9,11 @@ import ExerciseDetail from '@/pages/exercises/ExerciseDetail';
 import ExercisesList from '@/pages/exercises/ExercisesList';
 import TableDetail from '@/pages/tables/TableDetail';
 import TablesLibrary from '@/pages/tables/TablesLibrary';
-import { useApplyTheme } from '@/state/settings';
+import { useApplyLocale, useApplyTheme } from '@/state/settings';
 
 export default function App() {
   useApplyTheme();
+  useApplyLocale();
   return (
     // HashRouter: funciona en cualquier hosting estático (GitHub Pages, Netlify…) sin reglas de reescritura
     <HashRouter>

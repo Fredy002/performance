@@ -4,37 +4,39 @@ import { Choice } from '@/components/ui/Choice';
 import { InfoTip } from '@/components/ui/InfoTip';
 import { Unit } from '@/components/ui/Unit';
 import { NumberField, numberError } from '@/components/ui/NumberField';
-import { HELP } from '@/content/help';
 import type { ClimbInput, ClimbRead, ClimbResult } from '@/core/enRouteClimb';
 import { formatPlain, parseNumber } from '@/core/format';
 import type { ClimbFormKey, ClimbFormValues } from './climbForm';
+import { useI18n } from '@/i18n';
 
 /** Datos de la FIGURE 56: peso, altitud de crucero, elevación, temperatura y viento. */
 export function ClimbForm({ values: v, set }: { values: ClimbFormValues; set: (k: ClimbFormKey, x: string) => void }) {
-  const err = (k: ClimbFormKey) => numberError(v[k], parseNumber(v[k]), HELP.invalidNumber);
+  const { t } = useI18n();
+  const err = (k: ClimbFormKey) => numberError(v[k], parseNumber(v[k]), t('help.invalidNumber'));
   return (
     <div className="grid grid-2 climb-form">
-      <NumberField label="Peso al soltar frenos" unit="lb" value={v.w} onChange={(x) => set('w', x)} help={HELP.brakeReleaseWeight} error={err('w')} hint="Ejemplo: 75000" />
-      <NumberField label="Altitud de crucero" unit="ft" value={v.alt} onChange={(x) => set('alt', x)} help={HELP.cruiseAlt} error={err('alt')} hint="Altitud de presión, p. ej. 31000" />
-      <NumberField label="Elevación del aeropuerto" unit="ft" value={v.elev} onChange={(x) => set('elev', x)} help={HELP.airportElevation} error={err('elev')} />
-      <Choice label="Temperatura" help={HELP.climbTemp} value={v.t} onChange={(x) => set('t', x)} options={[['ISA', 'ISA'], ['ISA10', 'ISA +10 °C']]} />
-      <NumberField label="Viento medio" unit="kt" value={v.wind} onChange={(x) => set('wind', x)} help={HELP.climbWind} error={err('wind')} />
-      <Choice label="Tipo de viento" value={v.wk} onChange={(x) => set('wk', x)} options={[['HW', 'Cara (HW)'], ['TW', 'Cola (TW)']]} />
+      <NumberField label={t('climbForm.weight')} unit="lb" value={v.w} onChange={(x) => set('w', x)} help={t('help.brakeReleaseWeight')} error={err('w')} hint={t('climbForm.exampleWeight')} />
+      <NumberField label={t('climbForm.cruiseAltitude')} unit="ft" value={v.alt} onChange={(x) => set('alt', x)} help={t('help.cruiseAlt')} error={err('alt')} hint={t('climbForm.altitudeHint')} />
+      <NumberField label={t('climbForm.airportElevation')} unit="ft" value={v.elev} onChange={(x) => set('elev', x)} help={t('help.airportElevation')} error={err('elev')} />
+      <Choice label={t('climbForm.temperature')} help={t('help.climbTemp')} value={v.t} onChange={(x) => set('t', x)} options={[['ISA', 'ISA'], ['ISA10', 'ISA +10 °C']]} />
+      <NumberField label={t('climbForm.wind')} unit="kt" value={v.wind} onChange={(x) => set('wind', x)} help={t('help.climbWind')} error={err('wind')} />
+      <Choice label={t('climbForm.windType')} value={v.wk} onChange={(x) => set('wk', x)} options={[['HW', t('fuel.headwindSum')], ['TW', t('fuel.tailwindSubtract')]]} />
     </div>
   );
 }
 
 /** Respuestas: combustible consumido y distancia recorrida en el ascenso. */
 export function ClimbAnswers({ result: r, decimals, placeholder, footer }: { result?: ClimbResult; decimals: number; placeholder?: ReactNode; footer?: (key: string) => ReactNode }) {
-  const p = (x: number) => formatPlain(x, decimals);
+  const { locale, t } = useI18n();
+  const p = (x: number) => formatPlain(x, decimals, locale === 'en' ? 'en-US' : 'es-ES');
   return (
-    <Card title="Respuestas">
+    <Card title={t('calc.answers')}>
       {r ? (
         <>
           <div className="answer-grid">
             <div className="answer">
               <div className="answer-label">
-                a) Combustible consumido <InfoTip label="el combustible consumido">{HELP.climbFuel}</InfoTip>
+                a) {t('climbForm.resultFuel')} <InfoTip label={t('climbForm.resultFuel')}>{t('help.climbFuel')}</InfoTip>
               </div>
               <div className="answer-value">
                 {p(r.fuelLb)}
@@ -46,7 +48,7 @@ export function ClimbAnswers({ result: r, decimals, placeholder, footer }: { res
             </div>
             <div className="answer">
               <div className="answer-label">
-                b) Distancia recorrida <InfoTip label="la distancia recorrida">{HELP.climbDistance}</InfoTip>
+                b) {t('climbForm.resultDistance')} <InfoTip label={t('climbForm.resultDistance')}>{t('help.climbDistance')}</InfoTip>
               </div>
               <div className="answer-value">
                 {p(r.distNm)}
@@ -58,11 +60,11 @@ export function ClimbAnswers({ result: r, decimals, placeholder, footer }: { res
             </div>
           </div>
           <p className="calc-note">
-            Tiempo de ascenso {p(r.timeMin)} min · TAS {p(r.tasKt)} kt · {r.table.figure} ({r.table.temp === 'ISA' ? 'ISA' : 'ISA +10 °C'}).
+            {t('climb.answersMeta', { time: p(r.timeMin), tas: p(r.tasKt), figure: r.table.figure, condition: r.table.temp === 'ISA' ? 'ISA' : 'ISA +10 °C' })}
           </p>
         </>
       ) : (
-        (placeholder ?? <div className="empty">Completa peso, altitudes y viento.</div>)
+        (placeholder ?? <div className="empty">{t('climb.complete')}</div>)
       )}
     </Card>
   );
@@ -70,7 +72,8 @@ export function ClimbAnswers({ result: r, decimals, placeholder, footer }: { res
 
 /** Desarrollo como en la resolución manual: lectura, combustible y distancia. */
 export function ClimbSteps({ result: r, input, decimals }: { result: ClimbResult; input: ClimbInput; decimals: number }) {
-  const p = (x: number) => formatPlain(x, decimals);
+  const { locale, t } = useI18n();
+  const p = (x: number) => formatPlain(x, decimals, locale === 'en' ? 'en-US' : 'es-ES');
   const exactCell = r.rows.length === 1 && r.weights.length === 1;
   const readLine = (label: string, q: ClimbRead, unit: string) => (
     <div className="calc-line" key={label}>
@@ -81,8 +84,8 @@ export function ClimbSteps({ result: r, input, decimals }: { result: ClimbResult
             {i > 0 && ' · '}
             {r.weights.length === 2 && (
               <>
-                {r.rows.length === 2 && `${b.altFt} ft: `}
-                {b.lo} + ({b.hi} − {b.lo})({input.weightLb} − {r.weights[0]}) / ({r.weights[1]} − {r.weights[0]}) = {p(b.value)}
+                {r.rows.length === 2 && `${p(b.altFt)} ft: `}
+                {p(b.lo)} + ({p(b.hi)} − {p(b.lo)})({p(input.weightLb)} − {p(r.weights[0])}) / ({p(r.weights[1])} − {p(r.weights[0])}) = {p(b.value)}
               </>
             )}
           </span>
@@ -90,7 +93,7 @@ export function ClimbSteps({ result: r, input, decimals }: { result: ClimbResult
         {r.rows.length === 2 && (
           <>
             {r.weights.length === 2 && ' → '}
-            {p(q.byRow[0].value)} + ({p(q.byRow[1].value)} − {p(q.byRow[0].value)})({input.cruiseAltFt} − {q.byRow[0].altFt}) / ({q.byRow[1].altFt} − {q.byRow[0].altFt})
+            {p(q.byRow[0].value)} + ({p(q.byRow[1].value)} − {p(q.byRow[0].value)})({p(input.cruiseAltFt)} − {p(q.byRow[0].altFt)}) / ({p(q.byRow[1].altFt)} − {p(q.byRow[0].altFt)})
           </>
         )}{' '}
         = <b>{p(q.value)}</b> {unit}
@@ -99,83 +102,83 @@ export function ClimbSteps({ result: r, input, decimals }: { result: ClimbResult
   );
   return (
     <div className="grid grid-2">
-      <Card title={`1. Lectura de la tabla (${r.table.figure})`}>
+      <Card title={t('climb.stepRead', { figure: r.table.figure })}>
         <div className="stack gap-12">
           <p className="calc-text">
-            {r.table.temp === 'ISA' ? 'Temperatura ISA' : 'Temperatura ISA +10 °C'}: tabla «En Route Climb 280/.70 {r.table.temp === 'ISA' ? 'ISA' : 'ISA +10 °C'}».
+            {t(r.table.temp === 'ISA' ? 'climb.temperatureIsa' : 'climb.temperatureIsa10')}: {t('climb.tableDescription', { condition: r.table.temp === 'ISA' ? 'ISA' : 'ISA +10 °C' })}
           </p>
           {exactCell ? (
             <>
               <div className="calc-line">
-                <span className="calc-label">Celda</span>
+                <span className="calc-label">{t('climb.cell')}</span>
                 <span>
-                  Fila {r.rows[0].altFt} ft · columna {r.weights[0]} lb → TIME/FUEL <b>{p(r.timeMin)}/{p(r.tableFuelLb)}</b> · DIST./TAS{' '}
+                  {t('climb.row')} {p(r.rows[0].altFt)} ft · {t('climb.column')} {p(r.weights[0])} lb → {t('climb.tableTimeFuel')} <b>{p(r.timeMin)}/{p(r.tableFuelLb)}</b> · {t('climb.tableDistTas')}{' '}
                   <b>
                     {p(r.tableDistNm)}/{p(r.tasKt)}
                   </b>
                 </span>
               </div>
               <p className="calc-text">
-                Tiempo {p(r.timeMin)} min · combustible {p(r.tableFuelLb)} lb · distancia {p(r.tableDistNm)} NM · TAS {p(r.tasKt)} kt.
+                {t('climb.exactMeta', { time: p(r.timeMin), tas: p(r.tasKt), fuel: p(r.tableFuelLb), distance: p(r.tableDistNm) })}
               </p>
             </>
           ) : (
             <>
               <p className="calc-text">
-                {r.weights.length === 2 && `${input.weightLb} lb está entre las columnas de ${r.weights[0]} y ${r.weights[1]} lb. `}
-                {r.rows.length === 2 && `${input.cruiseAltFt} ft está entre las filas de ${r.rows[0].altFt} y ${r.rows[1].altFt} ft. `}
-                Se interpola cada valor.
+                {r.weights.length === 2 && t('climb.betweenCols', { value: p(input.weightLb), lower: p(r.weights[0]), upper: p(r.weights[1]) })}{' '}
+                {r.rows.length === 2 && t('climb.betweenRows', { value: p(input.cruiseAltFt), lower: p(r.rows[0].altFt), upper: p(r.rows[1].altFt) })}{' '}
+                {t('climb.interpolateEach')}
               </p>
-              {readLine('Tiempo', r.read.timeMin, 'min')}
-              {readLine('Combustible', r.read.fuelLb, 'lb')}
-              {readLine('Distancia', r.read.distNm, 'NM')}
+              {readLine(t('climb.time'), r.read.timeMin, 'min')}
+              {readLine(t('climb.fuel'), r.read.fuelLb, 'lb')}
+              {readLine(t('climb.distance'), r.read.distNm, 'NM')}
               {readLine('TAS', r.read.tasKt, 'kt')}
             </>
           )}
         </div>
       </Card>
-      <Card title="2. Combustible consumido">
+      <Card title={t('climb.stepFuel')}>
         <div className="stack gap-12">
           <div className="calc-line">
-            <span className="calc-label">Ajuste</span>
+            <span className="calc-label">{t('climb.adjustment')}</span>
             <span>
               {r.adjustment.belowTable ? (
-                <>Aeropuerto a {input.airportElevationFt} ft: por debajo de 2000 ft no hay ajuste → <b>0</b></>
+                <>{t('climb.belowTable', { elevation: p(input.airportElevationFt) })} <b>0</b></>
               ) : r.adjustment.between ? (
                 <>
-                  {input.airportElevationFt} ft entre {r.adjustment.between[0]} y {r.adjustment.between[1]} ft → <b>{p(r.adjustment.fuelLb)}</b> lb
+                  {t('climb.adjustmentBetween', { elevation: p(input.airportElevationFt), lower: p(r.adjustment.between[0]), upper: p(r.adjustment.between[1]) })} <b>{p(r.adjustment.fuelLb)}</b> lb
                 </>
               ) : (
                 <>
-                  Aeropuerto a {input.airportElevationFt} ft → <b>{p(r.adjustment.fuelLb)}</b> lb
+                  {t('climb.airportAt', { elevation: p(input.airportElevationFt) })} <b>{p(r.adjustment.fuelLb)}</b> lb
                 </>
               )}
             </span>
           </div>
           <div className="calc-line">
-            <span className="calc-label">Combustible</span>
+            <span className="calc-label">{t('climb.fuel')}</span>
             <span>
               {p(r.tableFuelLb)} {r.adjustment.fuelLb < 0 ? '−' : '+'} {p(Math.abs(r.adjustment.fuelLb))} = <b>{p(r.fuelLb)}</b> lb
             </span>
           </div>
-          <p className="calc-text">El ajuste por elevación solo afecta al combustible: la tabla indica que el efecto en tiempo y distancia es despreciable.</p>
+          <p className="calc-text">{t('climb.adjustmentExplain')}</p>
         </div>
       </Card>
-      <Card title="3. Distancia recorrida (d = t · v)">
+      <Card title={t('climb.stepDistance')}>
         <div className="stack gap-12">
           <div className="calc-line">
-            <span className="calc-label">Viento</span>
+            <span className="calc-label">{t('fuel.wind')}</span>
             <span>
               d = ({p(r.timeMin)} min ÷ 60) × {p(input.windKt)} kt = <b>{p(r.windDistNm)}</b> NM
             </span>
           </div>
           <div className="calc-line">
-            <span className="calc-label">Distancia</span>
+            <span className="calc-label">{t('climb.distance')}</span>
             <span>
               {p(r.tableDistNm)} {input.windKind === 'HW' ? '−' : '+'} {p(r.windDistNm)} = <b>{p(r.distNm)}</b> NM
             </span>
           </div>
-          <p className="calc-text">Viento de {input.windKind === 'HW' ? 'cara (HW): se resta' : 'cola (TW): se suma'}.</p>
+          <p className="calc-text">{t(input.windKind === 'HW' ? 'climb.windDirection' : 'climb.tailDirection')}.</p>
         </div>
       </Card>
     </div>

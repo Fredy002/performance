@@ -1,5 +1,6 @@
 import { Info } from 'lucide-react';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useI18n } from '@/i18n';
 
 interface Props {
   /** Concepto que explica (p. ej. «FOB» o «°F»): da nombre al botón, «Qué es FOB». */
@@ -24,6 +25,7 @@ const GAP = 6;
  * las tablas con desplazamiento.
  */
 export function InfoTip({ label, children, trigger }: Props) {
+  const { t } = useI18n();
   const id = useId();
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<CSSProperties>();
@@ -77,7 +79,7 @@ export function InfoTip({ label, children, trigger }: Props) {
         type="button"
         ref={btnRef}
         className={`infotip-trigger${trigger ? ' is-text' : ''}`}
-        aria-label={`Qué es ${label}`}
+        aria-label={t('ui.info.whatIs', { label })}
         aria-describedby={id}
         aria-expanded={open}
         onPointerDown={() => {

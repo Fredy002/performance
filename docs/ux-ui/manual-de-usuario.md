@@ -78,7 +78,7 @@ Todas las calculadoras funcionan igual: escribe los datos, lee el resultado y, s
 ![Interpolación](capturas/manual-anotadas/05-interpolar.png)
 
 1. **Datos:** Escribe las dos filas de la tabla que rodean tu dato (A y B), tu dato (C) y los valores de la tabla (A1 y B1).
-2. **Resultado:** X se calcula al escribir. Al lado verás la gráfica, con una explicación de cómo leerla, y el desarrollo paso a paso.
+2. **Resultado:** X se calcula al escribir. Al lado verás la fórmula y el desarrollo paso a paso.
 3. **Guardar:** «Guardar» lo añade al historial. «Compartir» copia un enlace con los mismos datos.
 4. **Ejemplo / Vaciar:** «Ejemplo» carga datos de muestra y «Vaciar» borra los campos. Ambos se pueden deshacer.
 

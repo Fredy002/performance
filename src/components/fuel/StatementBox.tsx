@@ -3,43 +3,44 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
 import { InfoTip } from '@/components/ui/InfoTip';
-import { HELP } from '@/content/help';
 import type { ParseField, ParseReport } from '@/exercises/parseStatement';
 import { recognizeImage, type OcrProgress, type OcrResult } from '@/services/ocr';
+import { useI18n, type MessageKey } from '@/i18n';
 
 /** Group data by route, trip, alternate, holding and taxi. */
-const GROUPS: { label: string; keys: string[] }[] = [
-  { label: 'Ruta', keys: ['route'] },
-  { label: 'Viaje', keys: ['td', 'tw', 'tfl'] },
-  { label: 'Alterno', keys: ['ad', 'aw', 'afl'] },
-  { label: 'Espera', keys: ['hw', 'hfl', 'hm'] },
-  { label: 'Taxi', keys: ['taxi'] },
+const GROUPS: { label: MessageKey; keys: string[] }[] = [
+  { label: 'fuel.group.route', keys: ['route'] },
+  { label: 'fuel.group.trip', keys: ['td', 'tw', 'tfl'] },
+  { label: 'fuel.group.alternate', keys: ['ad', 'aw', 'afl'] },
+  { label: 'fuel.group.holding', keys: ['hw', 'hfl', 'hm'] },
+  { label: 'fuel.group.taxi', keys: ['taxi'] },
 ];
 
-const SHORT: Record<string, string> = {
-  td: 'distancia',
-  tw: 'viento',
-  ad: 'distancia',
-  aw: 'viento',
-  hw: 'peso',
-  hfl: 'nivel',
-  hm: 'tiempo',
-  taxi: 'combustible',
+const SHORT: Record<string, MessageKey> = {
+  td: 'fuel.field.distanceShort',
+  tw: 'fuel.field.windShort',
+  ad: 'fuel.field.distanceShort',
+  aw: 'fuel.field.windShort',
+  hw: 'fuel.field.weightShort',
+  hfl: 'fuel.field.levelShort',
+  hm: 'fuel.field.timeShort',
+  taxi: 'fuel.field.fuelShort',
 };
 
 function DataChips({ fields }: { fields: ParseField[] }) {
+  const { locale, t } = useI18n();
   return (
     <div className="stack gap-8">
     <div className="chip-legend">
       <span className="with-help">
-        <b>Datos detectados</b>
-        <InfoTip label="los datos detectados">{HELP.statementChips}</InfoTip>
+        <b>{t('fuel.ocrDataDetected')}</b>
+        <InfoTip label={t('fuel.ocrDataDetected')}>{t('help.statementChips')}</InfoTip>
       </span>
-      <span><span className="dot is-match" aria-hidden="true" />Leído del enunciado</span>
-      <span><span className="dot is-assumed" aria-hidden="true" />* Supuesto (no figura)</span>
-      <span><span className="dot is-missing" aria-hidden="true" />Falta</span>
+      <span><span className="dot is-match" aria-hidden="true" />{t('fuel.ocrRead')}</span>
+      <span><span className="dot is-assumed" aria-hidden="true" />{t('fuel.ocrAssumed')}</span>
+      <span><span className="dot is-missing" aria-hidden="true" />{t('fuel.ocrMissing')}</span>
     </div>
-    <div className="data-chips" role="group" aria-label="Datos detectados">
+    <div className="data-chips" role="group" aria-label={t('fuel.ocrAria')}>
       {GROUPS.map((g) => {
         const fs = g.keys.map((k) => fields.find((f) => f.key === k)).filter((f): f is ParseField => !!f);
         const missing = fs.filter((f) => f.required && f.status === 'missing');
@@ -48,10 +49,10 @@ function DataChips({ fields }: { fields: ParseField[] }) {
         const state = missing.length ? 'mismatch' : assumed ? 'rounding' : values.length ? 'match' : 'neutral';
         return (
           <span key={g.label} className={`data-chip status-${state}`}>
-            <b>{g.label}</b>
+            <b>{t(g.label)}</b>
             {values.length > 0 && <span>{values.join(' · ')}</span>}
-            {missing.length > 0 && <span>falta {missing.map((f) => SHORT[f.key] ?? f.label).join(' y ')}</span>}
-            {!values.length && !missing.length && <span>sin indicar</span>}
+            {missing.length > 0 && <span>{t('fuel.missing', { fields: missing.map((f) => SHORT[f.key] ? t(SHORT[f.key]) : f.label).join(locale === 'en' ? ', and ' : ' y ') })}</span>}
+            {!values.length && !missing.length && <span>{t('fuel.notSpecified')}</span>}
           </span>
         );
       })}
@@ -77,6 +78,7 @@ interface Props {
  * Show the Claude-interpreted statement in the same editable text area.
  */
 export function StatementBox({ text, revision, onTextChange, onImageAnalysis, onAnalysisStatusChange, report, examples, editedByHand }: Props) {
+  const { locale, t } = useI18n();
   const [progress, setProgress] = useState<OcrProgress>();
   const [error, setError] = useState<string>();
   const [dragging, setDragging] = useState(false);
@@ -112,7 +114,7 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
   const readImage = async (file: Blob) => {
     if (busyRef.current) return;
     if (!file.type.startsWith('image/')) {
-      setError('El archivo no es una imagen.');
+      setError(t('fuel.notImage'));
       return;
     }
     busyRef.current = true;
@@ -120,17 +122,17 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
     const current = () => mountedRef.current && requestRef.current === request;
     setError(undefined);
     onStatusRef.current('loading');
-    setProgress({ stage: 'prepare', progress: 0, status: 'Preparando la imagen…' });
+    setProgress({ stage: 'prepare', progress: 0, status: t('fuel.prepareImage') });
     try {
       const res = await recognizeImage(file, (next) => {
         if (current()) setProgress(next);
-      });
+      }, locale);
       if (current()) onAnalysisRef.current(res);
     } catch (cause) {
       if (current()) {
         onStatusRef.current('failed');
-        const detail = cause instanceof Error ? cause.message : 'Revisa la conexión o escribe el enunciado.';
-        setError(`No se pudo analizar la imagen con Claude. ${detail}`);
+        const detail = cause instanceof Error ? cause.message : t('fuel.retryOrType');
+        setError(t('fuel.analyzeError', { detail }));
       }
     } finally {
       if (current()) {
@@ -162,21 +164,21 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
   const status = progress
     ? null
     : !text.trim()
-      ? { cls: 'status-neutral', label: 'Esperando enunciado' }
+      ? { cls: 'status-neutral', label: t('fuel.statementStatusWaiting') }
       : editedByHand
-        ? { cls: 'status-neutral', label: 'Datos editados a mano' }
+        ? { cls: 'status-neutral', label: t('fuel.statementStatusEdited') }
         : report?.complete
-          ? { cls: 'status-match', label: 'Resuelto' }
-          : { cls: 'status-mismatch', label: 'Faltan datos' };
+          ? { cls: 'status-match', label: t('fuel.statementStatusSolved') }
+          : { cls: 'status-mismatch', label: t('fuel.statementStatusMissing') };
 
   return (
     <Card
-      title="Enunciado"
+      title={t('fuel.statementTitle')}
       className={`statement-card${dragging ? ' is-dragging' : ''}`}
       action={
         <select
           className="select select-compact"
-          aria-label="Cargar un ejemplo"
+          aria-label={t('fuel.loadExample')}
           value=""
           disabled={!!progress}
           onChange={(e) => {
@@ -188,7 +190,7 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
           }}
         >
           <option value="" disabled>
-            Ejemplos
+            {t('fuel.loadExample')}
           </option>
           {examples.map((ex) => (
             <option key={ex.id} value={ex.id}>
@@ -214,11 +216,11 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
       >
         <textarea
           className="capture-text statement-text"
-          aria-label="Enunciado del ejercicio"
+          aria-label={t('fuel.exerciseStatementAria')}
           value={text}
           rows={6}
           disabled={!!progress}
-          placeholder={'Escribe o pega el enunciado, por ejemplo:\nOrigen - destino: SPUR - SPJC 750 nm F350 (50 TW)\nDestino - alterno: SPJC - SPSO 145 nm F190 (30 HW)\nHolding con 92500 lbs · Taxi: 400 lbs'}
+          placeholder={t('fuel.statementPlaceholder')}
           onChange={(e) => {
             setError(undefined);
             onTextChange(e.target.value);
@@ -226,21 +228,21 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
         />
 
         <div className="statement-toolbar">
-          <button className="btn btn-primary" onClick={() => cameraRef.current?.click()} disabled={!!progress} title="Toma una foto del enunciado con la cámara">
-            <Camera size={16} aria-hidden="true" /> Foto
+          <button className="btn btn-primary" onClick={() => cameraRef.current?.click()} disabled={!!progress} title={t('fuel.takePhotoTitle')}>
+            <Camera size={16} aria-hidden="true" /> {t('fuel.takePhotoButton')}
           </button>
-          <button className="btn" onClick={() => fileRef.current?.click()} disabled={!!progress} title="Elige una captura o imagen guardada">
-            <ImageUp size={16} aria-hidden="true" /> Imagen
+          <button className="btn" onClick={() => fileRef.current?.click()} disabled={!!progress} title={t('fuel.imageButtonTitle')}>
+            <ImageUp size={16} aria-hidden="true" /> {t('fuel.imageButton')}
           </button>
           {text && (
-            <button className="btn btn-ghost btn-icon" onClick={() => onTextChange('')} disabled={!!progress} aria-label="Borrar el enunciado" title="Borrar">
+            <button className="btn btn-ghost btn-icon" onClick={() => onTextChange('')} disabled={!!progress} aria-label={t('fuel.clearStatement')} title={t('fuel.clear')}>
               <Trash2 size={16} aria-hidden="true" />
             </button>
           )}
           {status && <span className={`status ${status.cls} statement-status`}>{status.label}</span>}
         </div>
-        <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden disabled={!!progress} onChange={onFile} aria-label="Tomar foto del enunciado" />
-        <input ref={fileRef} type="file" accept="image/*" hidden disabled={!!progress} onChange={onFile} aria-label="Subir imagen del enunciado" />
+        <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden disabled={!!progress} onChange={onFile} aria-label={t('fuel.takePhoto')} />
+        <input ref={fileRef} type="file" accept="image/*" hidden disabled={!!progress} onChange={onFile} aria-label={t('fuel.uploadImage')} />
 
         {progress && (
           <div className="stack gap-8" role="status">
@@ -248,7 +250,7 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
             <div className="progress">
               <div className="progress-bar" style={{ width: `${Math.round(progress.progress * 100)}%` }} />
             </div>
-            {progress.stage === 'analyze' && <span className="field-hint">Claude está interpretando la imagen; espera unos segundos.</span>}
+            {progress.stage === 'analyze' && <span className="field-hint">{t('fuel.ocrProgress')}</span>}
           </div>
         )}
 
@@ -261,8 +263,7 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
         ))}
 
         <p className="field-hint">
-          También puedes pegar una captura (Ctrl+V) o arrastrarla aquí. La imagen se envía a Claude para interpretar el
-          enunciado. Si un dato no se distingue, queda pendiente para que lo completes.
+          {t('fuel.pasteHint')}
         </p>
       </div>
     </Card>

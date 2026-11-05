@@ -3,6 +3,8 @@ import type { TakeoffEprInput, TakeoffEprResult } from '@/core/takeoffEpr';
 import type { B737EprInput, B737EprResult } from '@/core/takeoffEprB737';
 import type { ClimbInput, ClimbResult } from '@/core/enRouteClimb';
 import { foreignAirports, type RouteAirports } from '@/data/airports';
+import { translate, type Locale } from '@/i18n';
+import { exerciseDetailsEn } from '@/i18n/messages/exercises';
 
 /**
  * Registro de ejercicios de prueba. Cada ejercicio guarda su enunciado, los datos
@@ -471,4 +473,55 @@ export const getClimbExercise = (id: string) => CLIMB_EXERCISES.find((e) => e.id
 
 export function getExercise(id: string): Exercise | undefined {
   return EXERCISES.find((e) => e.id === id);
+}
+
+export function getExerciseDisplay(exercise: Exercise, locale: Locale) {
+  if (locale === 'es') {
+    return {
+      title: exercise.title,
+      summary: exercise.summary,
+      scopeLabel: exercise.kind === 'fuel-plan'
+        ? SCOPES[exercise.scope].label
+        : exercise.kind === 'takeoff-epr'
+          ? `Despegue · condiciones ${exercise.scenario}`
+          : `Ascenso en ruta · condiciones ${exercise.scenario}`,
+      statement: exercise.statement,
+      questions: exercise.questions,
+      assumptions: exercise.assumptions,
+      remarks: exercise.remarks,
+      expectedLabels: exercise.expected.map((step) => step.label),
+    };
+  }
+  const details = exercise.status === 'pending' ? exerciseDetailsEn[exercise.id] : undefined;
+  if (exercise.status === 'pending' && !details) {
+    throw new Error(`Missing en exercise details for ${exercise.id}`);
+  }
+  if (details) {
+    const fields = [
+      ['statement', details.statement.length, exercise.statement.length],
+      ['questions', details.questions.length, exercise.questions.length],
+      ['assumptions', details.assumptions.length, exercise.assumptions.length],
+      ['remarks', details.remarks.length, exercise.remarks.length],
+      ['expectedLabels', details.expectedLabels.length, exercise.expected.length],
+    ] as const;
+    for (const [field, translatedCount, sourceCount] of fields) {
+      if (translatedCount !== sourceCount) {
+          throw new Error(`English exercise ${field} count mismatch for ${exercise.id}: expected ${sourceCount}, got ${translatedCount}`);
+      }
+    }
+  }
+  const scopeLabel =
+    exercise.kind === 'fuel-plan'
+      ? translate(locale, `exercise.scope.${exercise.scope === 'nacional' ? 'national' : 'international'}`)
+      : translate(locale, `exercise.scope.${exercise.kind === 'takeoff-epr' ? 'takeoff' : 'climb'}`, { scenario: exercise.scenario });
+  return {
+    title: translate(locale, `exercise.${exercise.id}.title`),
+    summary: translate(locale, `exercise.${exercise.id}.summary`),
+    scopeLabel,
+    statement: details?.statement ?? exercise.statement,
+    questions: details?.questions ?? exercise.questions,
+    assumptions: details?.assumptions ?? exercise.assumptions,
+    remarks: details?.remarks ?? exercise.remarks,
+    expectedLabels: details?.expectedLabels ?? exercise.expected.map((step) => step.label),
+  };
 }

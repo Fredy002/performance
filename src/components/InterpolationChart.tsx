@@ -1,4 +1,5 @@
 import { formatNumber } from '@/core/format';
+import { useI18n } from '@/i18n';
 
 interface Props {
   a: number;
@@ -28,7 +29,11 @@ function niceTicks(min: number, max: number, count = 5): number[] {
 }
 
 /** Gráfica de la recta de interpolación con el punto calculado y sus proyecciones. */
-export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel = 'Entrada', yLabel = 'Resultado' }: Props) {
+export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel, yLabel }: Props) {
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
+  const xlabel = xLabel ?? t('linear.input');
+  const ylabel = yLabel ?? t('linear.result');
   const xs = [a, b, c];
   const ys = [a1, b1, x];
   const padRange = (lo: number, hi: number) => {
@@ -45,14 +50,14 @@ export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel = 'Ent
   const slope = (b1 - a1) / (b - a);
   const lineAt = (v: number) => a1 + slope * (v - a);
 
-  const fmt = (v: number) => formatNumber(v, decimals);
+  const fmt = (v: number) => formatNumber(v, decimals, numberLocale);
 
   return (
     <svg
       className="chart"
       viewBox={`0 0 ${W} ${H}`}
       role="img"
-      aria-label={`Recta entre (${fmt(a)}, ${fmt(a1)}) y (${fmt(b)}, ${fmt(b1)}); para ${fmt(c)} se obtiene ${fmt(x)}`}
+      aria-label={t('linear.chartAria', { a: fmt(a), a1: fmt(a1), b: fmt(b), b1: fmt(b1), c: fmt(c), x: fmt(x) })}
     >
       <defs>
         <clipPath id="plot-area">
@@ -64,18 +69,18 @@ export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel = 'Ent
         <g key={`y${t}`}>
           <line x1={PAD.l} x2={W - PAD.r} y1={sy(t)} y2={sy(t)} stroke="var(--chart-grid)" />
           <text x={PAD.l - 8} y={sy(t) + 4} textAnchor="end">
-            {formatNumber(t, 2)}
+            {formatNumber(t, 2, numberLocale)}
           </text>
         </g>
       ))}
       {niceTicks(x0, x1).map((t) => (
         <text key={`x${t}`} x={sx(t)} y={H - PAD.b + 18} textAnchor="middle">
-          {formatNumber(t, 2)}
+          {formatNumber(t, 2, numberLocale)}
         </text>
       ))}
       <line x1={PAD.l} x2={W - PAD.r} y1={H - PAD.b} y2={H - PAD.b} stroke="var(--border-strong)" />
       <text x={(PAD.l + W - PAD.r) / 2} y={H - 6} textAnchor="middle" className="chart-axis-label">
-        {xLabel}
+        {xlabel}
       </text>
       <text
         x={14}
@@ -84,7 +89,7 @@ export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel = 'Ent
         transform={`rotate(-90 14 ${(PAD.t + H - PAD.b) / 2})`}
         className="chart-axis-label"
       >
-        {yLabel}
+        {ylabel}
       </text>
 
       <g clipPath="url(#plot-area)">

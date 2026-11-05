@@ -3,6 +3,7 @@ import { useId } from 'react';
 import { addHistory } from '@/state/history';
 import { showToast } from '@/state/toast';
 import { shareUrl } from '@/hooks/useFormValues';
+import { useI18n } from '@/i18n';
 
 interface Props {
   toolId: string;
@@ -22,42 +23,43 @@ interface Props {
 /** Barra de acciones común a todas las calculadoras. */
 export function ToolActions({ toolId, href, canSave, summary, result, onReset, onClear, capture }: Props) {
   const hintId = useId();
+  const { t } = useI18n();
   const withUndo = (run: () => void, message: string) => () => {
     const restore = capture?.();
     run();
-    showToast(message, { kind: 'info', action: restore ? { label: 'Deshacer', run: restore } : undefined });
+    showToast(message, { kind: 'info', action: restore ? { label: t('ui.actions.undo'), run: restore } : undefined });
   };
   const save = () => {
     addHistory({ toolId, href, summary, result });
-    showToast('Cálculo guardado en el historial');
+    showToast(t('ui.actions.saved'));
   };
   const share = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl(href));
-      showToast('Enlace copiado: pégalo para abrir este cálculo con los mismos datos');
+      showToast(t('ui.actions.shareSuccess'));
     } catch {
-      showToast('No se pudo copiar el enlace. Copia la dirección desde la barra del navegador.', { kind: 'error' });
+      showToast(t('ui.actions.shareError'), { kind: 'error' });
     }
   };
   return (
     <>
       {onClear && (
-        <button className="btn" onClick={withUndo(onClear, 'Campos vaciados')} title="Borra todos los campos">
-          <Eraser size={16} aria-hidden="true" /> Vaciar
+        <button className="btn" onClick={withUndo(onClear, t('ui.actions.cleared'))} title={t('ui.actions.clearTitle')}>
+          <Eraser size={16} aria-hidden="true" /> {t('ui.actions.clear')}
         </button>
       )}
-      <button className="btn" onClick={withUndo(onReset, 'Se cargó el ejemplo')} title="Sustituye tus datos por el ejemplo">
-        <RotateCcw size={16} aria-hidden="true" /> Ejemplo
+      <button className="btn" onClick={withUndo(onReset, t('ui.actions.loadedExample'))} title={t('ui.actions.exampleTitle')}>
+        <RotateCcw size={16} aria-hidden="true" /> {t('ui.actions.example')}
       </button>
-      <button className="btn" onClick={share} title="Copia un enlace a este cálculo">
-        <Link2 size={16} aria-hidden="true" /> Compartir
+      <button className="btn" onClick={share} title={t('ui.actions.shareTitle')}>
+        <Link2 size={16} aria-hidden="true" /> {t('ui.actions.share')}
       </button>
       <button className="btn btn-primary" onClick={save} disabled={!canSave} aria-describedby={canSave ? undefined : hintId}>
-        <Save size={16} aria-hidden="true" /> Guardar
+        <Save size={16} aria-hidden="true" /> {t('ui.actions.save')}
       </button>
       {!canSave && (
         <span id={hintId} className="actions-hint">
-          Guardar se activa cuando hay un resultado.
+          {t('ui.actions.saveHint')}
         </span>
       )}
     </>

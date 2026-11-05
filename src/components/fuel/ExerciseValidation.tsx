@@ -4,21 +4,23 @@ import { formatPlain } from '@/core/format';
 import { solveFuelPlan } from '@/core/fuelPlanning';
 import type { ExpectedStep, FuelPlanExercise } from '@/exercises/registry';
 import { compareWithWritten, type Comparison, type MatchStatus } from '@/exercises/validation';
+import { useI18n, type MessageKey } from '@/i18n';
 
-const STATUS: Record<MatchStatus, { label: string; icon: typeof CircleCheck }> = {
-  match: { label: 'Coincide', icon: CircleCheck },
-  rounding: { label: 'Redondeo', icon: CircleCheck },
-  mismatch: { label: 'No coincide', icon: CircleAlert },
+const STATUS: Record<MatchStatus, { label: MessageKey; icon: typeof CircleCheck }> = {
+  match: { label: 'exercise.status.match', icon: CircleCheck },
+  rounding: { label: 'exercise.status.rounding', icon: CircleCheck },
+  mismatch: { label: 'exercise.status.mismatch', icon: CircleAlert },
 };
 
 export function StatusChip({ status, diff }: { status: MatchStatus; diff?: number }) {
+  const { locale, t } = useI18n();
   const S = STATUS[status];
   return (
-    <span className={`status status-${status}`} title={S.label}>
+    <span className={`status status-${status}`} title={t(S.label)}>
       <S.icon size={13} />
       <span className="status-text">
-        {S.label}
-        {status !== 'match' && diff !== undefined && ` (Δ ${formatPlain(Math.abs(diff), 3)})`}
+        {t(S.label)}
+        {status !== 'match' && diff !== undefined && ` (Δ ${formatPlain(Math.abs(diff), 3, locale === 'en' ? 'en-US' : 'es-ES')})`}
       </span>
     </span>
   );
@@ -56,23 +58,24 @@ export function summarize(checks: ExerciseCheck[]) {
 
 /** Tabla paso a paso: valor de la resolución manual frente al valor de la app. */
 export function ExerciseValidation({ exercise, checks, decimals }: { exercise: { remarks: string[] }; checks: ExerciseCheck[]; decimals: number }) {
+  const { locale, t } = useI18n();
   const s = summarize(checks);
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   return (
     <Card
       flush
-      title={s.mismatch === 0 ? `${s.total}/${s.total} pasos coinciden` : `${s.mismatch} de ${s.total} pasos no coinciden`}
+      title={s.mismatch === 0 ? t('exercise.validation.titleMatch', { total: s.total }) : t('exercise.validation.titleMismatch', { count: s.mismatch, total: s.total })}
       action={
         <span className="row">
-          <span className="status status-match">{s.match} exactos</span>
-          {s.rounding > 0 && <span className="status status-rounding">{s.rounding} por redondeo</span>}
-          {s.mismatch > 0 && <span className="status status-mismatch">{s.mismatch} distintos</span>}
+          <span className="status status-match">{s.match} {t('exercise.status.exact')}</span>
+          {s.rounding > 0 && <span className="status status-rounding">{s.rounding} {t('exercise.status.roundingCount')}</span>}
+          {s.mismatch > 0 && <span className="status status-mismatch">{s.mismatch} {t('exercise.status.different')}</span>}
         </span>
       }
     >
       <div className="card-inset muted">
         <p>
-          «Coincide»: el valor de la app redondeado a los decimales de la resolución es idéntico. «Redondeo»: difiere en
-          menos de 0,05 por redondeos intermedios.
+          {t('exercise.validation.explanation')}
         </p>
         {exercise.remarks.length > 0 && (
           <ul>
@@ -82,14 +85,14 @@ export function ExerciseValidation({ exercise, checks, decimals }: { exercise: {
           </ul>
         )}
       </div>
-      <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
+      <div className="data-table-wrap" tabIndex={0} role="region" aria-label={t('exercise.validation.tableAria')}>
         <table className="data-table validation-table">
           <thead>
             <tr>
-              <th>Paso</th>
-              <th>Resolución</th>
-              <th>App</th>
-              <th>Estado</th>
+              <th>{t('exercise.validation.step')}</th>
+              <th>{t('exercise.validation.solution')}</th>
+              <th>{t('exercise.validation.app')}</th>
+              <th>{t('exercise.validation.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -104,7 +107,7 @@ export function ExerciseValidation({ exercise, checks, decimals }: { exercise: {
                 </td>
                 <td>
                   {/* al menos tantos decimales como la resolución, para que se pueda comparar */}
-                  {formatPlain(cmp.actual, Math.max(decimals, cmp.decimals))} {step.unit}
+                  {formatPlain(cmp.actual, Math.max(decimals, cmp.decimals), numberLocale)} {step.unit}
                 </td>
                 <td>
                   <StatusChip status={cmp.status} diff={cmp.diff} />

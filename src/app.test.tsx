@@ -347,7 +347,7 @@ describe('resolver desde una captura', () => {
     fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
     await waitFor(() => expect(value('Origen')).toBe('SPHI'));
     expect(statement().value).toBe(CLAUDE_TEXT);
-    expect(mockOcr).toHaveBeenCalledWith(image, expect.any(Function));
+    expect(mockOcr).toHaveBeenCalledWith(image, expect.any(Function), 'es');
     expect(screen.getByText('Resuelto')).toBeTruthy();
     expect([value('Origen'), value('Destino'), value('Alterno')]).toEqual(['SPHI', 'SPJC', 'SPSO']);
     expect(screen.getAllByLabelText('Distancia').map((e) => (e as HTMLInputElement).value)).toEqual(['380', '145']);

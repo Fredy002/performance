@@ -8,40 +8,42 @@ import { Card } from '@/components/ui/Card';
 import { Disclosure } from '@/components/ui/Disclosure';
 import { InfoTip } from '@/components/ui/InfoTip';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { HELP } from '@/content/help';
 import { formatPlain } from '@/core/format';
 import { B737_CLIMB_SCENARIOS } from '@/data/tables/enRouteClimbData';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useDecimals } from '@/state/settings';
+import { useI18n } from '@/i18n';
 
 const SCENARIOS = B737_CLIMB_SCENARIOS.map((s) => ({ s, form: toClimbForm(scenarioClimbInput(s)) }));
 const DEFAULTS = SCENARIOS.find(({ s }) => s.id === 'V-5')!.form;
 
 export default function EnRouteClimb() {
   const decimals = useDecimals();
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const form = useFormValues(DEFAULTS);
   const v = form.values;
   const plan = useEnRouteClimb(v, decimals);
   const r = plan.result;
   const scenario = SCENARIOS.find(({ form: f }) => sameClimbForm(f, v))?.s;
-  const p = (x: number) => formatPlain(x, decimals);
+  const p = (x: number) => formatPlain(x, decimals, numberLocale);
 
   return (
     <>
       <PageHeader
         eyebrow={
           <>
-            <TrendingUp size={14} /> Boeing 737 · Ascenso en ruta 280/.70
+            <TrendingUp size={14} /> {t('climb.eyebrow')}
           </>
         }
-        title="Ascenso en ruta"
-        subtitle="Combustible consumido y distancia recorrida en el ascenso hasta la altitud de crucero, con las tablas del B737 en ISA o ISA +10 °C."
+        title={t('climb.title')}
+        subtitle={t('climb.subtitle')}
         actions={
           <ToolActions
             toolId="en-route-climb"
             href={form.href}
             canSave={!!r}
-            summary={`${scenario ? `${scenario.id} · ` : ''}${v.w} lb · FL ${Math.round(Number(v.alt) / 100)} · aeropuerto ${v.elev} ft · ${v.t === 'ISA10' ? 'ISA +10' : 'ISA'} · ${v.wind} kt ${v.wk}`}
+            summary={`${scenario ? `${scenario.id} · ` : ''}${p(Number(v.w))} lb · FL ${Math.round(Number(v.alt) / 100)} · ${t('climbForm.airportElevation').toLowerCase()} ${p(Number(v.elev))} ft · ${v.t === 'ISA10' ? 'ISA +10' : 'ISA'} · ${p(Number(v.wind))} kt ${v.wk}`}
             result={r ? `${p(r.fuelLb)} lb · ${p(r.distNm)} NM` : ''}
             onReset={form.reset}
             capture={() => {
@@ -54,12 +56,12 @@ export default function EnRouteClimb() {
 
       <div className="grid grid-calc">
         <Card
-          title="Condiciones"
+          title={t('calc.conditions')}
           action={
             <span className="with-help">
               <select
                 className="select select-compact"
-                aria-label="Cargar condiciones V-1 a V-5"
+                aria-label={t('climb.loadConditionsAria')}
                 value={scenario?.id ?? ''}
                 onChange={(e) => {
                   const found = SCENARIOS.find(({ s }) => s.id === e.target.value);
@@ -67,7 +69,7 @@ export default function EnRouteClimb() {
                 }}
               >
                 <option value="" disabled>
-                  Condiciones…
+                  {t('climb.selectConditions')}
                 </option>
                 {SCENARIOS.map(({ s }) => (
                   <option key={s.id} value={s.id}>
@@ -75,7 +77,7 @@ export default function EnRouteClimb() {
                   </option>
                 ))}
               </select>
-              <InfoTip label="las condiciones V-1 a V-5">{HELP.climbScenario}</InfoTip>
+              <InfoTip label={t('climb.loadConditionsAria')}>{t('help.climbScenario')}</InfoTip>
             </span>
           }
         >
@@ -85,33 +87,30 @@ export default function EnRouteClimb() {
           <ClimbAnswers
             result={r}
             decimals={decimals}
-            placeholder={<div className="empty">{plan.error ? 'Revisa los datos.' : 'Completa peso, altitudes y viento con números.'}</div>}
+            placeholder={<div className="empty">{plan.error ? t('calc.reviewData') : t('climb.complete')}</div>}
           />
           {plan.error && <Alert kind="error">{plan.error}</Alert>}
         </div>
       </div>
 
       <div className="calc-section">
-        <Disclosure title="Desarrollo paso a paso" meta={r ? `${r.table.figure} · ${p(r.timeMin)} min` : undefined} defaultOpen>
-          {r ? <ClimbSteps result={r} input={plan.input} decimals={decimals} /> : <p className="calc-text">Aparece cuando hay respuestas.</p>}
+        <Disclosure title={t('calc.steps')} meta={r ? `${r.table.figure} · ${p(r.timeMin)} min` : undefined} defaultOpen>
+          {r ? <ClimbSteps result={r} input={plan.input} decimals={decimals} /> : <p className="calc-text">{t('calc.appearsWhenReady')}</p>}
         </Disclosure>
-        <Disclosure title="Cómo se calcula">
+        <Disclosure title={t('calc.howCalculated')}>
           <div className="help-block">
             <ul>
               <li>
-                <b>Tabla</b>: <Link to="/tables/ascenso-ruta-280-070-isa">ISA</Link> o{' '}
-                <Link to="/tables/ascenso-ruta-280-070-isa-mas-10">ISA +10 °C</Link>. Fila de la altitud de crucero y columna del peso al soltar
-                frenos: TIME/FUEL (min/lb) y DIST./TAS (NM/kt). Si no son valores exactos se interpola; entre 6000 y 22000 ft la tabla no publica
-                filas.
+                <b>{t('climb.tableHelp')}</b>: <Link to="/tables/ascenso-ruta-280-070-isa">{t('climb.temperatureIsaHelp')}</Link> o{' '}
+                <Link to="/tables/ascenso-ruta-280-070-isa-mas-10">{t('climb.temperatureIsa10Help')}</Link>. {t('climb.tableMethod')}
               </li>
               <li>
-                <b>Combustible consumido</b> = combustible de la tabla + ajuste por aeropuerto elevado (desde 2000 ft; negativo).
+                <b>{t('climb.fuelConsumed')}</b>{t('climb.fuelMethod')}
               </li>
               <li>
-                <b>Distancia recorrida</b> = distancia de la tabla ∓ (tiempo ÷ 60 × viento): se resta con viento de cara y se suma con viento de
-                cola.
+                <b>{t('climb.distanceTravelled')}</b>{t('climb.distanceMethod')}
               </li>
-              <li>Cada paso se redondea a los decimales de Ajustes, como en una resolución a mano.</li>
+              <li>{t('climb.rounding')}</li>
             </ul>
           </div>
         </Disclosure>

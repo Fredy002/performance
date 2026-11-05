@@ -4,18 +4,21 @@ import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
 import { findAirport } from '@/data/airports';
 import { getTable } from '@/data/tables';
+import { getTableDisplay } from '@/data/tables/localization';
 import type { Exercise } from '@/exercises/registry';
+import { useI18n } from '@/i18n';
 
-export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise: Exercise; title?: ReactNode }) {
+export function ExerciseStatement({ exercise, title }: { exercise: Exercise; title?: ReactNode }) {
+  const { locale, t } = useI18n();
   return (
-    <Card title={title}>
+    <Card title={title ?? t('exercise.statement')}>
       <ul className="statement">
         {exercise.statement.map((s) => (
           <li key={s}>{s}</li>
         ))}
       </ul>
       {exercise.kind === 'fuel-plan' && <p className="calc-note">
-        Aeropuertos:{' '}
+        {t('exercise.airports')}{' '}
         {(['origin', 'destination', 'alternate'] as const)
           .map((role) => {
             const code = exercise.airports[role];
@@ -24,7 +27,7 @@ export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise:
           })
           .join(' · ')}
       </p>}
-      <p className="statement-heading">Se pide:</p>
+      <p className="statement-heading">{t('exercise.asks')}</p>
       <ul className="statement statement-sm">
         {exercise.questions.map((q) => (
           <li key={q}>{q}</li>
@@ -40,13 +43,16 @@ export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise:
         </Alert>
       </div>
       <p className="calc-note">
-        Tablas usadas:{' '}
-        {exercise.tables.map((id, i) => (
-          <span key={id}>
-            {i > 0 && ' · '}
-            <Link to={`/tables/${id}`}>{getTable(id)?.title ?? id}</Link>
-          </span>
-        ))}
+        {t('exercise.tablesUsed')}{' '}
+        {exercise.tables.map((id, i) => {
+          const table = getTable(id);
+          return (
+            <span key={id}>
+              {i > 0 && ' · '}
+              <Link to={`/tables/${id}`}>{table ? getTableDisplay(table, locale).title : id}</Link>
+            </span>
+          );
+        })}
       </p>
     </Card>
   );

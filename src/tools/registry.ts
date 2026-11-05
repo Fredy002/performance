@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Wind,
 } from 'lucide-react';
+import { translate, type Locale } from '@/i18n';
 
 /**
  * Registro central de herramientas.
@@ -166,6 +167,24 @@ export const toolPath = (id: string) => `/tools/${id}`;
 
 export function getTool(id: string): ToolDef | undefined {
   return TOOLS.find((t) => t.id === id);
+}
+
+export function localizedToolName(id: string, locale: Locale): string {
+  return translate(locale, `tool.${id}.name`);
+}
+
+export function localizedToolShortName(id: string, locale: Locale): string {
+  const tool = getTool(id);
+  if (!tool) throw new Error(`Unknown tool: ${id}`);
+  return translate(locale, `tool.${id}.shortName`);
+}
+
+export function localizedToolDescription(id: string, locale: Locale): string {
+  return translate(locale, `tool.${id}.description`);
+}
+
+export function localizedCategory(category: ToolCategory, locale: Locale): string {
+  return translate(locale, `category.${category}`);
 }
 
 /** Herramientas disponibles, en el orden del menú (la más usada primero). */

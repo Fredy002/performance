@@ -13,9 +13,9 @@ export function roundTo(value: number, decimals: number): number {
   return sign * rounded || 0;
 }
 
-export function formatNumber(value: number, decimals = 2): string {
+export function formatNumber(value: number, decimals = 2, locale = 'es-ES'): string {
   if (!Number.isFinite(value)) return '—';
-  return roundTo(value, decimals).toLocaleString('es-ES', {
+  return roundTo(value, decimals).toLocaleString(locale, {
     minimumFractionDigits: 0,
     maximumFractionDigits: decimals,
   });
@@ -29,12 +29,12 @@ export function parseNumber(raw: string): number {
 }
 
 /**
- * Número sin separador de miles y con coma decimal, como en una resolución a mano.
- * Recorta ceros finales: 92.080 → «92,08», 433 → «433».
+ * Número sin separador de miles, con separador decimal según locale y ceros finales recortados.
  */
-export function formatPlain(value: number, maxDecimals = 2): string {
+export function formatPlain(value: number, maxDecimals = 2, locale = 'es-ES'): string {
   if (!Number.isFinite(value)) return '—';
   const fixed = roundTo(value, maxDecimals).toFixed(maxDecimals);
   const trimmed = fixed.includes('.') ? fixed.replace(/0+$/, '').replace(/\.$/, '') : fixed;
-  return (trimmed === '-0' ? '0' : trimmed).replace('.', ',');
+  const decimal = new Intl.NumberFormat(locale).formatToParts(1.1).find((part) => part.type === 'decimal')?.value ?? '.';
+  return (trimmed === '-0' ? '0' : trimmed).replace('.', decimal);
 }

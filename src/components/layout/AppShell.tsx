@@ -1,6 +1,7 @@
 import { Check, CircleX, Info, X } from 'lucide-react';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { useI18n } from '@/i18n';
 import { useSettings } from '@/state/settings';
 import { dismissToast, useToast } from '@/state/toast';
 import { BottomNav } from './BottomNav';
@@ -12,9 +13,10 @@ const TOAST_ICON = { success: Check, error: CircleX, info: Info };
 
 /** Esqueleto mientras se descarga una página: evita el salto de «Cargando…». */
 function PageSkeleton() {
+  const { t } = useI18n();
   return (
     <div className="skeleton-page" aria-busy="true" aria-live="polite">
-      <span className="sr-only">Cargando la página…</span>
+      <span className="sr-only">{t('common.loadingPage')}</span>
       <div className="skeleton skeleton-title" />
       <div className="skeleton skeleton-line" />
       <div className="grid grid-calc">
@@ -27,11 +29,16 @@ function PageSkeleton() {
 
 export function AppShell() {
   const { sidebarCollapsed } = useSettings();
+  const { locale, t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const toast = useToast();
   const { pathname } = useLocation();
   const returnFocus = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    document.title = t('app.documentTitle');
+  }, [locale]);
 
   const openPalette = () => {
     returnFocus.current = document.activeElement as HTMLElement | null;
@@ -85,7 +92,7 @@ export function AppShell() {
         e.preventDefault();
         document.getElementById('contenido')?.focus();
       }}>
-        Saltar al contenido
+        {t('common.skipContent')}
       </a>
       <Sidebar onNavigate={() => closeMenu(false)} onClose={() => closeMenu()} />
       <div className="sidebar-backdrop" onClick={() => closeMenu()} />
@@ -100,7 +107,7 @@ export function AppShell() {
       <BottomNav onMenu={openMenu} menuOpen={mobileOpen} />
       <CommandPalette open={paletteOpen} onClose={closePalette} />
       {/* región viva permanente: los lectores de pantalla anuncian cada aviso */}
-      <div className="toast-region" role="status" aria-live="polite">
+      <div className="toast-region" role="status" aria-live="polite" aria-label={t('common.notifications')}>
         {toast && (
           <div className={`toast toast-${toast.kind}`} key={toast.id}>
             <ToastIcon size={16} aria-hidden="true" />
@@ -116,7 +123,7 @@ export function AppShell() {
                 {toast.action.label}
               </button>
             )}
-            <button className="toast-close" onClick={dismissToast} aria-label="Cerrar aviso">
+            <button className="toast-close" onClick={dismissToast} aria-label={t('common.closeNotice')} title={t('common.closeNotice')}>
               <X size={14} aria-hidden="true" />
             </button>
           </div>

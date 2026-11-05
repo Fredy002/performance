@@ -13,10 +13,12 @@ import { solveB737TakeoffEpr } from '@/core/takeoffEprB737';
 import type { TakeoffEprExercise } from '@/exercises/registry';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useDecimals } from '@/state/settings';
+import { useI18n, type MessageKey } from '@/i18n';
 
 /** Prueba de EPR de despegue: la app resuelve el escenario y lo compara con la resolución manual. */
 export function TakeoffEprExerciseView({ exercise }: { exercise: TakeoffEprExercise }) {
   const decimals = useDecimals();
+  const { t } = useI18n();
   const defaults = useMemo(() => toEprForm({ aircraft: exercise.aircraftId, input: exercise.input } as EprCase), [exercise]);
   const form = useFormValues(defaults);
   const plan = useTakeoffEpr(form.values);
@@ -35,7 +37,7 @@ export function TakeoffEprExerciseView({ exercise }: { exercise: TakeoffEprExerc
       isOriginal &&
       c && (
         <div className="row answer-footer">
-          <span className="answer-footer-text">Resolución: {c.step.written}</span>
+          <span className="answer-footer-text">{t('exercise.detail.solution', { value: c.step.written })}</span>
           <StatusChip status={c.cmp.status} diff={c.cmp.diff} />
         </div>
       )
@@ -47,21 +49,21 @@ export function TakeoffEprExerciseView({ exercise }: { exercise: TakeoffEprExerc
       <PageHeader
         eyebrow={
           <>
-            <ClipboardCheck size={14} /> Pruebas · {exercise.aircraft} · condiciones {exercise.scenario}
+            <ClipboardCheck size={14} /> {t('exercise.list.eyebrow')} · {exercise.aircraft} · {t('exercise.scope.takeoff', { scenario: exercise.scenario })}
           </>
         }
-        title={exercise.title}
-        subtitle={exercise.summary}
+        title={t(`exercise.${exercise.id}.title` as MessageKey)}
+        subtitle={t(`exercise.${exercise.id}.summary` as MessageKey)}
         actions={
           !isOriginal && (
             <button className="btn" onClick={form.reset}>
-              <RotateCcw size={16} /> Restaurar enunciado
+              <RotateCcw size={16} /> {t('exercise.detail.restore')}
             </button>
           )
         }
       />
       <div className="page-badges">
-        <span className="chip chip-warning">Pendiente de verificación</span>
+        <span className="chip chip-warning">{t('exercise.detail.pending')}</span>
       </div>
 
       <div className="grid grid-calc">
@@ -70,7 +72,7 @@ export function TakeoffEprExerciseView({ exercise }: { exercise: TakeoffEprExerc
       </div>
 
       <div className="calc-section">
-        <Card title="Datos">
+        <Card title={t('exercise.detail.data')}>
           <TakeoffEprForm values={form.values} set={form.set} />
         </Card>
       </div>
@@ -83,7 +85,7 @@ export function TakeoffEprExerciseView({ exercise }: { exercise: TakeoffEprExerc
 
       {plan.result && (
         <>
-          <h2 className="section-title">Desarrollo</h2>
+          <h2 className="section-title">{t('exercise.detail.development')}</h2>
           {plan.aircraft === 'b737' ? (
             <B737EprSteps result={plan.result} input={plan.input} decimals={decimals} />
           ) : (
@@ -92,12 +94,12 @@ export function TakeoffEprExerciseView({ exercise }: { exercise: TakeoffEprExerc
         </>
       )}
 
-      <h2 className="section-title">Validación con la resolución manual</h2>
+      <h2 className="section-title">{t('exercise.detail.validation')}</h2>
       {!isOriginal ? (
         <Alert kind="info">
-          Has cambiado los datos del enunciado: la validación solo se aplica a los datos originales.{' '}
+          {t('exercise.detail.changed')}{' '}
           <button className="btn btn-sm alert-action" onClick={form.reset}>
-            Restaurar enunciado
+            {t('exercise.detail.restore')}
           </button>
         </Alert>
       ) : (
@@ -105,8 +107,7 @@ export function TakeoffEprExerciseView({ exercise }: { exercise: TakeoffEprExerc
       )}
 
       <p className="calc-footnote row">
-        <Table size={14} /> Los valores salen de las tablas digitalizadas (figuras {exercise.aircraftId === 'b737' ? '53, 54 y 55' : '81, 82 y 83'}) y del
-        mismo núcleo de cálculo que usa la herramienta EPR de despegue.
+        <Table size={14} /> {t('exercise.detail.valuesFromTables')}
       </p>
     </>
   );

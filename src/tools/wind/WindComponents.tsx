@@ -4,7 +4,6 @@ import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
 import { InfoTip } from '@/components/ui/InfoTip';
 import { NumberField, numberError } from '@/components/ui/NumberField';
-import { HELP } from '@/content/help';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ResultHero } from '@/components/ui/ResultHero';
 import { ToolActions } from '@/components/ToolActions';
@@ -12,10 +11,11 @@ import { formatNumber, parseNumber } from '@/core/format';
 import { runwayToHeading, windComponents, type WindComponents as WC } from '@/core/wind';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useDecimals } from '@/state/settings';
+import { useI18n, type MessageKey } from '@/i18n';
 
 const DEFAULTS = { rwy: '27', dir: '300', spd: '18', limit: '15' };
 
-function WindDiagram({ heading, w, dir }: { heading: number; w: WC; dir: number }) {
+function WindDiagram({ heading, w, dir, locale, t }: { heading: number; w: WC; dir: number; locale: string; t: (key: MessageKey, values?: Record<string, string | number>) => string }) {
   const size = 260;
   const c = size / 2;
   const R = 100;
@@ -26,9 +26,10 @@ function WindDiagram({ heading, w, dir }: { heading: number; w: WC; dir: number 
   const [wx, wy] = toXY(dir, R + 6);
   const [ix, iy] = toXY(dir, 40);
   const markerId = useId().replace(/:/g, '');
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   return (
     <svg className="chart chart-compass" viewBox={`0 0 ${size} ${size}`} role="img"
-      aria-label={`Pista ${formatNumber(heading, 0)}°, viento desde ${formatNumber(dir, 0)}°`}>
+      aria-label={t('wind.runwayWindAria', { runway: formatNumber(heading, 0, numberLocale), direction: formatNumber(dir, 0, numberLocale) })}>
       <defs>
         <marker id={markerId} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M0 0 L10 5 L0 10 z" fill="var(--result)" />
@@ -50,7 +51,7 @@ function WindDiagram({ heading, w, dir }: { heading: number; w: WC; dir: number 
       </g>
       <line x1={wx} y1={wy} x2={ix} y2={iy} stroke="var(--result)" strokeWidth={3} markerEnd={`url(#${markerId})`} />
       <text x={c} y={size - 4} textAnchor="middle">
-        {w.headwind >= 0 ? 'Cara' : 'Cola'} {formatNumber(Math.abs(w.headwind), 0)} kt · Cruzado {formatNumber(Math.abs(w.crosswind), 0)} kt
+        {w.headwind >= 0 ? t('wind.head') : t('wind.tail')} {formatNumber(Math.abs(w.headwind), 0, numberLocale)} kt · {t('wind.crosswind')} {formatNumber(Math.abs(w.crosswind), 0, numberLocale)} kt
       </text>
     </svg>
   );
@@ -58,6 +59,8 @@ function WindDiagram({ heading, w, dir }: { heading: number; w: WC; dir: number 
 
 export default function WindComponents() {
   const decimals = useDecimals();
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const form = useFormValues(DEFAULTS);
   const heading = runwayToHeading(form.values.rwy);
   const dir = parseNumber(form.values.dir);
@@ -66,20 +69,20 @@ export default function WindComponents() {
   const rwyInvalid = !!form.values.rwy.trim() && !Number.isFinite(heading);
   const valid = Number.isFinite(heading) && Number.isFinite(dir) && Number.isFinite(spd) && spd >= 0;
   const w = valid ? windComponents(heading, dir, spd) : undefined;
-  const kt = (v: number) => formatNumber(Math.abs(v), decimals);
+  const kt = (v: number) => formatNumber(Math.abs(v), decimals, numberLocale);
 
   return (
     <>
       <PageHeader
-        eyebrow={<><Wind size={14} /> Atmósfera</>}
-        title="Componentes de viento"
-        subtitle="Descompone el viento reportado (METAR/ATIS) en componente de cara o cola y componente cruzada respecto a la pista."
+        eyebrow={<><Wind size={14} /> {t('wind.eyebrow')}</>}
+        title={t('wind.title')}
+        subtitle={t('wind.subtitle')}
         actions={
           <ToolActions
             toolId="wind"
             href={form.href}
             canSave={!!w}
-            summary={`RWY ${form.values.rwy} · viento ${form.values.dir}/${form.values.spd} kt`}
+            summary={`${t('wind.runway')} ${form.values.rwy} · ${t('wind.summaryWind')} ${Number.isFinite(dir) ? formatNumber(dir, decimals, numberLocale) : form.values.dir}/${Number.isFinite(spd) ? formatNumber(spd, decimals, numberLocale) : form.values.spd} kt`}
             result={w ? `${w.headwind >= 0 ? 'HW' : 'TW'} ${kt(w.headwind)} · XW ${kt(w.crosswind)} kt` : ''}
             onReset={form.reset}
             capture={() => {
@@ -91,47 +94,47 @@ export default function WindComponents() {
       />
       <div className="grid grid-calc">
         <div className="stack">
-          <Card title="Datos">
+          <Card title={t('calc.data')}>
             <div className="grid grid-2">
               <div className="field">
                 <span className="field-label-row">
-                  <label className="field-label" htmlFor="rwy">Pista</label>
-                  <InfoTip label="la pista">{HELP.runway}</InfoTip>
+                  <label className="field-label" htmlFor="rwy">{t('wind.runway')}</label>
+                  <InfoTip label={t('wind.runway')}>{t('help.runway')}</InfoTip>
                 </span>
                 <div className={`field-control${rwyInvalid ? ' invalid' : ''}`}>
                   <span className="field-tag" aria-hidden="true">RWY</span>
-                  <input id="rwy" value={form.values.rwy} onChange={(e) => form.set('rwy', e.target.value)} placeholder="27L o 274" aria-invalid={rwyInvalid || undefined} aria-describedby="rwy-msg" />
+                  <input id="rwy" value={form.values.rwy} onChange={(e) => form.set('rwy', e.target.value)} placeholder={t('wind.runwayPlaceholder')} aria-invalid={rwyInvalid || undefined} aria-describedby="rwy-msg" />
                 </div>
                 <span id="rwy-msg" className={`field-hint${rwyInvalid ? ' field-error' : ''}`}>
-                  {rwyInvalid ? 'Escribe un número de pista del 01 al 36 (con L, C o R si hace falta) o un rumbo de 0 a 360.' : 'Designador (27L) o rumbo magnético (274)'}
+                  {rwyInvalid ? t('wind.runwayError') : t('wind.runwayHint')}
                 </span>
               </div>
-              <NumberField label="Dirección del viento" value={form.values.dir} onChange={(v) => form.set('dir', v)} unit="°" help={HELP.windDirection} error={numberError(form.values.dir, dir, HELP.invalidNumber)} hint="Ejemplo: 300" />
-              <NumberField label="Velocidad del viento" value={form.values.spd} onChange={(v) => form.set('spd', v)} unit="kt" error={numberError(form.values.spd, spd, HELP.invalidNumber) ?? (spd < 0 ? 'La velocidad no puede ser negativa.' : undefined)} hint="Ejemplo: 18" />
-              <NumberField label="Límite de viento cruzado" value={form.values.limit} onChange={(v) => form.set('limit', v)} unit="kt" help={HELP.crosswindLimit} error={numberError(form.values.limit, limit, HELP.invalidNumber)} hint="Opcional" />
+              <NumberField label={t('wind.direction')} value={form.values.dir} onChange={(v) => form.set('dir', v)} unit="°" help={t('help.windDirection')} error={numberError(form.values.dir, dir, t('help.invalidNumber'))} hint="300" />
+              <NumberField label={t('wind.speed')} value={form.values.spd} onChange={(v) => form.set('spd', v)} unit="kt" error={numberError(form.values.spd, spd, t('help.invalidNumber')) ?? (spd < 0 ? t('wind.speedError') : undefined)} hint="18" />
+              <NumberField label={t('wind.crosswindLimit')} value={form.values.limit} onChange={(v) => form.set('limit', v)} unit="kt" help={t('help.crosswindLimit')} error={numberError(form.values.limit, limit, t('help.invalidNumber'))} hint={t('wind.optional')} />
             </div>
           </Card>
-          {!valid && <Alert kind="info">Completa pista, dirección y velocidad del viento para ver las componentes.</Alert>}
+          {!valid && <Alert kind="info">{t('wind.complete')}</Alert>}
           {w && Number.isFinite(limit) && Math.abs(w.crosswind) > limit && (
-            <Alert kind="error">El viento cruzado ({kt(w.crosswind)} kt) supera el límite indicado ({formatNumber(limit, 0)} kt).</Alert>
+            <Alert kind="error">{t('wind.crosswindExceeded', { crosswind: kt(w.crosswind), limit: formatNumber(limit, 0, numberLocale) })}</Alert>
           )}
-          {w && w.headwind < 0 && <Alert kind="warning">Viento de cola de {kt(w.headwind)} kt: revisa las limitaciones y la corrección de distancias.</Alert>}
+          {w && w.headwind < 0 && <Alert kind="warning">{t('wind.tailwindWarning', { speed: kt(w.headwind) })}</Alert>}
           {w && (
             <ResultHero
-              label={w.headwind >= 0 ? 'Viento de cara' : 'Viento de cola'}
+              label={w.headwind >= 0 ? t('wind.headwind') : t('wind.tailwind')}
               value={kt(w.headwind)}
               unit="kt"
               meta={[
-                { label: `Cruzado desde la ${w.crosswind >= 0 ? 'derecha' : 'izquierda'}`, value: `${kt(w.crosswind)} kt` },
-                { label: 'Ángulo', value: `${formatNumber(Math.abs(w.angle), 0)}°` },
+                { label: t('wind.crosswindFrom', { side: w.crosswind >= 0 ? t('wind.right') : t('wind.left') }), value: `${kt(w.crosswind)} kt` },
+                { label: t('wind.angle'), value: `${formatNumber(Math.abs(w.angle), 0, numberLocale)}°` },
               ]}
             />
           )}
         </div>
-        <Card title="Diagrama">
-          {w ? <WindDiagram heading={heading} w={w} dir={dir} /> : <div className="empty"><Wind size={32} aria-hidden="true" />El diagrama aparece cuando escribes pista, dirección y velocidad del viento.</div>}
+        <Card title={t('wind.diagram')}>
+          {w ? <WindDiagram heading={heading} w={w} dir={dir} locale={locale} t={t} /> : <div className="empty"><Wind size={32} aria-hidden="true" />{t('wind.diagramWaiting')}</div>}
           <p className="calc-caption">
-            HW = V·cos(α) · XW = V·sen(α), siendo α el ángulo entre el viento y la pista.
+            {t('wind.calculationCaption')}
           </p>
         </Card>
       </div>

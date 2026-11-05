@@ -1,22 +1,24 @@
 import type { ReactNode } from 'react';
 import { Card } from '@/components/ui/Card';
 import { InfoTip } from '@/components/ui/InfoTip';
-import { HELP } from '@/content/help';
 import { formatPlain } from '@/core/format';
 import { EPR_DECIMALS, type AltInterpolation, type EngineEpr, type PressureAltitudeStep, type TakeoffEprInput, type TakeoffEprResult } from '@/core/takeoffEpr';
 import type { B737EprInput, B737EprResult } from '@/core/takeoffEprB737';
 import { B737_EPR_OAT_C, B737_EPR_OAT_F, B737_TEMP_LIMIT_EPR, EPR_OAT_C, EPR_OAT_F } from '@/data/tables/takeoffEprData';
+import { useI18n } from '@/i18n';
 
 /** Respuestas: EPR de los motores 1 y 3 y del motor 2 (2 decimales, como la tabla). */
 export function TakeoffEprAnswers({ result: r, placeholder, footer }: { result?: TakeoffEprResult; placeholder?: ReactNode; footer?: (key: string) => ReactNode }) {
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const answers = r
     ? [
-        { key: 'a', label: 'EPR motores 1 y 3', value: r.eng13.final },
-        { key: 'b', label: 'EPR motor 2', value: r.eng2.final },
+        { key: 'a', label: t('takeoff.answerEng13'), value: r.eng13.final },
+        { key: 'b', label: t('takeoff.answerEng2'), value: r.eng2.final },
       ]
     : [];
   return (
-    <Card title={<span className="with-help">Respuestas <InfoTip label="EPR">{HELP.epr}</InfoTip></span>}>
+    <Card title={<span className="with-help">{t('calc.answers')} <InfoTip label="EPR">{t('help.epr')}</InfoTip></span>}>
       {r ? (
         <>
           <div className="answer-grid">
@@ -25,51 +27,52 @@ export function TakeoffEprAnswers({ result: r, placeholder, footer }: { result?:
                 <div className="answer-label">
                   {a.key}) {a.label}
                 </div>
-                <div className="answer-value">{formatPlain(a.value, EPR_DECIMALS)}</div>
+                <div className="answer-value">{formatPlain(a.value, EPR_DECIMALS, numberLocale)}</div>
                 {footer?.(a.key)}
               </div>
             ))}
           </div>
           <p className="calc-note">
-            Altitud de presión {formatPlain(r.pressure.pressureAltitudeFt, 0)} ft · OAT {formatPlain(r.oatF, 1)} °F. EPR redondeado
-            a 2 decimales, como en la tabla.
+            {t('takeoff.pressureOatNote', { altitude: formatPlain(r.pressure.pressureAltitudeFt, 0, numberLocale), temperature: formatPlain(r.oatF, 1, numberLocale) })}
           </p>
         </>
       ) : (
-        (placeholder ?? <div className="empty">Completa elevación, reglaje y temperatura.</div>)
+        (placeholder ?? <div className="empty">{t('takeoff.complete')}</div>)
       )}
     </Card>
   );
 }
 
-const signed = (v: number, d: number) => `${v < 0 ? '−' : '+'} ${formatPlain(Math.abs(v), d)}`;
+const signed = (v: number, d: number, locale = 'es-ES') => `${v < 0 ? '−' : '+'} ${formatPlain(Math.abs(v), d, locale)}`;
 
 /** Paso común: altitud de presión con la tabla de reglaje altimétrico (FIGURE 54/82). */
 function PressureAltitudeCard({ result: p, input, n }: { result: PressureAltitudeStep; input: { elevationFt: number; altimeter: number; altimeterUnit: 'inHg' | 'mb' }; n: number }) {
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
+  const f = (v: number, d: number) => formatPlain(v, d, numberLocale);
   const unit = input.altimeterUnit === 'inHg' ? 'in.Hg' : 'mb';
   const range = input.altimeterUnit === 'inHg' ? p.row.inHg : p.row.mb;
   return (
-    <Card title={`${n}. Altitud de presión (reglaje altimétrico)`}>
+    <Card title={t('takeoff.pressureCard', { number: n })}>
       <div className="stack gap-12">
         <div className="calc-line">
           <span className="calc-label">QNH</span>
           <span>
-            {formatPlain(input.altimeter, 2)} {unit} está entre {formatPlain(range[0], 2)} y {formatPlain(range[1], 2)} → corrección{' '}
-            <b>{signed(p.correctionFt, 0)}</b> ft
+            {t('takeoff.inBetween', { value: f(input.altimeter, 2), unit, lower: f(range[0], 2), upper: f(range[1], 2) })}{' '}
+            <b>{signed(p.correctionFt, 0, numberLocale)}</b> ft
           </span>
         </div>
         {p.boundary && (
           <div className="alert alert-warning" role="note">
             <span>
-              {formatPlain(input.altimeter, 2)} es el límite entre dos filas (corrección {signed(p.correctionFt, 0)} o{' '}
-              {signed(p.boundary.otherCorrectionFt, 0)} ft). La tabla no indica cuál usar: se toma la fila en la que es el límite superior.
+              {t('takeoff.qnhBoundary', { value: f(input.altimeter, 2), correction: signed(p.correctionFt, 0, numberLocale), other: signed(p.boundary.otherCorrectionFt, 0, numberLocale) })}
             </span>
           </div>
         )}
         <div className="calc-line">
-          <span className="calc-label">Altitud de presión</span>
+          <span className="calc-label">{t('takeoff.pressureAltitudeCalc')}</span>
           <span>
-            {formatPlain(input.elevationFt, 0)} {signed(p.correctionFt, 0)} = <b>{formatPlain(p.pressureAltitudeFt, 0)}</b> ft
+            {f(input.elevationFt, 0)} {signed(p.correctionFt, 0, numberLocale)} = <b>{f(p.pressureAltitudeFt, 0)}</b> ft
           </span>
         </div>
       </div>
@@ -79,25 +82,31 @@ function PressureAltitudeCard({ result: p, input, n }: { result: PressureAltitud
 
 /** Desarrollo paso a paso, como en la resolución manual. */
 export function TakeoffEprSteps({ result: r, input, decimals }: { result: TakeoffEprResult; input: TakeoffEprInput; decimals: number }) {
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
+  const f = (v: number, d: number) => formatPlain(v, d, numberLocale);
   // el EPR intermedio se muestra con al menos 4 decimales para seguir la interpolación (2,2375)
-  const e = (v: number) => formatPlain(v, Math.max(decimals, 4));
+  const e = (v: number) => f(v, Math.max(decimals, 4));
   const pa = r.pressure.pressureAltitudeFt;
-  const colLabel = (c: number) => (c === 0 ? '−67 a −9 °F (−55 a −23 °C)' : `${EPR_OAT_F[c]} °F (${EPR_OAT_C[c]} °C)`);
+  const correctionLabel = (label: string) =>
+    label.startsWith('Aire acondicionado') ? t('takeoff.correction.airConditioning') :
+      label.startsWith('Antihielo') ? t('takeoff.correction.antiIce') : t('takeoff.correction.sixthStage');
+  const colLabel = (c: number) => (c === 0 ? '−67 to −9 °F (−55 to −23 °C)' : `${f(EPR_OAT_F[c], 0)} °F (${f(EPR_OAT_C[c], 0)} °C)`);
 
   const altLine = (it: AltInterpolation, key: string, col: number) =>
     it.exact ? (
       <div className="calc-line" key={key}>
-        <span className="calc-label">Tabla</span>
+        <span className="calc-label">{t('calc.table')}</span>
         <span>
-          Fila {it.lo.altFt >= 3856 ? '3856 ft y más' : `${formatPlain(it.lo.altFt, 0)} ft`} · columna {colLabel(col)} → <b>{e(it.value)}</b>
+          {t('takeoff.row')} {it.lo.altFt >= 3856 ? t('takeoff.interpolationRows') : `${f(it.lo.altFt, 0)} ft`} · {t('takeoff.column')} {colLabel(col)} → <b>{e(it.value)}</b>
         </span>
       </div>
     ) : (
       <div className="calc-line" key={key}>
         <span className="calc-label">{colLabel(col).split(' (')[0]}</span>
         <span>
-          {formatPlain(it.a1, 2)} + ({formatPlain(it.b1, 2)} − {formatPlain(it.a1, 2)})({formatPlain(pa, 0)} − {formatPlain(it.lo.altFt, 0)}) / (
-          {formatPlain(it.hi.altFt, 0)} − {formatPlain(it.lo.altFt, 0)}) = <b>{e(it.value)}</b>
+          {f(it.a1, 2)} + ({f(it.b1, 2)} − {f(it.a1, 2)})({f(pa, 0)} − {f(it.lo.altFt, 0)}) / (
+          {f(it.hi.altFt, 0)} − {f(it.lo.altFt, 0)}) = <b>{e(it.value)}</b>
         </span>
       </div>
     );
@@ -107,28 +116,27 @@ export function TakeoffEprSteps({ result: r, input, decimals }: { result: Takeof
       <div className="stack gap-12">
         {!eng.byColumn[0].exact && (
           <p className="calc-text">
-            {formatPlain(pa, 0)} ft está entre las filas de {formatPlain(eng.byColumn[0].lo.altFt, 0)} y{' '}
-            {formatPlain(eng.byColumn[0].hi.altFt, 0)} ft: se interpola.
+            {t('takeoff.betweenRows', { altitude: f(pa, 0), lower: f(eng.byColumn[0].lo.altFt, 0), upper: f(eng.byColumn[0].hi.altFt, 0) })}
           </p>
         )}
         {eng.byColumn.map((it, i) => altLine(it, `${title}-${i}`, r.columns[i]))}
         {eng.byColumn.length === 2 && (
           <div className="calc-line">
-            <span className="calc-label">Entre columnas</span>
+            <span className="calc-label">{t('takeoff.betweenColumns')}</span>
             <span>
-              {e(eng.byColumn[0].value)} + ({e(eng.byColumn[1].value)} − {e(eng.byColumn[0].value)}) × {formatPlain(r.oatRatio ?? 0, 4)} ={' '}
+              {e(eng.byColumn[0].value)} + ({e(eng.byColumn[1].value)} − {e(eng.byColumn[0].value)}) × {f(r.oatRatio ?? 0, 4)} ={' '}
               <b>{e(eng.table)}</b>
             </span>
           </div>
         )}
         {eng.corrections.length === 0 ? (
-          <p className="calc-text">Sin correcciones por sangrado.</p>
+          <p className="calc-text">{t('takeoff.noBleedCorrections')}</p>
         ) : (
           eng.corrections.map((c) => (
             <div className="calc-line" key={c.label}>
-              <span className="calc-label">Corrección</span>
+              <span className="calc-label">{t('calc.correction')}</span>
               <span>
-                {c.label}: <b>{signed(c.value, 2)}</b>
+                {correctionLabel(c.label)}: <b>{signed(c.value, 2, numberLocale)}</b>
               </span>
             </div>
           ))
@@ -137,8 +145,8 @@ export function TakeoffEprSteps({ result: r, input, decimals }: { result: Takeof
           <span className="calc-label">EPR</span>
           <span>
             {e(eng.table)}
-            {eng.corrections.map((c) => ` ${signed(c.value, 2)}`).join('')}
-            {eng.corrections.length > 0 && <> = {e(eng.corrected)}</>} → <b>{formatPlain(eng.final, EPR_DECIMALS)}</b>
+            {eng.corrections.map((c) => ` ${signed(c.value, 2, numberLocale)}`).join('')}
+            {eng.corrections.length > 0 && <> = {e(eng.corrected)}</>} → <b>{f(eng.final, EPR_DECIMALS)}</b>
           </span>
         </div>
       </div>
@@ -148,28 +156,28 @@ export function TakeoffEprSteps({ result: r, input, decimals }: { result: Takeof
   return (
     <div className="grid grid-2">
       <PressureAltitudeCard result={r.pressure} input={input} n={1} />
-      <Card title="2. Temperatura (columna de la tabla)">
+      <Card title={t('takeoff.temperatureColumn')}>
         <div className="stack gap-12">
           {input.temperatureUnit === 'C' && (
             <div className="calc-line">
               <span className="calc-label">°C → °F</span>
               <span>
-                {formatPlain(input.temperature, 2)} × 9/5 + 32 = <b>{formatPlain(r.oatF, 2)}</b> °F
+                {f(input.temperature, 2)} × 9/5 + 32 = <b>{f(r.oatF, 2)}</b> °F
               </span>
             </div>
           )}
           <p className="calc-text">
             {r.coldRange
-              ? `${formatPlain(r.oatF, 1)} °F está en el primer intervalo de la tabla (−67 a −9 °F): su valor es constante.`
+              ? t('takeoff.coldRange', { temperature: f(r.oatF, 1) })
               : r.columns.length === 1
-                ? `${formatPlain(r.oatF, 1)} °F coincide con la columna ${colLabel(r.columns[0])}: solo se interpola por altitud.`
-                : `${formatPlain(r.oatF, 1)} °F está entre las columnas de ${EPR_OAT_F[r.columns[0]]} y ${EPR_OAT_F[r.columns[1]]} °F: se interpola por altitud en cada una y después entre ellas.`}
+                ? t('takeoff.exactColumn', { temperature: f(r.oatF, 1), column: colLabel(r.columns[0]) })
+                : t('takeoff.betweenTempColumns', { temperature: f(r.oatF, 1), lower: f(EPR_OAT_F[r.columns[0]], 0), upper: f(EPR_OAT_F[r.columns[1]], 0) })}
           </p>
-          <p className="calc-text">El peso bruto y los flaps no intervienen en el EPR (sí en V1, VR y V2).</p>
+          <p className="calc-text">{t('takeoff.weightFlapsNote')}</p>
         </div>
       </Card>
-      {engineCard('Motores 1 y 3', r.eng13, 3)}
-      {engineCard('Motor 2', r.eng2, 4)}
+      {engineCard(t('calc.engine13'), r.eng13, 3)}
+      {engineCard(t('calc.engine2'), r.eng2, 4)}
     </div>
   );
 }
@@ -180,28 +188,30 @@ export function TakeoffEprSteps({ result: r, input, decimals }: { result: Takeof
 
 /** Respuesta del B737: un único EPR de despegue. */
 export function B737EprAnswers({ result: r, placeholder, footer }: { result?: B737EprResult; placeholder?: ReactNode; footer?: (key: string) => ReactNode }) {
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   return (
-    <Card title={<span className="with-help">Respuestas <InfoTip label="EPR">{HELP.epr}</InfoTip></span>}>
+    <Card title={<span className="with-help">{t('calc.answers')} <InfoTip label="EPR">{t('help.epr')}</InfoTip></span>}>
       {r ? (
         <>
           <div className="answer-grid">
             <div className="answer">
-              <div className="answer-label">a) EPR de despegue</div>
-              <div className="answer-value">{formatPlain(r.final, EPR_DECIMALS)}</div>
+              <div className="answer-label">a) {t('takeoff.title')}</div>
+              <div className="answer-value">{formatPlain(r.final, EPR_DECIMALS, numberLocale)}</div>
               {footer?.('a')}
             </div>
             <div className="answer">
-              <div className="answer-label">Límite que manda</div>
-              <div className="answer-value answer-value-text">{r.governing === 'temp' ? 'Temperatura' : 'Presión'}</div>
+              <div className="answer-label">{t('takeoff.governingLimit')}</div>
+              <div className="answer-value answer-value-text">{r.governing === 'temp' ? t('takeoff.temperatureLimit') : t('takeoff.pressureLimit')}</div>
             </div>
           </div>
           <p className="calc-note">
-            Altitud de presión {formatPlain(r.pressure.pressureAltitudeFt, 0)} ft · OAT {formatPlain(r.oatF, 1)} °F. Se usa el menor de los dos
-            límites; EPR con 2 decimales, como en la tabla.
+            {t('takeoff.pressureOatNote', { altitude: formatPlain(r.pressure.pressureAltitudeFt, 0, numberLocale), temperature: formatPlain(r.oatF, 1, numberLocale) })}{' '}
+            {t('takeoff.eprRoundingNote')}
           </p>
         </>
       ) : (
-        (placeholder ?? <div className="empty">Completa elevación, reglaje y temperatura.</div>)
+        (placeholder ?? <div className="empty">{t('takeoff.complete')}</div>)
       )}
     </Card>
   );
@@ -209,97 +219,100 @@ export function B737EprAnswers({ result: r, placeholder, footer }: { result?: B7
 
 /** Desarrollo del B737 con los pasos ①②③ impresos en la tabla. */
 export function B737EprSteps({ result: r, input, decimals }: { result: B737EprResult; input: B737EprInput; decimals: number }) {
-  const e = (v: number) => formatPlain(v, Math.max(decimals, 4));
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
+  const f = (v: number, d: number) => formatPlain(v, d, numberLocale);
+  const e = (v: number) => f(v, Math.max(decimals, 4));
   const pa = r.pressure.pressureAltitudeFt;
-  const colLabel = (c: number) => `${B737_EPR_OAT_F[c]} °F (${B737_EPR_OAT_C[c]} °C)`;
+  const colLabel = (c: number) => `${f(B737_EPR_OAT_F[c], 0)} °F (${f(B737_EPR_OAT_C[c], 0)} °C)`;
   // como en la resolución a mano: A es el recuadro más cercano al nivel del mar (S.L. antes que −1000; 2000 antes que 3000)
   const [A, B] = Math.abs(r.press.lo.altFt) <= Math.abs(r.press.hi.altFt) ? [r.press.lo, r.press.hi] : [r.press.hi, r.press.lo];
-  const altName = (b: { altFt: number }) => (b.altFt === 0 ? 'S.L.' : b.altFt >= 5660 ? '5660 ft y más' : `${formatPlain(b.altFt, 0)} ft`);
+  const altName = (b: { altFt: number }) => (b.altFt === 0 ? 'S.L.' : b.altFt >= 5660 ? t('takeoff.b737HighestRow') : `${f(b.altFt, 0)} ft`);
   return (
     <div className="grid grid-2">
       <PressureAltitudeCard result={r.pressure} input={input} n={1} />
-      <Card title={<span className="with-help">2. Límite por temperatura (TEMP LIMIT EPR) <InfoTip label="TEMP LIMIT EPR">{HELP.tempLimitEpr}</InfoTip></span>}>
+      <Card title={<span className="with-help">{t('takeoff.temperatureOnly')} <InfoTip label="TEMP LIMIT EPR">{t('help.tempLimitEpr')}</InfoTip></span>}>
         <div className="stack gap-12">
           {input.temperatureUnit === 'C' && (
             <div className="calc-line">
               <span className="calc-label">°C → °F</span>
               <span>
-                {formatPlain(input.temperature, 2)} × 9/5 + 32 = <b>{formatPlain(r.oatF, 2)}</b> °F
+                {f(input.temperature, 2)} × 9/5 + 32 = <b>{f(r.oatF, 2)}</b> °F
               </span>
             </div>
           )}
           {r.temp.columns.length === 1 ? (
             <div className="calc-line">
-              <span className="calc-label">Tabla</span>
+              <span className="calc-label">{t('calc.table')}</span>
               <span>
-                Columna {colLabel(r.temp.columns[0])} → <b>{e(r.temp.table)}</b>
+                {t('takeoff.column')} {colLabel(r.temp.columns[0])} → <b>{e(r.temp.table)}</b>
               </span>
             </div>
           ) : (
             <div className="calc-line">
-              <span className="calc-label">Entre columnas</span>
+              <span className="calc-label">{t('takeoff.betweenColumns')}</span>
               <span>
-                {formatPlain(B737_TEMP_LIMIT_EPR[r.temp.columns[0]], 2)} + ({formatPlain(B737_TEMP_LIMIT_EPR[r.temp.columns[1]], 2)} −{' '}
-                {formatPlain(B737_TEMP_LIMIT_EPR[r.temp.columns[0]], 2)})({formatPlain(r.oatF, 2)} − {B737_EPR_OAT_F[r.temp.columns[0]]}) / (
-                {B737_EPR_OAT_F[r.temp.columns[1]]} − {B737_EPR_OAT_F[r.temp.columns[0]]}) = <b>{e(r.temp.table)}</b>
+                {f(B737_TEMP_LIMIT_EPR[r.temp.columns[0]], 2)} + ({f(B737_TEMP_LIMIT_EPR[r.temp.columns[1]], 2)} −{' '}
+                {f(B737_TEMP_LIMIT_EPR[r.temp.columns[0]], 2)})({f(r.oatF, 2)} − {f(B737_EPR_OAT_F[r.temp.columns[0]], 0)}) / (
+                {f(B737_EPR_OAT_F[r.temp.columns[1]], 0)} − {f(B737_EPR_OAT_F[r.temp.columns[0]], 0)}) = <b>{e(r.temp.table)}</b>
               </span>
             </div>
           )}
           <div className="calc-line">
-            <span className="calc-label">Aire acond.</span>
+            <span className="calc-label">{t('takeoffForm.airConditioning')}</span>
             <span>
               {input.airConditioning ? (
-                <>ON: sin corrección</>
+                <>{t('takeoff.onNoCorrection')}</>
               ) : (
                 <>
-                  OFF: {e(r.temp.table)} + 0,03 = <b>{e(r.temp.limit)}</b>
+                  {t('takeoff.offCorrection', { value: e(r.temp.table) })} <b>{e(r.temp.limit)}</b>
                 </>
               )}
             </span>
           </div>
-          <p className="calc-text">Antihielo de motores {input.engineAntiIce ? 'ON' : 'OFF'}: corrección cero en el B737.</p>
+          <p className="calc-text">{t('takeoff.antiIceCorrection', { state: input.engineAntiIce ? 'ON' : 'OFF' })}</p>
         </div>
       </Card>
-      <Card title={<span className="with-help">3. Límite por presión (PRESS LIMIT EPR) <InfoTip label="PRESS LIMIT EPR">{HELP.pressLimitEpr}</InfoTip></span>}>
+      <Card title={<span className="with-help">{t('takeoff.pressureOnly')} <InfoTip label="PRESS LIMIT EPR">{t('help.pressLimitEpr')}</InfoTip></span>}>
         <div className="stack gap-12">
           {r.press.exact ? (
             <div className="calc-line">
-              <span className="calc-label">Tabla</span>
+              <span className="calc-label">{t('calc.table')}</span>
               <span>
-                Recuadro {altName(r.press.lo)} → <b>{e(r.press.limit)}</b>
+                {t('takeoff.tableBox', { altitude: altName(r.press.lo) })} → <b>{e(r.press.limit)}</b>
               </span>
             </div>
           ) : (
             <>
               <p className="calc-text">
-                {formatPlain(pa, 0)} ft está entre los recuadros de {altName(A)} ({formatPlain(A.epr, 2)}) y {altName(B)} ({formatPlain(B.epr, 2)}): se interpola.
+                {t('takeoff.betweenRows', { altitude: f(pa, 0), lower: `${altName(A)} (${f(A.epr, 2)})`, upper: `${altName(B)} (${f(B.epr, 2)})` })}
               </p>
               <div className="calc-line">
-                <span className="calc-label">Interpolar</span>
+                <span className="calc-label">{t('takeoff.interpolate')}</span>
                 <span>
-                  {formatPlain(A.epr, 2)} + ({formatPlain(B.epr, 2)} − {formatPlain(A.epr, 2)})({formatPlain(pa, 0)} − {formatPlain(A.altFt, 0)}) / (
-                  {formatPlain(B.altFt, 0)} − {formatPlain(A.altFt, 0)}) = <b>{e(r.press.limit)}</b>
+                  {f(A.epr, 2)} + ({f(B.epr, 2)} − {f(A.epr, 2)})({f(pa, 0)} − {f(A.altFt, 0)}) / (
+                  {f(B.altFt, 0)} − {f(A.altFt, 0)}) = <b>{e(r.press.limit)}</b>
                 </span>
               </div>
             </>
           )}
         </div>
       </Card>
-      <Card title="4. Se usa el menor de los dos límites">
+      <Card title={t('takeoff.useLowerLimit')}>
         <div className="stack gap-12">
           <div className="calc-line">
-            <span className="calc-label">Menor</span>
+            <span className="calc-label">{t('takeoff.lower')}</span>
             <span>
-              temperatura {e(r.temp.limit)} · presión {e(r.press.limit)} → <b>{e(r.epr)}</b>
+              {t('takeoff.temperatureWord')} {e(r.temp.limit)} · {t('takeoff.pressureWord')} {e(r.press.limit)} → <b>{e(r.epr)}</b>
             </span>
           </div>
           <div className="calc-line">
             <span className="calc-label">EPR</span>
             <span>
-              {e(r.epr)} → <b>{formatPlain(r.final, EPR_DECIMALS)}</b>
+              {e(r.epr)} → <b>{f(r.final, EPR_DECIMALS)}</b>
             </span>
           </div>
-          <p className="calc-text">Manda el límite por {r.governing === 'temp' ? 'temperatura' : 'presión'}.</p>
+          <p className="calc-text">{t('takeoff.governing', { limit: r.governing === 'temp' ? t('takeoff.temperatureWord') : t('takeoff.pressureWord') })}</p>
         </div>
       </Card>
     </div>

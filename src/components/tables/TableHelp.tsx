@@ -2,18 +2,20 @@ import { BookOpen, Lightbulb, ListOrdered, Tags } from 'lucide-react';
 import type { TableHelp as Help } from '@/data/tables';
 import { Card } from '@/components/ui/Card';
 import { FigText } from './figText';
+import { useI18n } from '@/i18n';
 
 /** Explain the table's purpose, reading procedure, terminology and limitations. */
 export function TableHelp({ help }: { help: Help }) {
+  const { t } = useI18n();
   return (
     <div className="grid grid-2 table-help">
       <div className="stack">
-        <Card title={<span className="row"><BookOpen size={17} /> ¿Para qué sirve?</span>}>
+        <Card title={<span className="row"><BookOpen size={17} /> {t('table.section.purpose')}</span>}>
           <div className="help-block">
             <p>{help.purpose}</p>
           </div>
         </Card>
-        <Card title={<span className="row"><ListOrdered size={17} /> Cómo se usa</span>}>
+        <Card title={<span className="row"><ListOrdered size={17} /> {t('table.section.howToUse')}</span>}>
           <ol className="steps">
             {help.steps.map((s) => (
               <li key={s}>
@@ -24,7 +26,7 @@ export function TableHelp({ help }: { help: Help }) {
         </Card>
       </div>
       <div className="stack">
-        <Card title={<span className="row"><Tags size={17} /> Glosario</span>}>
+        <Card title={<span className="row"><Tags size={17} /> {t('table.section.glossary')}</span>}>
           <dl className="glossary">
             {help.glossary.map((g) => (
               <div key={g.term} className="glossary-item">
@@ -34,7 +36,7 @@ export function TableHelp({ help }: { help: Help }) {
             ))}
           </dl>
         </Card>
-        <Card title={<span className="row"><Lightbulb size={17} /> Consejos</span>}>
+        <Card title={<span className="row"><Lightbulb size={17} /> {t('table.section.tips')}</span>}>
           <div className="help-block">
             <ul>
               {help.tips.map((t) => (

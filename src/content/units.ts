@@ -50,3 +50,15 @@ export const UNIT_HELP: Record<string, string> = {
 
 /** Ayuda de una unidad o sigla, si existe. */
 export const unitHelp = (symbol: string): string | undefined => UNIT_HELP[symbol.trim()];
+
+const UNIT_MESSAGE_KEY: Record<string, string> = {
+  ft: 'unit.ft', m: 'unit.m', km: 'unit.km', FL: 'unit.FL', NM: 'unit.NM', SM: 'unit.SM',
+  kt: 'unit.kt', 'km/h': 'unit.km-per-hour', 'm/s': 'unit.m-per-second', mph: 'unit.mph', 'ft/min': 'unit.ft-per-min',
+  lb: 'unit.lb', kg: 'unit.kg', t: 'unit.t', 'lb/h': 'unit.lb-per-hour', L: 'unit.L', USG: 'unit.USG', IG: 'unit.IG',
+  hPa: 'unit.hPa', mb: 'unit.mb', inHg: 'unit.inHg', 'in.Hg': 'unit.in.Hg', 'in.Hg (")': 'unit.in.Hg-quotes',
+  mmHg: 'unit.mmHg', psi: 'unit.psi', '°C': 'unit.C', '°F': 'unit.F', K: 'unit.K', ISA: 'unit.ISA',
+  'ISA +10 °C': 'unit.ISA-plus-10', min: 'unit.min', h: 'unit.h', '°': 'unit.degree',
+  'Cara (HW)': 'unit.headwind', 'Cola (TW)': 'unit.tailwind',
+};
+
+export const unitMessageKey = (symbol: string): string | undefined => UNIT_MESSAGE_KEY[symbol.trim()];

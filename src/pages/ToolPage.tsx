@@ -1,9 +1,11 @@
 import { Construction } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import { getTool } from '@/tools/registry';
+import { useI18n } from '@/i18n';
+import { getTool, localizedToolName } from '@/tools/registry';
 import NotFound from './NotFound';
 
 export default function ToolPage() {
+  const { locale, t } = useI18n();
   const { toolId = '' } = useParams();
   const tool = getTool(toolId);
   if (!tool) return <NotFound />;
@@ -11,10 +13,10 @@ export default function ToolPage() {
     return (
       <div className="card empty empty-page">
         <Construction size={40} />
-        <h1 className="empty-page-title">{tool.name}</h1>
-        <p>Esta herramienta está en desarrollo. Mientras tanto, puedes usar las calculadoras disponibles o consultar las tablas.</p>
+        <h1 className="empty-page-title">{locale === 'es' ? tool.name : localizedToolName(tool.id, locale)}</h1>
+        <p>{t('page.tool.inDevelopment')}</p>
         <Link to="/" className="btn">
-          Volver al inicio
+          {t('common.backHome')}
         </Link>
       </div>
     );

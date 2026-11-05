@@ -4,7 +4,6 @@ import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
 import { InfoTip } from '@/components/ui/InfoTip';
 import { NumberField, numberError } from '@/components/ui/NumberField';
-import { HELP } from '@/content/help';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ResultHero } from '@/components/ui/ResultHero';
 import { InterpolationChart } from '@/components/InterpolationChart';
@@ -13,6 +12,10 @@ import { formatNumber } from '@/core/format';
 import { InterpolationError, linearInterpolate, type LinearResult } from '@/core/interpolation';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useSettings } from '@/state/settings';
+import { useI18n } from '@/i18n';
+
+/** La tarjeta «Gráfica» (con su explicación) está oculta; cambia a true para volver a mostrarla. */
+const SHOW_CHART = false;
 
 const DEFAULTS = { a: '600', b: '650', c: '622', a1: '89', b1: '96', xn: '', yn: '' };
 
@@ -30,13 +33,15 @@ const PRESETS: { name: string; values: typeof DEFAULTS }[] = [
 
 export default function LinearInterpolation() {
   const { decimals } = useSettings();
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const form = useFormValues(DEFAULTS);
   const { a, b, c, a1, b1 } = form.numbers;
-  const fmt = (v: number) => formatNumber(v, decimals);
+  const fmt = (v: number) => formatNumber(v, decimals, numberLocale);
 
   const incomplete = [a, b, c, a1, b1].some((v) => Number.isNaN(v));
   // UX-03: distingue «vacío» de «mal escrito» y nombra el campo a corregir
-  const err = (k: 'a' | 'b' | 'c' | 'a1' | 'b1') => numberError(form.values[k], form.numbers[k], HELP.invalidNumber);
+  const err = (k: 'a' | 'b' | 'c' | 'a1' | 'b1') => numberError(form.values[k], form.numbers[k], t('help.invalidNumber'));
   const wrong = (['a', 'c', 'b', 'a1', 'b1'] as const).filter((k) => err(k)).map((k) => k.toUpperCase());
   const empty = (['a', 'c', 'b', 'a1', 'b1'] as const).filter((k) => form.values[k].trim() === '').map((k) => k.toUpperCase());
 
@@ -45,30 +50,30 @@ export default function LinearInterpolation() {
     try {
       return { result: linearInterpolate({ a, b, c, a1, b1 }) };
     } catch (e) {
-      return { error: e instanceof InterpolationError ? e.message : 'Error de cálculo' };
+      return { error: e instanceof InterpolationError ? t(e.message.startsWith('A y B') ? 'linear.error.equal' : 'linear.error.invalid') : t('linear.calculationError') };
     }
   }, [a, b, c, a1, b1, incomplete]);
 
   const r = outcome.result;
-  const xName = form.values.xn || 'Entrada';
-  const yName = form.values.yn || 'Resultado';
+  const xName = form.values.xn || t('linear.input');
+  const yName = form.values.yn || t('linear.result');
 
   return (
     <>
       <PageHeader
         eyebrow={
           <>
-            <Spline size={14} /> Interpolación
+            <Spline size={14} /> {t('linear.eyebrow')}
           </>
         }
-        title="Interpolación"
-        subtitle="Introduce los dos valores tabulados que rodean tu dato (A y B) y sus resultados (A1 y B1). La calculadora obtiene X para el valor C."
+        title={t('linear.title')}
+        subtitle={t('linear.subtitle')}
         actions={
           <ToolActions
             toolId="linear"
             href={form.href}
             canSave={!!r}
-            summary={`${xName} ${fmt(c)} entre ${fmt(a)}→${fmt(a1)} y ${fmt(b)}→${fmt(b1)}`}
+            summary={`${xName} ${fmt(c)} ${t('linear.summaryBetween')} ${fmt(a)}→${fmt(a1)} ${t('linear.summaryAnd')} ${fmt(b)}→${fmt(b1)}`}
             result={r ? `${fmt(r.x)}${form.values.yn ? ` · ${form.values.yn}` : ''}` : ''}
             onReset={form.reset}
             onClear={form.clear}
@@ -83,23 +88,31 @@ export default function LinearInterpolation() {
       <div className="grid grid-calc">
         <div className="stack">
           <Card
-            title="Datos de la tabla"
+            title={t('linear.tableData')}
             action={
               <select
                 className="select select-compact"
-                aria-label="Cargar ejemplo"
+                aria-label={t('linear.loadExample')}
                 value=""
                 onChange={(e) => {
-                  const p = PRESETS[Number(e.target.value)];
-                  if (p) form.load(p.values);
+                  const i = Number(e.target.value);
+                  const p = PRESETS[i];
+                  if (p) {
+                    const axisNames = i === 1
+                      ? { xn: t('linear.preset.takeoffX'), yn: t('linear.preset.takeoffY') }
+                      : i === 2
+                        ? { xn: t('linear.preset.climbX'), yn: t('linear.preset.climbY') }
+                        : { xn: '', yn: '' };
+                    form.load({ ...p.values, ...axisNames });
+                  }
                 }}
               >
                 <option value="" disabled>
-                  Cargar ejemplo…
+                  {t('calc.loadExample')}
                 </option>
                 {PRESETS.map((p, i) => (
                   <option key={p.name} value={i}>
-                    {p.name}
+                    {t(i === 0 ? 'linear.preset.reference' : i === 1 ? 'linear.preset.takeoff' : 'linear.preset.climb')}
                   </option>
                 ))}
               </select>
@@ -108,47 +121,47 @@ export default function LinearInterpolation() {
             <div className="interp-table">
               <span className="interp-head with-help">
                 {xName}
-                <InfoTip label="A, B y C">{HELP.linearInput}</InfoTip>
+                <InfoTip label={t('linear.tip.inputLabel')}>{t('help.linearInput')}</InfoTip>
               </span>
               <span />
               <span className="interp-head with-help">
                 {yName}
-                <InfoTip label="A1, B1 y X">{HELP.linearResult}</InfoTip>
+                <InfoTip label={t('linear.tip.resultLabel')}>{t('help.linearResult')}</InfoTip>
               </span>
 
-              <NumberField tag="A" srLabel="A, fila inferior de la tabla" value={form.values.a} onChange={(v) => form.set('a', v)} error={err('a')} />
+              <NumberField tag={t('linear.fieldA')} srLabel={t('linear.sr.a')} value={form.values.a} onChange={(v) => form.set('a', v)} error={err('a')} />
               <span className="interp-arrow" aria-hidden="true"><ArrowRight size={20} /></span>
-              <NumberField tag="A1" srLabel="A1, valor de la tabla para A" value={form.values.a1} onChange={(v) => form.set('a1', v)} error={err('a1')} />
+              <NumberField tag={t('linear.fieldA1')} srLabel={t('linear.sr.a1')} value={form.values.a1} onChange={(v) => form.set('a1', v)} error={err('a1')} />
 
-              <NumberField tag="C" srLabel="C, tu dato" value={form.values.c} onChange={(v) => form.set('c', v)} error={err('c')} />
+              <NumberField tag={t('linear.fieldC')} srLabel={t('linear.sr.c')} value={form.values.c} onChange={(v) => form.set('c', v)} error={err('c')} />
               <span className="interp-arrow" aria-hidden="true"><ArrowRight size={20} /></span>
               <div className="field">
                 <div className="field-control">
                   <span className="field-tag result" aria-hidden="true">X</span>
-                  <output className="result-output" aria-label={`Resultado X: ${r ? fmt(r.x) : 'sin calcular'}`}>{r ? fmt(r.x) : '—'}</output>
+                  <output className="result-output" aria-label={t('linear.output', { value: r ? fmt(r.x) : t('linear.uncalculated') })}>{r ? fmt(r.x) : '—'}</output>
                 </div>
               </div>
 
-              <NumberField tag="B" srLabel="B, fila superior de la tabla" value={form.values.b} onChange={(v) => form.set('b', v)} error={err('b')} />
+              <NumberField tag={t('linear.fieldB')} srLabel={t('linear.sr.b')} value={form.values.b} onChange={(v) => form.set('b', v)} error={err('b')} />
               <span className="interp-arrow" aria-hidden="true"><ArrowRight size={20} /></span>
-              <NumberField tag="B1" srLabel="B1, valor de la tabla para B" value={form.values.b1} onChange={(v) => form.set('b1', v)} error={err('b1')} />
+              <NumberField tag={t('linear.fieldB1')} srLabel={t('linear.sr.b1')} value={form.values.b1} onChange={(v) => form.set('b1', v)} error={err('b1')} />
             </div>
 
             <details className="calc-details">
               <summary>
-                Nombrar variables (opcional)
+                {t('linear.variableNames')}
               </summary>
               <div className="grid grid-2">
                 <div className="field">
-                  <label className="field-label" htmlFor="xn">Variable de entrada</label>
+                  <label className="field-label" htmlFor="xn">{t('linear.inputVariable')}</label>
                   <div className="field-control">
-                    <input id="xn" placeholder="p. ej. Peso (kg)" value={form.values.xn} onChange={(e) => form.set('xn', e.target.value)} />
+                    <input id="xn" placeholder={t('linear.inputPlaceholder')} value={form.values.xn} onChange={(e) => form.set('xn', e.target.value)} />
                   </div>
                 </div>
                 <div className="field">
-                  <label className="field-label" htmlFor="yn">Variable de resultado</label>
+                  <label className="field-label" htmlFor="yn">{t('linear.resultVariable')}</label>
                   <div className="field-control">
-                    <input id="yn" placeholder="p. ej. Distancia (m)" value={form.values.yn} onChange={(e) => form.set('yn', e.target.value)} />
+                    <input id="yn" placeholder={t('linear.resultPlaceholder')} value={form.values.yn} onChange={(e) => form.set('yn', e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -158,16 +171,15 @@ export default function LinearInterpolation() {
           {outcome.error && <Alert kind="error">{outcome.error}</Alert>}
           {wrong.length > 0 && (
             <Alert kind="error">
-              Revisa {wrong.join(', ')}: {HELP.invalidNumber.charAt(0).toLowerCase() + HELP.invalidNumber.slice(1)}
+              {t('linear.check', { fields: wrong.join(', '), error: t('help.invalidNumber').charAt(0).toLowerCase() + t('help.invalidNumber').slice(1) })}
             </Alert>
           )}
           {incomplete && !outcome.error && wrong.length === 0 && (
-            <Alert kind="info">Completa {empty.join(', ')} para obtener X. Usa «Ejemplo» si quieres ver cómo funciona.</Alert>
+            <Alert kind="info">{t('linear.complete', { fields: empty.join(', ') })}</Alert>
           )}
           {r?.extrapolated && (
             <Alert kind="warning">
-              <b>Extrapolación:</b> C está fuera del intervalo [A, B]. Los manuales de vuelo (AFM/POH) normalmente
-              no permiten extrapolar fuera de los datos publicados.
+              <b>{t('linear.extrapolation')}</b> {t('linear.extrapolationWarning')}
             </Alert>
           )}
 
@@ -176,35 +188,35 @@ export default function LinearInterpolation() {
               label={`X · ${yName}`}
               value={fmt(r.x)}
               meta={[
-                { label: 'Posición en el intervalo', value: `${formatNumber(r.ratio * 100, 1)} %` },
-                { label: 'Pendiente', value: formatNumber(r.slope, 4) },
+                { label: t('linear.intervalPosition'), value: `${formatNumber(r.ratio * 100, 1, numberLocale)} %` },
+                { label: t('linear.slope'), value: formatNumber(r.slope, 4, numberLocale) },
               ]}
             />
           )}
         </div>
 
         <div className="stack">
-          <Card title="Gráfica">
+          {SHOW_CHART && (
+          <Card title={t('linear.graph')}>
             {r ? (
               <div className="stack gap-16">
                 {/* cómo leer la gráfica, con los nombres de las variables si el usuario los escribió */}
                 <div className="help-block chart-help">
                   <ul>
                     <li>
-                      El eje horizontal es {form.values.xn ? `«${xName}»` : 'el dato de entrada'} (A, C y B) y el vertical,{' '}
-                      {form.values.yn ? `«${yName}»` : 'el resultado'} (A1, X y B1).
+                      {t('linear.chartAxisInput', {
+                        label: form.values.xn ? `«${xName}»` : t('linear.chartInput'),
+                        result: form.values.yn ? `«${yName}»` : t('linear.chartOutput'),
+                      })}
                     </li>
                     <li>
-                      Los círculos <b>A</b> y <b>B</b> son las dos filas de la tabla. La línea que los une supone que entre ellas el valor cambia
-                      de forma recta: eso es interpolar.
+                      {t('linear.chartEndpoints')}
                     </li>
                     <li>
-                      Para leer tu resultado, sube en vertical desde tu dato C ({fmt(c)}) hasta la línea (punto rojo) y sigue en horizontal hasta el
-                      eje vertical: ahí está <b>X = {fmt(r.x)}</b>. Las líneas rojas discontinuas marcan ese recorrido.
+                      {t('linear.chartRead', { c: fmt(c), x: fmt(r.x) })}
                     </li>
                     <li>
-                      La prolongación discontinua de la línea, fuera de A y B, es zona de extrapolación: si C cae ahí, el resultado es menos fiable y
-                      la app te avisa.
+                      {t('linear.chartExtrapolation')}
                     </li>
                   </ul>
                 </div>
@@ -213,12 +225,13 @@ export default function LinearInterpolation() {
             ) : (
               <div className="empty">
                 <Spline size={32} aria-hidden="true" />
-                <span>La gráfica aparece cuando los cinco valores son números válidos.</span>
+                <span>{t('linear.chartWaiting')}</span>
               </div>
             )}
           </Card>
+          )}
 
-          <Card title="Fórmula y desarrollo">
+          <Card title={t('linear.formula')}>
             <div className="formula" aria-label="X = A1 + (B1 − A1)(C − A) / (B − A)">
               <span>X = A1 +</span>
               <span className="frac">

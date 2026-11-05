@@ -1,14 +1,16 @@
 import { Compass } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useI18n } from '@/i18n';
 
 export default function NotFound() {
+  const { t } = useI18n();
   return (
     <div className="card empty empty-page">
       <Compass size={40} />
-      <h1 className="empty-page-title">Página no encontrada</h1>
-      <p>El enlace no existe o ha cambiado. Vuelve al inicio o usa «Buscar» para encontrar lo que necesitas.</p>
+      <h1 className="empty-page-title">{t('page.notFound.title')}</h1>
+      <p>{t('page.notFound.body')}</p>
       <Link to="/" className="btn btn-primary">
-        Volver al inicio
+        {t('page.notFound.backHome')}
       </Link>
     </div>
   );

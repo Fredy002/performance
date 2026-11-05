@@ -2,7 +2,7 @@ import { BadgeCheck, Fuel, PenLine } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { checkExercise, ExerciseValidation, summarize } from '@/components/fuel/ExerciseValidation';
-import { FuelPlanAnswers } from '@/components/fuel/FuelPlanAnswers';
+import { FuelPlanAnswers, localizeFuelPlanError } from '@/components/fuel/FuelPlanAnswers';
 import { FuelPlanForm } from '@/components/fuel/FuelPlanForm';
 import { FuelPlanSteps } from '@/components/fuel/FuelPlanSteps';
 import {
@@ -26,6 +26,7 @@ import type { OcrResult } from '@/services/ocr';
 import { routeScope, SCOPES, verifiedFuelExercises, type FlightScope, type FuelPlanExercise } from '@/exercises/registry';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useDecimals } from '@/state/settings';
+import { useI18n, type MessageKey } from '@/i18n';
 
 const SOLVED = verifiedFuelExercises();
 // Use the first verified exercise as the default example.
@@ -41,14 +42,22 @@ const EXAMPLES = SOLVED.map((e) => ({ id: e.id, label: `${e.airports.origin} –
 
 /** Format an airport pair, or return an empty label when both codes are absent. */
 const legLabel = (a: string, b: string) => (a || b ? `${a || '?'}–${b || '?'}` : '');
+const FIELD_LABELS: Record<string, MessageKey> = {
+  td: 'fuel.field.tripDistance', tw: 'fuel.field.tripWind', tfl: 'fuel.field.tripLevel',
+  ad: 'fuel.field.alternateDistance', aw: 'fuel.field.alternateWind', afl: 'fuel.field.alternateLevel',
+  hw: 'fuel.field.holdingWeight', hfl: 'fuel.field.holdingLevel', hm: 'fuel.field.holdingTime', taxi: 'fuel.field.taxiFuel',
+};
 
 export default function FuelPlanning() {
   const decimals = useDecimals();
+  const { locale, t } = useI18n();
+  const numberLocale = locale === 'en' ? 'en-US' : 'es-ES';
   const [params] = useSearchParams();
   const form = useFormValues(DEFAULTS);
   const v = form.values;
   const plan = useFuelPlan(v, decimals);
-  const p = (x: number) => formatPlain(x, decimals);
+  const localizedError = localizeFuelPlanError(plan.error, t, numberLocale);
+  const p = (x: number) => formatPlain(x, decimals, numberLocale);
   const dataRef = useRef<HTMLDetailsElement>(null);
 
   const solved = SOLVED.find((e) => sameFuelForm(v, toFuelForm(e.input, e.airports)));
@@ -120,25 +129,25 @@ export default function FuelPlanning() {
   const checks = solved && r ? checkExercise(solved) : [];
   const verified = solved && r ? summarize(checks) : undefined;
   const missing = report?.fields.filter((f) => f.required && f.status === 'missing') ?? [];
-  const SCOPE = SCOPES[source === 'text' && textScope ? textScope : formScope(v)];
+  const scopeId = source === 'text' && textScope ? textScope : formScope(v);
 
   const placeholder = waiting ? (
     <div className="answers-placeholder">
       {imageStatus === 'loading' ? (
-        <span>Claude está interpretando la imagen. Las respuestas aparecerán al terminar.</span>
+        <span>{t('fuel.imageLoading')}</span>
       ) : imageStatus === 'failed' ? (
-        <span>No se pudo interpretar la imagen. Vuelve a intentarlo o introduce el enunciado a mano.</span>
+        <span>{t('fuel.imageFailed')}</span>
       ) : text.trim() ? (
         <>
           <span>
-            Faltan datos en el enunciado: <b>{missing.map((f) => f.label.toLowerCase()).join(', ')}</b>.
+            {t('fuel.missingFields', { fields: missing.map((f) => FIELD_LABELS[f.key] ? t(FIELD_LABELS[f.key]) : f.label.toLowerCase()).join(', ') })}
           </span>
           <button className="btn btn-sm" onClick={completeByHand}>
-            <PenLine size={15} /> Completar a mano
+            <PenLine size={15} /> {t('fuel.completeByHand')}
           </button>
         </>
       ) : (
-        <span>Escribe, pega o fotografía el enunciado: aquí aparecen T.T, T.F, FOB y autonomía.</span>
+        <span>{t('fuel.writeStatement')}</span>
       )}
     </div>
   ) : undefined;
@@ -148,17 +157,17 @@ export default function FuelPlanning() {
       <PageHeader
         eyebrow={
           <>
-            <Fuel size={14} /> Boeing 737 · {SCOPE.label}
+            <Fuel size={14} /> Boeing 737 · {t(scopeId === 'nacional' ? 'fuel.scope.domestic' : 'fuel.scope.international')}
           </>
         }
-        title="Planificación de combustible"
-        subtitle="Pega el enunciado o toma una foto: la app calcula el tiempo y el combustible de viaje, el combustible a bordo y la autonomía."
+        title={t('fuel.appTitle')}
+        subtitle={t('fuel.appSubtitle')}
         actions={
           <ToolActions
             toolId="fuel"
             href={form.href}
             canSave={!!r}
-            summary={`${legLabel(route.origin, route.destination)} ${v.td} NM (${v.tw} kt ${v.tk}) · alterno ${legLabel(route.destination, route.alternate)} ${v.ad} NM (${v.aw} kt ${v.ak}) · espera ${v.hm} min`}
+            summary={`${legLabel(route.origin, route.destination)} ${p(Number(v.td))} NM (${p(Number(v.tw))} kt ${v.tk}) · ${t('fuel.summaryOriginAlternate')} ${legLabel(route.destination, route.alternate)} ${p(Number(v.ad))} NM (${p(Number(v.aw))} kt ${v.ak}) · ${t('fuel.summaryHolding')} ${p(Number(v.hm))} min`}
             result={r ? `FOB ${p(r.fobLb)} lb · ${p(r.enduranceMin)} min` : ''}
             onReset={() => onText(statementText(SOLVED[0]))}
             capture={() => {
@@ -180,30 +189,30 @@ export default function FuelPlanning() {
         <div id="fuel-answers" className="stack scroll-anchor">
           <FuelPlanAnswers
             result={r}
-            error={plan.error}
+            error={localizedError}
             decimals={decimals}
             placeholder={placeholder}
             badge={
               solved &&
               r && (
                 <span className="status status-match">
-                  <BadgeCheck size={13} /> Ejercicio resuelto · {solved.airports.origin} – {solved.airports.destination}
+                  <BadgeCheck size={13} /> {t('fuel.answersBadge', { origin: solved.airports.origin, destination: solved.airports.destination })}
                 </span>
               )
             }
           />
-          {!waiting && plan.error && <Alert kind="error">{plan.error}</Alert>}
+          {!waiting && localizedError && <Alert kind="error">{localizedError}</Alert>}
         </div>
       </div>
 
       <div className="calc-section">
         <Disclosure
           ref={dataRef}
-          title="Datos"
+          title={t('calc.data')}
           meta={
             waiting
-              ? 'Pendiente del enunciado'
-              : `${[route.origin, route.destination, route.alternate].filter(Boolean).join(' → ')} · ${v.td || '—'} / ${v.ad || '—'} NM · espera ${v.hw || '—'} lb`
+              ? t('fuel.pendingStatement')
+              : `${[route.origin, route.destination, route.alternate].filter(Boolean).join(' → ')} · ${p(Number(v.td))} / ${p(Number(v.ad))} NM · ${t('fuel.summaryHolding')} ${p(Number(v.hw))} lb`
           }
           defaultOpen={source === 'form'}
         >
@@ -211,48 +220,45 @@ export default function FuelPlanning() {
         </Disclosure>
 
         <Disclosure
-          title="Desarrollo paso a paso"
+          title={t('calc.steps')}
           meta={r ? `T.F ${p(r.trip.fuelLb)} · A.F ${p(r.alternate.fuelLb)} · H.F ${p(r.holding.fuelLb)} lb` : undefined}
         >
           {r ? (
             <FuelPlanSteps result={r} input={plan.input} airports={route} decimals={decimals} heading={false} />
           ) : (
-            <p className="calc-text">Aparece cuando hay respuestas.</p>
+            <p className="calc-text">{t('calc.appearsWhenReady')}</p>
           )}
         </Disclosure>
 
         {solved && r && verified && (
           <Disclosure
-            title="Validación con la resolución manual"
-            meta={<span className={`status status-${verified.mismatch ? 'mismatch' : 'match'}`}>{verified.mismatch ? 'Revisar' : 'Verificado'}</span>}
+            title={t('exercise.detail.validation')}
+            meta={<span className={`status status-${verified.mismatch ? 'mismatch' : 'match'}`}>{verified.mismatch ? t('fuel.validationReview') : t('fuel.validationVerified')}</span>}
           >
             <ExerciseValidation exercise={solved} checks={checks} decimals={decimals} />
           </Disclosure>
         )}
 
-        <Disclosure title="Cómo se calcula">
+        <Disclosure title={t('calc.howCalculated')}>
           <div className="help-block">
             <ul>
               <li>
-                <b>T.T / T.F</b>: tiempo y combustible de la planificación abreviada para la distancia (interpolando si no es
-                una fila exacta), corregidos por viento: Δ = valor × viento ÷ TAS; se suma con viento de cara y se resta con
-                viento de cola.
+                <b>T.T / T.F</b>: {t('fuel.howTrip')}
               </li>
               <li>
-                <b>A.T / A.F</b>: igual para el tramo destino – alterno.
+                <b>A.T / A.F</b>: {t('fuel.howAlternate')}
               </li>
               <li>
-                <b>H.F</b>: flujo por motor de la tabla de espera (nivel y peso) × minutos ÷ 60 × 2 motores.
+                <b>H.F</b>: {t('fuel.howHolding')}
               </li>
               <li>
-                <b>FOB</b> = T.F + A.F + H.F + taxi · <b>Autonomía</b> = T.T + A.T + tiempo de espera.
+                {t('fuel.howTotal')}
               </li>
               <li>
-                <b>Vuelo nacional</b> (los tres aeropuertos del Perú, códigos SP__): {SCOPES.nacional.holdingRule.replace(/^Vuelos nacionales: /, '')}
+                {t('fuel.howDomestic', { rule: t('fuel.noDomesticRule') })}
               </li>
               <li>
-                <b>Vuelo internacional</b> (origen, destino o alterno fuera del Perú): espera de 30 min; además se suma el 10 % de
-                T.T y de T.F: <b>FOB</b> = T.F + 10 % T.F + A.F + H.F + taxi · <b>Autonomía</b> = T.T + 10 % T.T + A.T + 30 min.
+                {t('fuel.howInternational')}
               </li>
             </ul>
           </div>
