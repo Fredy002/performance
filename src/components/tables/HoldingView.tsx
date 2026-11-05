@@ -55,7 +55,7 @@ export function HoldingView({ table }: { table: HoldingTable }) {
             </span>
           )}
         </div>
-        <div className="data-table-wrap">
+        <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
           <table className="data-table">
             <thead>
               <tr>

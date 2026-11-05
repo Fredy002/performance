@@ -1,5 +1,7 @@
 import { useId } from 'react';
-import { findAirport, isIcaoCode, normalizeIcao, PERU_AIRPORTS } from '@/data/airports';
+import { InfoTip } from '@/components/ui/InfoTip';
+import { HELP } from '@/content/help';
+import { findAirport, INTERNATIONAL_AIRPORTS, isIcaoCode, normalizeIcao, PERU_AIRPORTS } from '@/data/airports';
 
 export const AIRPORTS_DATALIST_ID = 'peru-airports';
 
@@ -7,9 +9,9 @@ export const AIRPORTS_DATALIST_ID = 'peru-airports';
 export function AirportsDatalist() {
   return (
     <datalist id={AIRPORTS_DATALIST_ID}>
-      {PERU_AIRPORTS.map((a) => (
+      {[...PERU_AIRPORTS, ...INTERNATIONAL_AIRPORTS].map((a) => (
         <option key={a.icao} value={a.icao}>
-          {a.city} · {a.name}
+          {a.city}{a.country ? ` (${a.country})` : ''} · {a.name}
         </option>
       ))}
     </datalist>
@@ -31,7 +33,7 @@ export function AirportField({ label, value, onChange }: Props) {
   const hint = !code
     ? 'Código OACI, p. ej. SPJC'
     : airport
-      ? `${airport.city} · ${airport.name}`
+      ? `${airport.city}${airport.country ? ` (${airport.country})` : ''} · ${airport.name}`
       : code.length < 4
         ? 'El código OACI tiene 4 letras'
         : invalid
@@ -39,11 +41,14 @@ export function AirportField({ label, value, onChange }: Props) {
           : 'No está en la lista de referencia';
   return (
     <div className="field">
-      <label className="field-label" htmlFor={id}>
-        {label}
-      </label>
+      <span className="field-label-row">
+        <label className="field-label" htmlFor={id}>
+          {label}
+        </label>
+        <InfoTip label="el código OACI">{HELP.icao}</InfoTip>
+      </span>
       <div className={`field-control${invalid ? ' invalid' : ''}`}>
-        <span className="field-tag tag-sm">
+        <span className="field-tag tag-sm" aria-hidden="true">
           OACI
         </span>
         <input
@@ -57,9 +62,11 @@ export function AirportField({ label, value, onChange }: Props) {
           className="input-code"
           onChange={(e) => onChange(e.target.value.toUpperCase().replace(/\s/g, ''))}
           onFocus={(e) => e.target.select()}
+          aria-invalid={invalid || undefined}
+          aria-describedby={`${id}-hint`}
         />
       </div>
-      <span className="field-hint">{hint}</span>
+      <span id={`${id}-hint`} className={`field-hint${invalid ? ' field-error' : ''}`}>{hint}</span>
     </div>
   );
 }

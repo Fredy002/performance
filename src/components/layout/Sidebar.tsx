@@ -1,11 +1,11 @@
-import { ClipboardCheck, History, House, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table } from 'lucide-react';
+import { ClipboardCheck, History, House, PanelLeftClose, PanelLeftOpen, Plane, Settings, Table, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { readyTools, toolPath, upcomingTools } from '@/tools/registry';
 import { updateSettings, useSettings } from '@/state/settings';
 import { useHistory } from '@/state/history';
 
-export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
+export function Sidebar({ onNavigate, onClose }: { onNavigate: () => void; onClose: () => void }) {
   const { sidebarCollapsed } = useSettings();
   const history = useHistory();
   const link = ({ isActive }: { isActive: boolean }) => `nav-link${isActive ? ' active' : ''}`;
@@ -18,7 +18,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
   }, [pathname]);
 
   return (
-    <aside className="sidebar" aria-label="Menú principal">
+    <aside className="sidebar" id="menu-principal" aria-label="Menú principal">
       <div className="sidebar-brand">
         <span className="brand-logo">
           <Plane size={18} aria-hidden="true" />
@@ -27,6 +27,9 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
           AeroPerf
           <small>Performance de aeronaves</small>
         </span>
+        <button className="btn btn-ghost btn-icon mobile-only sidebar-close" onClick={onClose} aria-label="Cerrar menú">
+          <X size={18} aria-hidden="true" />
+        </button>
       </div>
 
       <nav className="sidebar-nav" ref={navRef}>

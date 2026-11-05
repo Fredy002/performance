@@ -120,7 +120,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar calculadoras, páginas…"
+            placeholder="Buscar herramientas, tablas, ejercicios…"
+            aria-label="Buscar herramientas, tablas y ejercicios"
             role="combobox"
             aria-expanded="true"
             aria-controls="palette-list"
@@ -129,7 +130,12 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           <kbd>Esc</kbd>
         </div>
         <div className="palette-list" id="palette-list" role="listbox">
-          {results.length === 0 && <div className="empty">Sin resultados para «{query}»</div>}
+          {results.length === 0 && (
+            <div className="empty" role="status">
+              <div className="empty-title">Sin resultados para «{query}»</div>
+              <div>Prueba con «combustible», «viento», «tabla» o «espera».</div>
+            </div>
+          )}
           {results.map((item, i) => (
             <button
               key={item.id}

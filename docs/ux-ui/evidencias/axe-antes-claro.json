@@ -1,0 +1,692 @@
+[
+  {
+    "viewport": "1280",
+    "route": "inicio",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "interpolacion-lineal",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 1,
+        "targets": [
+          "output"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "interpolacion-doble",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 5,
+        "targets": [
+          "div[aria-label=\"R1\"] > .result.field-tag",
+          "div[aria-label=\"R1\"] > .is-secondary",
+          ".field-control[aria-label=\"X\"] > output",
+          "div[aria-label=\"R2\"] > .result.field-tag"
+        ]
+      },
+      {
+        "id": "empty-table-header",
+        "impact": "minor",
+        "help": "Table header text should not be empty",
+        "nodes": 1,
+        "targets": [
+          "tbody > tr:nth-child(1) > th"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "altitud-densidad",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "viento",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "conversor",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "tablas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "help": "Heading levels should only increase by one",
+        "nodes": 1,
+        "targets": [
+          ".card.tool-card:nth-child(1) > .tool-card-body > h3"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "tabla-espera",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      },
+      {
+        "id": "page-has-heading-one",
+        "impact": "moderate",
+        "help": "Page should contain a level-one heading",
+        "nodes": 1,
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "pruebas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "historial",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "ajustes",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "no-encontrada",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          ".search-trigger"
+        ]
+      },
+      {
+        "id": "page-has-heading-one",
+        "impact": "moderate",
+        "help": "Page should contain a level-one heading",
+        "nodes": 1,
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "inicio",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "interpolacion-lineal",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "interpolacion-doble",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "altitud-densidad",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "viento",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "conversor",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "tablas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "tabla-espera",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "pruebas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "historial",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "ajustes",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "no-encontrada",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "inicio",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "interpolacion-lineal",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 1,
+        "targets": [
+          "output"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "summary."
+    ]
+  },
+  {
+    "viewport": "390",
+    "route": "interpolacion-doble",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "nodes": 5,
+        "targets": [
+          "div[aria-label=\"R1\"] > .result.field-tag",
+          "div[aria-label=\"R1\"] > .is-secondary",
+          ".field-control[aria-label=\"X\"] > output",
+          "div[aria-label=\"R2\"] > .result.field-tag"
+        ]
+      },
+      {
+        "id": "empty-table-header",
+        "impact": "minor",
+        "help": "Table header text should not be empty",
+        "nodes": 1,
+        "targets": [
+          "tbody > tr:nth-child(1) > th"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "altitud-densidad",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "viento",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "conversor",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "tablas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "help": "Heading levels should only increase by one",
+        "nodes": 1,
+        "targets": [
+          ".card.tool-card:nth-child(1) > .tool-card-body > h3"
+        ]
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "tabla-espera",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      },
+      {
+        "id": "page-has-heading-one",
+        "impact": "moderate",
+        "help": "Page should contain a level-one heading",
+        "nodes": 1,
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "pruebas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "historial",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "ajustes",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      }
+    ],
+    "smallTargets": [
+      "input.settings-range"
+    ]
+  },
+  {
+    "viewport": "390",
+    "route": "no-encontrada",
+    "overflow": 0,
+    "errors": [],
+    "axe": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "nodes": 1,
+        "targets": [
+          "button[aria-label=\"Abrir menú\"]"
+        ]
+      },
+      {
+        "id": "page-has-heading-one",
+        "impact": "moderate",
+        "help": "Page should contain a level-one heading",
+        "nodes": 1,
+        "targets": [
+          "html"
+        ]
+      }
+    ],
+    "smallTargets": []
+  }
+]

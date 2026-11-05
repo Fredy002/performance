@@ -31,10 +31,12 @@ export function Topbar({ onSearch }: { onSearch: () => void }) {
         {tool ? (
           <>
             <Link to="/" className="breadcrumb-link desktop-only">
-              {CATEGORIES[tool.category]}
+              Inicio
             </Link>
             <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
-            <strong>{tool.name}</strong>
+            <span className="breadcrumb-text desktop-only">{CATEGORIES[tool.category]}</span>
+            <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
+            <strong aria-current="page">{tool.name}</strong>
           </>
         ) : exercise ? (
           <>
@@ -42,7 +44,7 @@ export function Topbar({ onSearch }: { onSearch: () => void }) {
               Pruebas
             </Link>
             <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
-            <strong>{exercise.title}</strong>
+            <strong aria-current="page">{exercise.title}</strong>
           </>
         ) : table ? (
           <>
@@ -50,25 +52,25 @@ export function Topbar({ onSearch }: { onSearch: () => void }) {
               Tablas
             </Link>
             <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
-            <strong>{table.title}</strong>
+            <strong aria-current="page">{table.title}</strong>
           </>
         ) : (
           <strong>{PAGE_TITLES[pathname] ?? 'AeroPerf'}</strong>
         )}
       </nav>
       <div className="topbar-spacer" />
-      <button className="search-trigger" onClick={onSearch} aria-label="Buscar herramienta">
-        <Search size={16} />
-        <span>Buscar herramienta…</span>
-        <kbd>{isMac ? '⌘' : 'Ctrl'} K</kbd>
+      <button className="search-trigger" onClick={onSearch} title="Busca herramientas, tablas y ejercicios">
+        <Search size={16} aria-hidden="true" />
+        <span>Buscar…</span>
+        <kbd aria-hidden="true">{isMac ? '⌘' : 'Ctrl'} K</kbd>
       </button>
       <button
         className="btn btn-ghost btn-icon"
         onClick={() => updateSettings({ theme: NEXT_THEME[theme] })}
-        aria-label={`${THEME_LABEL[theme]} (cambiar)`}
-        title={THEME_LABEL[theme]}
+        aria-label={`${THEME_LABEL[theme]}. Cambiar a ${THEME_LABEL[NEXT_THEME[theme]].toLowerCase()}`}
+        title={`${THEME_LABEL[theme]}. Pulsa para cambiar a ${THEME_LABEL[NEXT_THEME[theme]].toLowerCase()}`}
       >
-        <ThemeIcon size={18} />
+        <ThemeIcon size={18} aria-hidden="true" />
       </button>
     </header>
   );

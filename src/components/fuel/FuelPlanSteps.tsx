@@ -141,10 +141,35 @@ export function FuelPlanSteps({
           <HoldingSteps r={r.holding} weightLb={input.holding.weightLb} p={p} />
         </Card>
         <Card title="4. Resumen">
+          {r.contingency.pct > 0 && (
+            <div className="stack gap-12 calc-section-sm">
+              <p className="calc-text">
+                Vuelo internacional: se suma el {formatPlain(r.contingency.pct * 100, 0)} % de T.T y de T.F.
+              </p>
+              <div className="calc-line">
+                <span className="calc-label">{formatPlain(r.contingency.pct * 100, 0)} % T.T</span>
+                <span>
+                  {p(r.trip.timeMin)} × {formatPlain(r.contingency.pct, 2)} = <b>{p(r.contingency.timeMin)}</b> min
+                </span>
+              </div>
+              <div className="calc-line">
+                <span className="calc-label">{formatPlain(r.contingency.pct * 100, 0)} % T.F</span>
+                <span>
+                  {p(r.trip.fuelLb)} × {formatPlain(r.contingency.pct, 2)} = <b>{p(r.contingency.fuelLb)}</b> lb
+                </span>
+              </div>
+            </div>
+          )}
           <div className="grid grid-2 gap-24">
             <div className="kv">
               <div className="k">T.T</div>
               <div className="v">{p(r.trip.timeMin)}</div>
+              {r.contingency.pct > 0 && (
+                <>
+                  <div className="k">{formatPlain(r.contingency.pct * 100, 0)} % T.T</div>
+                  <div className="v">{p(r.contingency.timeMin)}</div>
+                </>
+              )}
               <div className="k">A.T</div>
               <div className="v">{p(r.alternate.timeMin)}</div>
               <div className="k">T.H (espera)</div>
@@ -155,6 +180,12 @@ export function FuelPlanSteps({
             <div className="kv">
               <div className="k">T.F</div>
               <div className="v">{p(r.trip.fuelLb)}</div>
+              {r.contingency.pct > 0 && (
+                <>
+                  <div className="k">{formatPlain(r.contingency.pct * 100, 0)} % T.F</div>
+                  <div className="v">{p(r.contingency.fuelLb)}</div>
+                </>
+              )}
               <div className="k">A.F</div>
               <div className="v">{p(r.alternate.fuelLb)}</div>
               <div className="k">H.F</div>

@@ -6,6 +6,7 @@ import { FuelPlanAnswers } from '@/components/fuel/FuelPlanAnswers';
 import { FuelPlanForm } from '@/components/fuel/FuelPlanForm';
 import { FuelPlanSteps } from '@/components/fuel/FuelPlanSteps';
 import {
+  formScope,
   FUEL_FORM_KEYS,
   reportToFuelForm,
   routeFromForm,
@@ -20,18 +21,20 @@ import { Alert } from '@/components/ui/Alert';
 import { Disclosure } from '@/components/ui/Disclosure';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { formatPlain } from '@/core/format';
-import { analyzeParsedStatement, analyzeStatement } from '@/exercises/parseStatement';
+import { analyzeParsedStatement, parseStatement, type ParseDefaults, type ParsedStatement } from '@/exercises/parseStatement';
 import type { OcrResult } from '@/services/ocr';
-import { SCOPES, verifiedExercises, type FuelPlanExercise } from '@/exercises/registry';
+import { routeScope, SCOPES, verifiedFuelExercises, type FlightScope, type FuelPlanExercise } from '@/exercises/registry';
 import { useFormValues } from '@/hooks/useFormValues';
 import { useDecimals } from '@/state/settings';
 
-const SCOPE = SCOPES.nacional;
-const SOLVED = verifiedExercises();
+const SOLVED = verifiedFuelExercises();
 // Use the first verified exercise as the default example.
 const DEFAULTS = toFuelForm(SOLVED[0].input, SOLVED[0].airports);
-// Apply the exercise holding level and scope duration only when omitted.
-const STATEMENT_DEFAULTS = { holdingFlightLevel: 15, holdingMinutes: SCOPE.holdingMinutes };
+// Apply the exercise holding level and the scope duration (45 min nacional, 30 min internacional) only when omitted.
+const defaultsFor = (scope: FlightScope): ParseDefaults => ({ holdingFlightLevel: 15, holdingMinutes: SCOPES[scope].holdingMinutes });
+/** Scope of the statement: international when any of its airports is outside Peru. */
+const statementScope = (p: ParsedStatement): FlightScope =>
+  routeScope({ origin: p.trip.from ?? '', destination: p.trip.to ?? p.alternate.from ?? '', alternate: p.alternate.to ?? '' });
 
 const statementText = (e: FuelPlanExercise) => e.statement.join('\n');
 const EXAMPLES = SOLVED.map((e) => ({ id: e.id, label: `${e.airports.origin} – ${e.airports.destination}`, text: statementText(e) }));
@@ -44,7 +47,7 @@ export default function FuelPlanning() {
   const [params] = useSearchParams();
   const form = useFormValues(DEFAULTS);
   const v = form.values;
-  const plan = useFuelPlan(v);
+  const plan = useFuelPlan(v, decimals);
   const p = (x: number) => formatPlain(x, decimals);
   const dataRef = useRef<HTMLDetailsElement>(null);
 
@@ -62,19 +65,19 @@ export default function FuelPlanning() {
   const [imageStatus, setImageStatus] = useState<'idle' | 'loading' | 'failed'>('idle');
   const [statementRevision, setStatementRevision] = useState(0);
 
-  const report = useMemo(
-    () => imageAnalysis
-      ? analyzeParsedStatement(imageAnalysis.parsed, STATEMENT_DEFAULTS, imageAnalysis.warnings)
-      : text.trim() ? analyzeStatement(text, STATEMENT_DEFAULTS) : undefined,
-    [imageAnalysis, text],
-  );
+  const { report, textScope } = useMemo(() => {
+    const parsed = imageAnalysis ? imageAnalysis.parsed : text.trim() ? parseStatement(text) : undefined;
+    if (!parsed) return { report: undefined, textScope: undefined };
+    const scope = statementScope(parsed);
+    return { report: analyzeParsedStatement(parsed, defaultsFor(scope), imageAnalysis?.warnings), textScope: scope };
+  }, [imageAnalysis, text]);
 
   // Populate the form and calculate once the statement has all required data.
   useEffect(() => {
-    if (source !== 'text' || !report?.complete) return;
-    const next = reportToFuelForm(report, STATEMENT_DEFAULTS);
+    if (source !== 'text' || !report?.complete || !textScope) return;
+    const next = reportToFuelForm(report, defaultsFor(textScope));
     if (!sameFuelForm(next, form.values)) form.load(next);
-  }, [report, source, form]);
+  }, [report, textScope, source, form]);
 
   const onText = (t: string) => {
     setImageStatus('idle');
@@ -92,11 +95,17 @@ export default function FuelPlanning() {
   const setField = (k: FuelFormKey, x: string) => {
     setStatementRevision((revision) => revision + 1);
     setImageStatus('idle');
-    form.set(k, x);
+    const next = { ...form.values, [k]: x };
+    const [before, after] = [formScope(form.values), formScope(next)];
+    // Changing an airport can change the scope: move the holding time to the new rule
+    // unless the user typed a different time.
+    if (before !== after && Number(form.values.hm) === SCOPES[before].holdingMinutes) {
+      form.load({ [k]: x, hm: String(SCOPES[after].holdingMinutes) });
+    } else form.set(k, x);
     setSource('form');
   };
   const completeByHand = () => {
-    if (report) form.load(reportToFuelForm(report, STATEMENT_DEFAULTS));
+    if (report && textScope) form.load(reportToFuelForm(report, defaultsFor(textScope)));
     setSource('form');
     if (dataRef.current) {
       dataRef.current.open = true;
@@ -108,9 +117,10 @@ export default function FuelPlanning() {
   const waiting = imageStatus !== 'idle' || (source === 'text' && !report?.complete);
   const r = waiting ? undefined : plan.result;
   const route = routeFromForm(v);
-  const checks = solved && r ? checkExercise(solved, r) : [];
+  const checks = solved && r ? checkExercise(solved) : [];
   const verified = solved && r ? summarize(checks) : undefined;
   const missing = report?.fields.filter((f) => f.required && f.status === 'missing') ?? [];
+  const SCOPE = SCOPES[source === 'text' && textScope ? textScope : formScope(v)];
 
   const placeholder = waiting ? (
     <div className="answers-placeholder">
@@ -151,6 +161,16 @@ export default function FuelPlanning() {
             summary={`${legLabel(route.origin, route.destination)} ${v.td} NM (${v.tw} kt ${v.tk}) · alterno ${legLabel(route.destination, route.alternate)} ${v.ad} NM (${v.aw} kt ${v.ak}) · espera ${v.hm} min`}
             result={r ? `FOB ${p(r.fobLb)} lb · ${p(r.enduranceMin)} min` : ''}
             onReset={() => onText(statementText(SOLVED[0]))}
+            capture={() => {
+              const prev = { text, values: form.values, source };
+              return () => {
+                setText(prev.text);
+                setImageAnalysis(undefined);
+                setImageStatus('idle');
+                form.load(prev.values);
+                setSource(prev.source);
+              };
+            }}
           />
         }
       />
@@ -187,7 +207,7 @@ export default function FuelPlanning() {
           }
           defaultOpen={source === 'form'}
         >
-          <FuelPlanForm bare values={v} set={setField} holdingHint={SCOPE.holdingRule} />
+          <FuelPlanForm bare values={v} set={setField} />
         </Disclosure>
 
         <Disclosure
@@ -227,7 +247,13 @@ export default function FuelPlanning() {
               <li>
                 <b>FOB</b> = T.F + A.F + H.F + taxi · <b>Autonomía</b> = T.T + A.T + tiempo de espera.
               </li>
-              <li>{SCOPE.holdingRule}</li>
+              <li>
+                <b>Vuelo nacional</b> (los tres aeropuertos del Perú, códigos SP__): {SCOPES.nacional.holdingRule.replace(/^Vuelos nacionales: /, '')}
+              </li>
+              <li>
+                <b>Vuelo internacional</b> (origen, destino o alterno fuera del Perú): espera de 30 min; además se suma el 10 % de
+                T.T y de T.F: <b>FOB</b> = T.F + 10 % T.F + A.F + H.F + taxi · <b>Autonomía</b> = T.T + 10 % T.T + A.T + 30 min.
+              </li>
             </ul>
           </div>
         </Disclosure>

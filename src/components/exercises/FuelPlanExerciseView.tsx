@@ -17,10 +17,10 @@ export function FuelPlanExerciseView({ exercise }: { exercise: FuelPlanExercise 
   const decimals = useDecimals();
   const defaults = useMemo(() => toFuelForm(exercise.input, exercise.airports), [exercise]);
   const form = useFormValues(defaults);
-  const plan = useFuelPlan(form.values);
+  const plan = useFuelPlan(form.values, decimals);
   const isOriginal = sameFuelForm(form.values, defaults);
   const r = plan.result;
-  const checks = r ? checkExercise(exercise, r) : [];
+  const checks = r ? checkExercise(exercise) : [];
   const scope = SCOPES[exercise.scope];
 
   return (
@@ -69,7 +69,7 @@ export function FuelPlanExerciseView({ exercise }: { exercise: FuelPlanExercise 
       </div>
 
       <div className="calc-section">
-        <FuelPlanForm values={form.values} set={form.set} holdingHint={scope.holdingRule} />
+        <FuelPlanForm values={form.values} set={form.set} />
       </div>
 
       {plan.error && (

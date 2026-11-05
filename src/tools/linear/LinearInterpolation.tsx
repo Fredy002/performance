@@ -2,7 +2,9 @@ import { ArrowRight, Spline } from 'lucide-react';
 import { useMemo } from 'react';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
-import { NumberField } from '@/components/ui/NumberField';
+import { InfoTip } from '@/components/ui/InfoTip';
+import { NumberField, numberError } from '@/components/ui/NumberField';
+import { HELP } from '@/content/help';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ResultHero } from '@/components/ui/ResultHero';
 import { InterpolationChart } from '@/components/InterpolationChart';
@@ -33,6 +35,10 @@ export default function LinearInterpolation() {
   const fmt = (v: number) => formatNumber(v, decimals);
 
   const incomplete = [a, b, c, a1, b1].some((v) => Number.isNaN(v));
+  // UX-03: distingue «vacío» de «mal escrito» y nombra el campo a corregir
+  const err = (k: 'a' | 'b' | 'c' | 'a1' | 'b1') => numberError(form.values[k], form.numbers[k], HELP.invalidNumber);
+  const wrong = (['a', 'c', 'b', 'a1', 'b1'] as const).filter((k) => err(k)).map((k) => k.toUpperCase());
+  const empty = (['a', 'c', 'b', 'a1', 'b1'] as const).filter((k) => form.values[k].trim() === '').map((k) => k.toUpperCase());
 
   const outcome = useMemo((): { result?: LinearResult; error?: string } => {
     if (incomplete) return {};
@@ -66,6 +72,10 @@ export default function LinearInterpolation() {
             result={r ? `${fmt(r.x)}${form.values.yn ? ` · ${form.values.yn}` : ''}` : ''}
             onReset={form.reset}
             onClear={form.clear}
+            capture={() => {
+              const prev = form.values;
+              return () => form.load(prev);
+            }}
           />
         }
       />
@@ -96,26 +106,32 @@ export default function LinearInterpolation() {
             }
           >
             <div className="interp-table">
-              <span className="interp-head">{xName}</span>
+              <span className="interp-head with-help">
+                {xName}
+                <InfoTip label="A, B y C">{HELP.linearInput}</InfoTip>
+              </span>
               <span />
-              <span className="interp-head">{yName}</span>
+              <span className="interp-head with-help">
+                {yName}
+                <InfoTip label="A1, B1 y X">{HELP.linearResult}</InfoTip>
+              </span>
 
-              <NumberField tag="A" value={form.values.a} onChange={(v) => form.set('a', v)} invalid={Number.isNaN(a) && form.values.a !== ''} />
-              <span className="interp-arrow"><ArrowRight size={20} /></span>
-              <NumberField tag="A1" value={form.values.a1} onChange={(v) => form.set('a1', v)} invalid={Number.isNaN(a1) && form.values.a1 !== ''} />
+              <NumberField tag="A" srLabel="A, fila inferior de la tabla" value={form.values.a} onChange={(v) => form.set('a', v)} error={err('a')} />
+              <span className="interp-arrow" aria-hidden="true"><ArrowRight size={20} /></span>
+              <NumberField tag="A1" srLabel="A1, valor de la tabla para A" value={form.values.a1} onChange={(v) => form.set('a1', v)} error={err('a1')} />
 
-              <NumberField tag="C" value={form.values.c} onChange={(v) => form.set('c', v)} invalid={Number.isNaN(c) && form.values.c !== ''} />
-              <span className="interp-arrow"><ArrowRight size={20} /></span>
+              <NumberField tag="C" srLabel="C, tu dato" value={form.values.c} onChange={(v) => form.set('c', v)} error={err('c')} />
+              <span className="interp-arrow" aria-hidden="true"><ArrowRight size={20} /></span>
               <div className="field">
-                <div className="field-control" aria-label="Resultado X">
-                  <span className="field-tag result">X</span>
-                  <output className="result-output">{r ? fmt(r.x) : '—'}</output>
+                <div className="field-control">
+                  <span className="field-tag result" aria-hidden="true">X</span>
+                  <output className="result-output" aria-label={`Resultado X: ${r ? fmt(r.x) : 'sin calcular'}`}>{r ? fmt(r.x) : '—'}</output>
                 </div>
               </div>
 
-              <NumberField tag="B" value={form.values.b} onChange={(v) => form.set('b', v)} invalid={Number.isNaN(b) && form.values.b !== ''} />
-              <span className="interp-arrow"><ArrowRight size={20} /></span>
-              <NumberField tag="B1" value={form.values.b1} onChange={(v) => form.set('b1', v)} invalid={Number.isNaN(b1) && form.values.b1 !== ''} />
+              <NumberField tag="B" srLabel="B, fila superior de la tabla" value={form.values.b} onChange={(v) => form.set('b', v)} error={err('b')} />
+              <span className="interp-arrow" aria-hidden="true"><ArrowRight size={20} /></span>
+              <NumberField tag="B1" srLabel="B1, valor de la tabla para B" value={form.values.b1} onChange={(v) => form.set('b1', v)} error={err('b1')} />
             </div>
 
             <details className="calc-details">
@@ -140,7 +156,14 @@ export default function LinearInterpolation() {
           </Card>
 
           {outcome.error && <Alert kind="error">{outcome.error}</Alert>}
-          {incomplete && !outcome.error && <Alert kind="info">Completa los cinco valores para obtener X.</Alert>}
+          {wrong.length > 0 && (
+            <Alert kind="error">
+              Revisa {wrong.join(', ')}: {HELP.invalidNumber.charAt(0).toLowerCase() + HELP.invalidNumber.slice(1)}
+            </Alert>
+          )}
+          {incomplete && !outcome.error && wrong.length === 0 && (
+            <Alert kind="info">Completa {empty.join(', ')} para obtener X. Usa «Ejemplo» si quieres ver cómo funciona.</Alert>
+          )}
           {r?.extrapolated && (
             <Alert kind="warning">
               <b>Extrapolación:</b> C está fuera del intervalo [A, B]. Los manuales de vuelo (AFM/POH) normalmente
@@ -166,8 +189,8 @@ export default function LinearInterpolation() {
               <InterpolationChart a={a} b={b} c={c} a1={a1} b1={b1} x={r.x} decimals={decimals} xLabel={xName} yLabel={yName} />
             ) : (
               <div className="empty">
-                <Spline size={32} />
-                <span>La gráfica aparecerá cuando los datos sean válidos.</span>
+                <Spline size={32} aria-hidden="true" />
+                <span>La gráfica aparece cuando los cinco valores son números válidos.</span>
               </div>
             )}
           </Card>

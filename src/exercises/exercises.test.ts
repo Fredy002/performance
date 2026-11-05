@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { solveFuelPlan } from '@/core/fuelPlanning';
 import { getTable } from '@/data/tables';
 import { compareWithWritten, parseWritten } from './validation';
-import { EXERCISES, getExercise } from './registry';
+import { FUEL_EXERCISES, getFuelExercise } from './registry';
 
 describe('validación contra la resolución manual', () => {
   it('lee los decimales tal como se escribieron', () => {
@@ -19,11 +19,11 @@ describe('validación contra la resolución manual', () => {
 });
 
 describe('ejercicio B737 SPJC – SPQT', () => {
-  const ex = getExercise('b737-combustible-spjc-spqt')!;
+  const ex = getFuelExercise('b737-combustible-spjc-spqt')!;
   const r = solveFuelPlan(ex.input);
 
   it('existe y referencia tablas existentes', () => {
-    expect(EXERCISES.map((e) => e.id)).toContain(ex.id);
+    expect(FUEL_EXERCISES.map((e) => e.id)).toContain(ex.id);
     ex.tables.forEach((t) => expect(getTable(t)).toBeDefined());
   });
 
@@ -70,7 +70,7 @@ describe('ejercicio B737 SPJC – SPQT', () => {
 });
 
 describe('ejercicio B737 SPUR – SPJC (alterno entre 60 y 260 NM)', () => {
-  const ex = getExercise('b737-combustible-spur-spjc')!;
+  const ex = getFuelExercise('b737-combustible-spur-spjc')!;
   const r = solveFuelPlan(ex.input);
 
   it('queda pendiente de verificación y es un vuelo nacional', () => {
@@ -109,26 +109,91 @@ describe('ejercicio B737 SPUR – SPJC (alterno entre 60 y 260 NM)', () => {
 
 describe('estado de los ejercicios', () => {
   it('el ejercicio SPJC – SPQT ya está verificado', () => {
-    expect(getExercise('b737-combustible-spjc-spqt')!.status).toBe('verified');
+    expect(getFuelExercise('b737-combustible-spjc-spqt')!.status).toBe('verified');
   });
   it('cada ejercicio tiene 4 respuestas (a–d)', () => {
-    EXERCISES.forEach((e) => expect(e.expected.filter((s) => s.answer).map((s) => s.answer)).toEqual(['a', 'b', 'c', 'd']));
+    FUEL_EXERCISES.forEach((e) => expect(e.expected.filter((s) => s.answer).map((s) => s.answer)).toEqual(['a', 'b', 'c', 'd']));
   });
 });
 
 import { isIcaoCode, routeWarnings } from '@/data/airports';
+import { routeScope, SCOPES } from './registry';
+
+describe('ejercicio B737 SEGU – SPJC (vuelo internacional)', () => {
+  const ex = getFuelExercise('b737-combustible-segu-spjc')!;
+  const r = solveFuelPlan(ex.input);
+
+  it('es internacional porque el origen no es del Perú: espera de 30 min y 10 % de contingencia', () => {
+    expect(ex.scope).toBe('internacional');
+    expect(ex.status).toBe('pending');
+    expect(r.holding.minutes).toBe(30);
+    expect(r.contingency.pct).toBe(0.1);
+  });
+
+  it('origen: interpola entre 700 y 750 NM y suma el viento de cara', () => {
+    expect(r.trip.lookup.rows.map((x) => x.distanceNm)).toEqual([700, 750]);
+    expect(r.trip.lookup.airTimeMin).toBeCloseTo(106.2, 10);
+    expect(r.trip.lookup.fuelLb).toBeCloseTo(10260, 10);
+    expect(r.trip.timeMin).toBeCloseTo(116.01, 2);
+    expect(r.trip.fuelLb).toBeCloseTo(11207.81, 2);
+  });
+
+  it('contingencia: 10 % de T.T y T.F, incluida en autonomía y FOB', () => {
+    expect(r.contingency.timeMin).toBeCloseTo(11.6, 2);
+    expect(r.contingency.fuelLb).toBeCloseTo(1120.78, 2);
+    expect(r.enduranceMin).toBeCloseTo(r.trip.timeMin * 1.1 + r.alternate.timeMin + 30, 10);
+    expect(r.fobLb).toBeCloseTo(r.trip.fuelLb * 1.1 + r.alternate.fuelLb + r.holding.fuelLb + 400, 10);
+    expect(r.enduranceMin).toBeCloseTo(181.45, 2);
+    expect(r.fobLb).toBeCloseTo(17607.25, 2);
+  });
+
+  it('espera: 73 000 lb entre 75 000 y 70 000 lb en FL 015 → 2342 lb/h; 30 min y 2 motores', () => {
+    expect(r.holding.lookup.weightsKlb).toEqual([75, 70]);
+    expect(r.holding.lookup.ffPerEngineLbHr).toBeCloseTo(2342, 10);
+    expect(r.holding.fuelLb).toBeCloseTo(2342, 10);
+  });
+
+  it('coincide con el cuaderno; el FOB difiere 0,04 por sumar A.F redondeado', () => {
+    const results = ex.expected.map((s) => ({ label: s.label, ...compareWithWritten(s.written, s.pick(r)) }));
+    expect(results.filter((x) => x.status === 'mismatch')).toEqual([]);
+    expect(results.filter((x) => x.status === 'rounding').map((x) => x.label)).toEqual(['Combustible a bordo (FOB)']);
+  });
+
+  it('un vuelo nacional no lleva contingencia', () => {
+    const nacional = solveFuelPlan({ ...ex.input, contingencyPct: undefined });
+    expect(nacional.contingency).toEqual({ pct: 0, timeMin: 0, fuelLb: 0 });
+    expect(nacional.fobLb).toBeCloseTo(r.fobLb - r.contingency.fuelLb, 10);
+  });
+});
+
+describe('ámbito del vuelo', () => {
+  it('es internacional si origen, destino o alterno no es del Perú', () => {
+    expect(routeScope({ origin: 'SPJC', destination: 'SPQT', alternate: 'SPST' })).toBe('nacional');
+    expect(routeScope({ origin: 'SEGU', destination: 'SPJC', alternate: 'SPSO' })).toBe('internacional');
+    expect(routeScope({ origin: 'SPJC', destination: 'SKBO', alternate: 'SPST' })).toBe('internacional');
+    expect(routeScope({ origin: 'SPJC', destination: 'SPQT', alternate: 'SEQM' })).toBe('internacional');
+    // códigos incompletos o vacíos no cambian el ámbito
+    expect(routeScope({ origin: 'SEG', destination: '', alternate: '' })).toBe('nacional');
+    expect(SCOPES.internacional).toMatchObject({ holdingMinutes: 30, contingencyPct: 0.1 });
+    expect(SCOPES.nacional).toMatchObject({ holdingMinutes: 45, contingencyPct: 0 });
+  });
+});
 
 describe('aeropuertos de los ejercicios', () => {
   it('son códigos OACI coherentes con el enunciado y el título', () => {
-    for (const e of EXERCISES) {
+    for (const e of FUEL_EXERCISES) {
       const { origin, destination, alternate } = e.airports;
       [origin, destination, alternate].forEach((c) => expect(isIcaoCode(c)).toBe(true));
       expect(e.title).toContain(`${origin} – ${destination}`);
-      const statement = e.statement.join(' ');
+      // «SEGU (Guayaquil) – SPJC»: el nombre de la ciudad no forma parte de la ruta
+      const statement = e.statement.join(' ').replace(/\s*\([A-Za-zÀ-ú ]+\)/g, '');
       expect(statement).toContain(`${origin} – ${destination}`);
       expect(statement).toContain(`${destination} – ${alternate}`);
-      // vuelo nacional: todos peruanos y ruta coherente
+      // vuelo nacional: todos peruanos y ruta coherente; el ámbito coincide con los aeropuertos
       expect(routeWarnings(e.airports, e.scope === 'nacional')).toEqual([]);
+      expect(routeScope(e.airports)).toBe(e.scope);
+      expect(e.input.holding.minutes).toBe(SCOPES[e.scope].holdingMinutes);
+      expect(e.input.contingencyPct ?? 0).toBe(SCOPES[e.scope].contingencyPct);
     }
   });
 });

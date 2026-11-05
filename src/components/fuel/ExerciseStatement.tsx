@@ -4,9 +4,9 @@ import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
 import { findAirport } from '@/data/airports';
 import { getTable } from '@/data/tables';
-import type { FuelPlanExercise } from '@/exercises/registry';
+import type { Exercise } from '@/exercises/registry';
 
-export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise: FuelPlanExercise; title?: ReactNode }) {
+export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise: Exercise; title?: ReactNode }) {
   return (
     <Card title={title}>
       <ul className="statement">
@@ -14,7 +14,7 @@ export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise:
           <li key={s}>{s}</li>
         ))}
       </ul>
-      <p className="calc-note">
+      {exercise.kind === 'fuel-plan' && <p className="calc-note">
         Aeropuertos:{' '}
         {(['origin', 'destination', 'alternate'] as const)
           .map((role) => {
@@ -23,7 +23,7 @@ export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise:
             return `${code}${a ? ` (${a.city})` : ''}`;
           })
           .join(' · ')}
-      </p>
+      </p>}
       <p className="statement-heading">Se pide:</p>
       <ul className="statement statement-sm">
         {exercise.questions.map((q) => (

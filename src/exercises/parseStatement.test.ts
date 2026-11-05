@@ -1,8 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { analyzeParsedStatement, analyzeStatement, normalizeStatement, parseStatement, type ParsedStatement } from './parseStatement';
-import { EXERCISES } from './registry';
+import { FUEL_EXERCISES } from './registry';
 
 const DEFAULTS = { holdingFlightLevel: 15, holdingMinutes: 45 };
+
+describe('vuelo internacional con la ciudad entre paréntesis', () => {
+  it('lee «SEGU(Guayaquil) - SPJC» sin confundir la ciudad con el viento', () => {
+    const p = parseStatement(`Origen - destino: SEGU(Guayaquil) - SPJC distancia 730 nm F350 (40 HW)
+Destino - alterno: SPJC - SPSO distancia 120 nm F190 (25tw)
+Holding con 73000 lbs
+Combustible para el taxi: 400 lbs`);
+    expect(p.trip).toEqual({ from: 'SEGU', to: 'SPJC', distanceNm: 730, flightLevel: 350, windKt: 40, windKind: 'HW' });
+    expect(p.alternate).toEqual({ from: 'SPJC', to: 'SPSO', distanceNm: 120, flightLevel: 190, windKt: 25, windKind: 'TW' });
+    expect(p.holding.weightLb).toBe(73000);
+  });
+
+  it('también con la ciudad en el destino y el viento entre paréntesis anidados', () => {
+    const p = parseStatement('Origen – destino: SPJC – SEGU (Guayaquil), 730 NM (40 KT DE CARA (HW)). Destino – alterno: SEGU (Guayaquil) – SEQM, 120 NM (25 KT DE COLA (TW))');
+    expect(p.trip).toMatchObject({ from: 'SPJC', to: 'SEGU', windKt: 40, windKind: 'HW' });
+    expect(p.alternate).toMatchObject({ from: 'SEGU', to: 'SEQM', windKt: 25, windKind: 'TW' });
+  });
+});
 
 describe('normalización (errores típicos de OCR)', () => {
   it('corrige B737, lbs y dígitos confundidos', () => {
@@ -92,7 +110,7 @@ Espera de 30 min a 1500 ft con 92,500 lb. Rodaje: 300 lb.`);
 
 describe('enunciados de los ejercicios registrados', () => {
   it('se leen y reproducen exactamente los datos del ejercicio', () => {
-    for (const e of EXERCISES) {
+    for (const e of FUEL_EXERCISES) {
       const r = analyzeStatement(e.statement.join('\n'), DEFAULTS);
       expect(r.complete).toBe(true);
       expect(r.airports).toEqual(e.airports);

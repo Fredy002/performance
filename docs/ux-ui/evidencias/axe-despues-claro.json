@@ -1,0 +1,314 @@
+[
+  {
+    "viewport": "1280",
+    "route": "inicio",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "interpolacion-lineal",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "interpolacion-doble",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "altitud-densidad",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "viento",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "conversor",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "tablas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "tabla-espera",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "pruebas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "historial",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "ajustes",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "1280",
+    "route": "no-encontrada",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "inicio",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "interpolacion-lineal",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "interpolacion-doble",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "altitud-densidad",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "viento",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "conversor",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "tablas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "tabla-espera",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "pruebas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "historial",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "ajustes",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "768",
+    "route": "no-encontrada",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "inicio",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "combustible",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "interpolacion-lineal",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "interpolacion-doble",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "altitud-densidad",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "viento",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "conversor",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "tablas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "tabla-espera",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "pruebas",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "historial",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "ajustes",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  },
+  {
+    "viewport": "390",
+    "route": "no-encontrada",
+    "overflow": 0,
+    "errors": [],
+    "axe": [],
+    "smallTargets": []
+  }
+]

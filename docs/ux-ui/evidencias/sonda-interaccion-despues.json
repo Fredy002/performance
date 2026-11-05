@@ -1,0 +1,146 @@
+[
+  {
+    "id": "UX-13",
+    "name": "Primer Tab enfoca «Saltar al contenido» y es visible",
+    "pass": true,
+    "detail": "Saltar al contenido"
+  },
+  {
+    "id": "UX-13",
+    "name": "Enter lleva el foco a <main>",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-10",
+    "name": "Paleta sin resultados sugiere búsquedas",
+    "pass": true,
+    "detail": "Sin resultados para «qqq» Prueba con «combustible», «viento», «tabla» o «espera»."
+  },
+  {
+    "id": "UX-10",
+    "name": "Al cerrar la paleta el foco vuelve al buscador",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-04",
+    "name": "InfoTip se abre al enfocarlo con teclado",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-04",
+    "name": "Escape cierra el InfoTip",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-04",
+    "name": "Enter vuelve a abrirlo tras Escape",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-04",
+    "name": "InfoTip se abre con hover",
+    "pass": true,
+    "detail": "true"
+  },
+  {
+    "id": "UX-04",
+    "name": "InfoTip se cierra al retirar el puntero",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-03",
+    "name": "Mensaje por campo y aviso nombran el error",
+    "pass": true,
+    "detail": "Revisa A: escribe solo números; usa coma o punto para los decimales."
+  },
+  {
+    "id": "UX-06",
+    "name": "«Guardar» deshabilitado explica por qué",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-07",
+    "name": "«Ejemplo» y «Deshacer» restauran lo escrito",
+    "pass": true,
+    "detail": "600 → abc"
+  },
+  {
+    "id": "UX-07",
+    "name": "Eliminar del historial ofrece «Deshacer» y restaura",
+    "pass": true,
+    "detail": "toast toast-info"
+  },
+  {
+    "id": "UX-11",
+    "name": "Migas Inicio › Categoría › Herramienta",
+    "pass": true,
+    "detail": "Inicio Atmósfera Componentes de viento"
+  },
+  {
+    "id": "UX-04",
+    "name": "InfoTip se abre al tocar y queda dentro de la pantalla",
+    "pass": true,
+    "detail": "{\"x\":8,\"y\":327.859375,\"width\":280,\"height\":76.046875}"
+  },
+  {
+    "id": "UX-04",
+    "name": "Tocar fuera cierra el InfoTip",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-02",
+    "name": "Acciones con texto visible en móvil",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "—",
+    "name": "Sin scroll horizontal tras abrir ayudas",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-21",
+    "name": "Menú cerrado no es enfocable (visibility hidden)",
+    "pass": true,
+    "detail": "hidden"
+  },
+  {
+    "id": "UX-09",
+    "name": "Al abrir el menú el foco entra en él",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-09",
+    "name": "Escape cierra el menú y el foco vuelve a «Más»",
+    "pass": true,
+    "detail": "Más"
+  },
+  {
+    "id": "UX-09",
+    "name": "«Cerrar menú» cierra el cajón",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "UX-05",
+    "name": "«Cómo empezar» se muestra y no vuelve tras ocultarlo",
+    "pass": true,
+    "detail": ""
+  },
+  {
+    "id": "—",
+    "name": "Sin errores de JavaScript durante la sonda",
+    "pass": true,
+    "detail": ""
+  }
+]

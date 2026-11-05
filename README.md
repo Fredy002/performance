@@ -18,11 +18,22 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
 - **Tablas de performance de aeronaves** (solo consulta): planificación de vuelo en crucero Mach 0,74,
   planificación de vuelo abreviada y performance de espera del B-737 (suplemento FAA),
   con ayuda de uso, glosario, ejemplos resueltos y exportación a CSV.
-- **Planificación de combustible** (B737, vuelos nacionales del Perú): viaje, alterno, espera
-  (45 min según la RAP) y taxi → FOB y autonomía, con desarrollo paso a paso y ejercicios resueltos.
+- **Planificación de combustible** (B737): viaje, alterno, espera y taxi → FOB y autonomía, con
+  desarrollo paso a paso y ejercicios resueltos. **Vuelo nacional** (los tres aeropuertos del Perú,
+  OACI SP__): espera de 45 min según la RAP. **Vuelo internacional** (origen, destino o alterno fuera
+  del Perú): espera de 30 min y se suma el 10 % de T.T y de T.F a la autonomía y al FOB. El ámbito se
+  deduce solo de los códigos OACI.
   Origen, destino y alterno se introducen como códigos OACI (cambian en cada vuelo), con
-  autocompletado de aeropuertos del Perú y avisos si un código no es peruano (SP__) o la ruta
-  es incoherente.
+  autocompletado de aeropuertos del Perú y de los principales extranjeros, y avisos si un código no
+  es válido o la ruta es incoherente.
+- **EPR de despegue (B737 y B727)**, con el desarrollo como en la resolución a mano y el valor final a 2 decimales:
+  - **B737** (FIGURE 53, 54 y 55, condiciones R-1 a R-5): ① límite por temperatura (TEMP LIMIT EPR, +0,03 con
+    aire acondicionado OFF), ② límite por presión (PRESS LIMIT EPR, interpolado por altitud de presión), ③ el menor.
+  - **B727** (FIGURE 81, 82 y 83, condiciones G-1 a G-5): MAX TAKEOFF EPR por altitud de presión y OAT para los
+    motores 1 y 3 y para el motor 2, con correcciones por aire acondicionado, antihielo y 6.ª etapa.
+- **Ascenso en ruta (B737)**: combustible consumido y distancia recorrida en el ascenso 280/.70 (FIGURE 56, 57 y 58,
+  condiciones V-1 a V-5). Lee la tabla ISA o ISA +10 °C por altitud de crucero y peso al soltar frenos (interpolando si
+  hace falta), resta el ajuste de combustible por aeropuerto elevado y corrige la distancia por el viento con d = t · v.
 - **Un solo paso para resolver**: en Planificación de combustible se escribe, pega o fotografía el
   enunciado y las respuestas aparecen al lado. Los datos detectados se muestran como chips de color
   (detectado, supuesto, falta); datos, desarrollo y validación quedan en secciones plegables.
@@ -32,6 +43,13 @@ A = 600 → A1 = 89 · B = 650 → B1 = 96 · C = 622 → X = 92,08
 - Menú por tareas (Calcular, Consultar, Pruebas), barra inferior en el móvil, buscador `Ctrl/⌘ + K`
   y tema claro/oscuro.
 - Enlaces compartibles: cada cálculo se puede reabrir desde su URL.
+
+## Experiencia de usuario
+
+- Manual de usuario con capturas anotadas: [`docs/ux-ui/manual-de-usuario.pdf`](docs/ux-ui/manual-de-usuario.pdf) ([Markdown](docs/ux-ui/manual-de-usuario.md)).
+- Auditoría, cambios, QA y pendientes: [`docs/ux-ui/`](docs/ux-ui/).
+- Ayuda contextual: `InfoTip` (`src/components/ui/InfoTip.tsx`) con los textos en `src/content/help.ts`; los campos usan `NumberField` con `help` y `error`.
+- Skills para mantener los mismos criterios: `.claude/skills/` (auditoría, design system, ayuda contextual, implementación, QA y manual visual).
 
 ## Desarrollo
 
@@ -109,7 +127,7 @@ Tesseract para leer las imágenes. La foto sale del dispositivo y se procesa en 
   `ANTHROPIC_WORKSPACE_ID` es opcional para las claves que necesitan seleccionar un workspace.
 - Los datos ausentes o ilegibles se conservan como pendientes para corregirlos. El modelo
   no sustituye las tablas ni el núcleo de cálculo de combustible de la app.
-- Los supuestos del ejercicio, como FL 015 y 45 min de espera nacional cuando no se indican,
+- Los supuestos del ejercicio, como FL 015 y la espera de 45 min (nacional) o 30 min (internacional) cuando no se indican,
   siguen mostrándose como «Supuesto». Si faltan datos imprescindibles, la app no resuelve.
 - El enunciado escrito o pegado como texto sigue disponible sin llamada a Claude.
 - Si la clave no está configurada, vence o la API falla, la interfaz muestra el error y

@@ -349,7 +349,8 @@ a.tool-card:hover {
   gap: var(--space-8);
 }
 
-.tool-card h3 {
+.tool-card h3,
+.tool-card-title {
   font-family: var(--font-display);
   font-size: var(--text-body-lg);
   font-weight: var(--weight-medium);
@@ -547,7 +548,8 @@ a.list-item:hover .list-item-arrow {
   color: var(--text);
 }
 
-.empty h2 {
+.empty h2,
+.empty-page-title {
   font-size: var(--text-subheading);
   line-height: var(--leading-subheading);
   color: var(--text);

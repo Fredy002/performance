@@ -8,9 +8,11 @@ export interface Settings {
   decimals: number;
   sidebarCollapsed: boolean;
   favorites: string[];
+  /** El usuario cerró la tarjeta «Cómo empezar» del inicio */
+  onboardingDismissed: boolean;
 }
 
-const DEFAULTS: Settings = { theme: 'system', decimals: 2, sidebarCollapsed: false, favorites: ['linear'] };
+const DEFAULTS: Settings = { theme: 'system', decimals: 2, sidebarCollapsed: false, favorites: ['linear'], onboardingDismissed: false };
 
 const store = createPersistedStore<Settings>('aeroperf.settings', DEFAULTS);
 

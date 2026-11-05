@@ -2,6 +2,8 @@ import { Camera, ImageUp, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
+import { InfoTip } from '@/components/ui/InfoTip';
+import { HELP } from '@/content/help';
 import type { ParseField, ParseReport } from '@/exercises/parseStatement';
 import { recognizeImage, type OcrProgress, type OcrResult } from '@/services/ocr';
 
@@ -27,7 +29,17 @@ const SHORT: Record<string, string> = {
 
 function DataChips({ fields }: { fields: ParseField[] }) {
   return (
-    <div className="data-chips" aria-label="Datos detectados">
+    <div className="stack gap-8">
+    <div className="chip-legend">
+      <span className="with-help">
+        <b>Datos detectados</b>
+        <InfoTip label="los datos detectados">{HELP.statementChips}</InfoTip>
+      </span>
+      <span><span className="dot is-match" aria-hidden="true" />Leído del enunciado</span>
+      <span><span className="dot is-assumed" aria-hidden="true" />* Supuesto (no figura)</span>
+      <span><span className="dot is-missing" aria-hidden="true" />Falta</span>
+    </div>
+    <div className="data-chips" role="group" aria-label="Datos detectados">
       {GROUPS.map((g) => {
         const fs = g.keys.map((k) => fields.find((f) => f.key === k)).filter((f): f is ParseField => !!f);
         const missing = fs.filter((f) => f.required && f.status === 'missing');
@@ -43,6 +55,7 @@ function DataChips({ fields }: { fields: ParseField[] }) {
           </span>
         );
       })}
+    </div>
     </div>
   );
 }
@@ -213,15 +226,15 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
         />
 
         <div className="statement-toolbar">
-          <button className="btn btn-primary" onClick={() => cameraRef.current?.click()} disabled={!!progress}>
-            <Camera size={16} /> Foto
+          <button className="btn btn-primary" onClick={() => cameraRef.current?.click()} disabled={!!progress} title="Toma una foto del enunciado con la cámara">
+            <Camera size={16} aria-hidden="true" /> Foto
           </button>
-          <button className="btn" onClick={() => fileRef.current?.click()} disabled={!!progress}>
-            <ImageUp size={16} /> Imagen
+          <button className="btn" onClick={() => fileRef.current?.click()} disabled={!!progress} title="Elige una captura o imagen guardada">
+            <ImageUp size={16} aria-hidden="true" /> Imagen
           </button>
           {text && (
             <button className="btn btn-ghost btn-icon" onClick={() => onTextChange('')} disabled={!!progress} aria-label="Borrar el enunciado" title="Borrar">
-              <Trash2 size={16} />
+              <Trash2 size={16} aria-hidden="true" />
             </button>
           )}
           {status && <span className={`status ${status.cls} statement-status`}>{status.label}</span>}
@@ -250,7 +263,6 @@ export function StatementBox({ text, revision, onTextChange, onImageAnalysis, on
         <p className="field-hint">
           También puedes pegar una captura (Ctrl+V) o arrastrarla aquí. La imagen se envía a Claude para interpretar el
           enunciado. Si un dato no se distingue, queda pendiente para que lo completes.
-          {report?.fields.some((f) => f.status === 'assumed') && ' * Supuesto: no figura en el enunciado.'}
         </p>
       </div>
     </Card>

@@ -162,3 +162,57 @@ describe('formatPlain', () => {
     expect(formatPlain(-0.0001)).toBe('0');
   });
 });
+
+import { formatNumber as fmtN, formatPlain as fmtP, roundTo } from './format';
+import { solveFuelPlan as solve } from './fuelPlanning';
+import { FUEL_EXERCISES as ALL_EXERCISES } from '@/exercises/registry';
+
+describe('redondeo decimal', () => {
+  it('redondea la mitad hacia arriba, sin errores binarios', () => {
+    expect(roundTo(17607.258, 2)).toBe(17607.26);
+    expect(roundTo(17607.255, 2)).toBe(17607.26);
+    expect(roundTo(17607.2533, 2)).toBe(17607.25);
+    expect(roundTo(1.005, 2)).toBe(1.01); // toFixed daría 1,00
+    expect(roundTo(2.675, 2)).toBe(2.68); // toFixed daría 2,67
+    expect(roundTo(1972.5, 0)).toBe(1973);
+    expect(roundTo(-2.5, 0)).toBe(-3);
+    expect(roundTo(-0.001, 2)).toBe(0);
+    expect(roundTo(1e-7, 6)).toBe(0);
+    expect(roundTo(123.4567891, 6)).toBe(123.456789);
+  });
+
+  it('los formatos usan ese redondeo con cualquier número de decimales', () => {
+    expect(fmtP(17607.258, 2)).toBe('17607,26');
+    expect(fmtP(1.005, 2)).toBe('1,01');
+    expect(fmtP(2.675, 2)).toBe('2,68');
+    expect(fmtP(0.0005, 3)).toBe('0,001');
+    expect(fmtN(1.005, 2)).toBe('1,01');
+    expect(fmtN(17607.258, 2)).toBe('17.607,26');
+  });
+});
+
+describe('planificación de combustible redondeada por pasos', () => {
+  it('FOB y autonomía son la suma exacta de los valores redondeados que se muestran (0 a 6 decimales)', () => {
+    for (const ex of ALL_EXERCISES) {
+      for (let d = 0; d <= 6; d++) {
+        const r = solve(ex.input, undefined, { decimals: d });
+        const show = (v: number) => fmtP(v, d);
+        const sum = (vs: number[]) => fmtP(vs.map((v) => Number(show(v).replace(',', '.'))).reduce((a, b) => a + b, 0), d);
+        expect(show(r.fobLb)).toBe(sum([r.trip.fuelLb, r.contingency.fuelLb, r.alternate.fuelLb, r.holding.fuelLb, r.taxiFuelLb]));
+        expect(show(r.enduranceMin)).toBe(sum([r.trip.timeMin, r.contingency.timeMin, r.alternate.timeMin, r.holding.minutes]));
+        // T.T = tiempo en calma ± Δ con los valores mostrados
+        expect(show(r.trip.timeMin)).toBe(fmtP(Number(show(r.trip.lookup.airTimeMin).replace(',', '.')) + Number(show(r.trip.deltaTimeMin).replace(',', '.')), d));
+      }
+    }
+  });
+
+  it('SEGU – SPJC con 2 decimales: FOB 17607,26 como en la suma a mano', () => {
+    const ex = ALL_EXERCISES.find((e) => e.id === 'b737-combustible-segu-spjc')!;
+    const r = solve(ex.input, undefined, { decimals: 2 });
+    expect([r.trip.fuelLb, r.contingency.fuelLb, r.alternate.fuelLb, r.holding.fuelLb]).toEqual([11207.81, 1120.78, 2536.67, 2342]);
+    expect(r.fobLb).toBe(17607.26);
+    expect(r.enduranceMin).toBe(181.45);
+    // sin decimales indicados el cálculo sigue siendo exacto
+    expect(solve(ex.input).fobLb).toBeCloseTo(17607.2533, 4);
+  });
+});
