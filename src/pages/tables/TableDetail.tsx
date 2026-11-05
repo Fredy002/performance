@@ -43,8 +43,7 @@ export default function TableDetail() {
         subtitle={
           <>
             {table.summary}
-            <br />
-            <span style={{ fontSize: 13 }}>
+            <span className="page-subtitle-note">
               Original: <i>{table.source.originalTitle}</i> — {table.source.document}
             </span>
           </>
@@ -59,7 +58,7 @@ export default function TableDetail() {
       <h2 className="section-title">Ayuda</h2>
       <TableHelp help={table.help} />
       {table.related && table.related.length > 0 && (
-        <p className="muted" style={{ marginTop: 20, fontSize: 14 }}>
+        <p className="calc-footnote">
           Se usa junto con:{' '}
           {table.related.map((id, i) => {
             const r = getTable(id);

@@ -1,0 +1,686 @@
+[
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "inicio",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "combustible",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "combustible-desarrollo",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "lineal",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "bilineal",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "viento",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "densidad",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "unidades",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "tablas",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "crucero",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "abreviada",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "espera",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "pruebas",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "prueba-spur",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "prueba-spjc",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "historial",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "ajustes",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "paleta",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "name": "colapsado",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "inicio",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "combustible",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "combustible-desarrollo",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "lineal",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "bilineal",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "viento",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "densidad",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "unidades",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "tablas",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "crucero",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "abreviada",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "espera",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "pruebas",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "prueba-spur",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "prueba-spjc",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "historial",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "ajustes",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "paleta",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "name": "colapsado",
+    "scroll": 1280,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "inicio",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "combustible",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "combustible-desarrollo",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "lineal",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "bilineal",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "viento",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "densidad",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "unidades",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "tablas",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "crucero",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "abreviada",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "espera",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "pruebas",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "prueba-spur",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "prueba-spjc",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "historial",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "ajustes",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "paleta",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "name": "menu-movil",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "inicio",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "combustible",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "combustible-desarrollo",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "lineal",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "bilineal",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "viento",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "densidad",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "unidades",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "tablas",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "crucero",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "abreviada",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "espera",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "pruebas",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "prueba-spur",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "prueba-spjc",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "historial",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "ajustes",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "paleta",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "name": "menu-movil",
+    "scroll": 390,
+    "outside": [],
+    "clipped": [],
+    "errors": []
+  }
+]

@@ -1,0 +1,1174 @@
+/* ==========================================================================
+   AeroPerf — calculadoras, formularios, resultados, tablas y gráficas
+   Inter con cifras tabulares para datos; DM Sans 500 para cifras grandes;
+   monoespaciada solo en líneas de desarrollo (calc-line, formula-box, OCR).
+   ========================================================================== */
+
+/* ---------- utilidades de las vistas de cálculo ---------- */
+/* bloque separado de lo anterior dentro de una página */
+.calc-section {
+  margin-top: var(--space-24);
+}
+
+.calc-section-sm {
+  margin-top: var(--space-16);
+}
+
+/* ancla de desplazamiento bajo la barra superior fija */
+.scroll-anchor {
+  scroll-margin-top: calc(var(--topbar-h) + var(--space-16));
+}
+
+/* texto secundario de 14px (párrafos de apoyo) */
+.calc-text {
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  color: var(--text-muted);
+}
+
+/* igual, como nota al pie de un bloque */
+.calc-note {
+  margin-top: var(--space-16);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  color: var(--text-muted);
+}
+
+/* leyenda de 12px al pie de una tarjeta */
+.calc-caption {
+  margin-top: var(--space-16);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+/* regla destacada (p. ej. corrección por viento) */
+.calc-rule {
+  margin-top: var(--space-16);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+}
+
+.calc-rule + .calc-note {
+  margin-top: var(--space-4);
+}
+
+/* nota al pie de una página (con o sin icono; p. ej. tablas relacionadas) */
+.calc-footnote {
+  margin-top: var(--space-24);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  color: var(--text-muted);
+}
+
+/* colores semánticos de dato */
+.text-result {
+  color: var(--result);
+  font-weight: var(--weight-medium);
+}
+
+.text-success {
+  color: var(--success);
+  font-weight: var(--weight-medium);
+}
+
+/* contenido entre la cabecera y la tabla de una tarjeta sin relleno */
+.card-inset {
+  padding: var(--space-8) var(--card-padding) var(--space-16);
+  font-size: var(--text-body-sm);
+}
+
+.card-inset ul {
+  margin: var(--space-8) 0 0;
+  padding-left: var(--space-24);
+}
+
+.table-toolbar {
+  justify-content: space-between;
+  padding-block: var(--space-12);
+}
+
+.after-header {
+  margin-top: var(--space-16);
+}
+
+.page-badges {
+  margin-bottom: var(--space-16);
+}
+
+.alert-action {
+  margin-left: var(--space-8);
+}
+
+/* ---------- campos de formulario ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+/* título de un grupo de campos (Ruta, Origen – destino…) */
+.field-group-label {
+  margin-bottom: var(--space-8);
+  color: var(--text);
+}
+
+.field-control {
+  display: flex;
+  align-items: stretch;
+  height: 48px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.field-control:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.field-control.invalid {
+  border-color: var(--result);
+}
+
+.field-control.invalid:focus-within {
+  box-shadow: 0 0 0 3px var(--result-soft);
+}
+
+/* letra de la referencia (A, B, C…) como segmento plano */
+.field-tag {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  min-width: 48px;
+  padding: 0 var(--space-12);
+  border-right: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.field-tag.tag-sm {
+  font-size: var(--text-caption);
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.field-tag.result {
+  background: var(--result-soft);
+  color: var(--result);
+}
+
+.field-control input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 0 var(--space-12);
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+
+.field-control input::placeholder {
+  color: var(--text-faint);
+}
+
+/* código OACI: mayúsculas espaciadas */
+.field-control input.input-code {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.field-unit {
+  display: grid;
+  place-items: center;
+  padding: 0 var(--space-12);
+  border-left: 1px solid var(--border);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+
+.field-hint {
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+/* ---------- selector ----------
+   Por defecto mide como .field-control (48px); .select-compact (32px, como
+   .btn-sm) para cabeceras de tarjeta. */
+.select {
+  min-width: 0;
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-12);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-subtle);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.select:focus,
+.select:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.select-compact {
+  width: auto;
+  height: 32px;
+  padding: 0 var(--space-8);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+}
+
+/* ---------- filas de interpolación (como en la referencia) ---------- */
+.interp-table {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-16) var(--space-8);
+}
+
+.interp-arrow {
+  display: grid;
+  place-items: center;
+  height: 48px;
+  color: var(--text-faint);
+}
+
+.interp-head {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* salida X dentro de un campo */
+.result-output {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-12);
+  background: var(--result-soft);
+  color: var(--result);
+  font-family: var(--font-display);
+  font-size: var(--text-body-lg);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-ui);
+  font-variant-numeric: tabular-nums;
+}
+
+.result-output.is-secondary {
+  font-size: var(--text-body);
+}
+
+/* ---------- resultado principal: tarjeta oscura invertida ---------- */
+.result-hero {
+  padding: var(--space-32);
+  border-radius: var(--radius-feature);
+  background: var(--bg-inverse-raised);
+  color: var(--text-inverse);
+}
+
+.result-hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-inverse-muted);
+}
+
+/* punto teal plano como acento */
+.result-hero-label::before {
+  content: '';
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
+.result-hero-value {
+  margin-top: var(--space-8);
+  font-family: var(--font-display);
+  font-size: var(--text-heading);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+.result-hero-value small {
+  margin-left: var(--space-8);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-lg);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-ui);
+  color: var(--text-inverse-muted);
+}
+
+.result-hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8) var(--space-24);
+  margin-top: var(--space-24);
+  padding-top: var(--space-16);
+  border-top: 1px solid color-mix(in srgb, var(--text-inverse) 14%, transparent);
+  font-size: var(--text-body-sm);
+  color: var(--text-inverse-muted);
+}
+
+.result-hero-meta b {
+  color: var(--text-inverse);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- fórmula y pasos ---------- */
+.formula {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  padding: var(--space-24) var(--space-16);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--bg-subtle);
+  font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', serif;
+  font-size: var(--text-subheading);
+  font-style: italic;
+  font-weight: var(--weight-regular);
+  letter-spacing: 0;
+  overflow-x: auto;
+}
+
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.frac > span:first-child {
+  padding: 0 var(--space-8) var(--space-4);
+  border-bottom: 1px solid currentColor;
+}
+
+.frac > span:last-child {
+  padding: var(--space-4) var(--space-8) 0;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.formula + .steps {
+  margin-top: var(--space-24);
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: var(--space-12);
+  align-items: start;
+  line-height: 24px;
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.steps .mono,
+.step-text {
+  font-size: var(--text-body-sm);
+}
+
+.steps .step-result {
+  color: var(--result);
+  font-weight: var(--weight-medium);
+}
+
+/* ---------- lista clave–valor ---------- */
+.kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0;
+}
+
+.kv > div {
+  padding: var(--space-12) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.kv > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.kv dt,
+.kv .k {
+  color: var(--text-muted);
+  font-size: var(--text-body-sm);
+}
+
+.kv .v {
+  text-align: right;
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/* fila de total: etiqueta en tinta, valor en rojo de resultado */
+.kv .k.kv-total {
+  color: var(--text);
+  font-weight: var(--weight-medium);
+}
+
+.kv .v.kv-total {
+  color: var(--result);
+}
+
+/* ---------- matriz de doble entrada ---------- */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.matrix {
+  width: 100%;
+  min-width: 460px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.matrix th,
+.matrix td {
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.matrix th {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+.matrix .field-control {
+  height: 44px;
+}
+
+/* ---------- tablas digitalizadas ---------- */
+.data-table-wrap {
+  overflow-x: auto;
+  border-top: 1px solid var(--border);
+}
+
+/* esquinas de la tabla dentro de la escala de radios de la tarjeta */
+.card > .data-table-wrap:last-child {
+  border-bottom-left-radius: var(--radius-card);
+  border-bottom-right-radius: var(--radius-card);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table th,
+.data-table td {
+  padding: var(--space-12) var(--space-16);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: right;
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+/* columnas extremas alineadas con el relleno de la tarjeta (título, .card-inset) */
+.data-table th:first-child,
+.data-table td:first-child {
+  padding-left: var(--card-padding);
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+  padding-right: var(--card-padding);
+}
+
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom-color: var(--border);
+  background: var(--bg-subtle);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+/* primera columna fija */
+.data-table th:first-child,
+.data-table td:first-child {
+  position: sticky;
+  left: 0;
+  text-align: left;
+  border-right: 1px solid var(--border);
+  background: var(--bg-elevated);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+}
+
+.data-table thead th:first-child {
+  z-index: 2;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+
+.data-table tbody tr:hover td {
+  background: var(--bg-hover);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.data-table .cell-em {
+  font-weight: var(--weight-medium);
+  color: var(--text);
+}
+
+.data-table tr.is-answer td {
+  font-weight: var(--weight-medium);
+}
+
+/* filas omitidas en la fuente */
+.data-table .gap-row td {
+  position: static;
+  padding: var(--space-8) var(--space-16);
+  text-align: center;
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+
+/* celda EPR / IAS / FF apilada */
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.3;
+}
+
+.cell-stack .epr,
+.legend .legend-epr {
+  color: var(--accent-strong);
+}
+
+.cell-stack .ias,
+.legend .legend-ias {
+  color: var(--text);
+}
+
+.cell-stack .ff,
+.legend .legend-ff {
+  color: var(--result);
+}
+
+.cell-stack .ff {
+  font-weight: var(--weight-medium);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+}
+
+/* ---------- ayuda y glosario ---------- */
+.help-block h3 {
+  margin-bottom: var(--space-8);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+}
+
+.help-block p,
+.help-block li {
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  color: var(--text-muted);
+}
+
+.help-block b {
+  font-weight: var(--weight-medium);
+  color: var(--text);
+}
+
+.help-block ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding-left: var(--space-16);
+}
+
+.glossary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-8) var(--space-16);
+  margin: 0;
+  font-size: var(--text-body-sm);
+}
+
+.glossary-item {
+  display: contents;
+}
+
+.glossary dt {
+  font-weight: var(--weight-medium);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.glossary dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.formula-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-16);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-card);
+  background: var(--bg-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- gráficas ---------- */
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.chart text {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+  fill: var(--text-muted);
+}
+
+.chart .chart-axis-label {
+  font-weight: var(--weight-medium);
+}
+
+.chart .chart-point-label {
+  font-weight: var(--weight-medium);
+  fill: var(--chart-point);
+}
+
+.chart .chart-result-label {
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  fill: var(--result);
+}
+
+/* rosa de vientos */
+.chart-compass {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.chart .chart-compass-label {
+  font-weight: var(--weight-medium);
+  fill: var(--text);
+}
+
+/* ---------- desarrollo y validación ---------- */
+.calc-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-4) var(--space-12);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-input);
+  background: var(--bg-subtle);
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  font-variant-numeric: tabular-nums;
+  overflow-x: auto;
+}
+
+.calc-line b {
+  color: var(--result);
+  font-weight: var(--weight-medium);
+}
+
+.calc-line .calc-label {
+  min-width: 96px;
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+/* respuestas a), b), c)… */
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+
+.answer {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 3;
+  row-gap: 0;
+  padding: var(--space-16);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-elevated);
+}
+
+.answer-label {
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+.answer-value {
+  margin-top: var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-subheading);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-heading-sm);
+  letter-spacing: var(--tracking-ui);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.answer-value small {
+  margin-left: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+.answer-footer {
+  margin-top: var(--space-8);
+}
+
+.answer-footer-text {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+}
+
+/* ---------- enunciado ---------- */
+.statement {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: var(--text-body);
+}
+
+.statement-sm {
+  font-size: var(--text-body-sm);
+}
+
+.statement-heading {
+  margin-top: var(--space-16);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text);
+}
+
+.statement-heading + .statement {
+  margin-top: var(--space-4);
+}
+
+.statement-block {
+  margin-top: var(--space-16);
+}
+
+.assumptions p + p {
+  margin-top: var(--space-4);
+}
+
+.inline-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-16);
+}
+
+.inline-fields.airport-fields {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* en la validación la etiqueta del paso puede partirse en varias líneas */
+.validation-table td:first-child {
+  white-space: normal;
+  min-width: 150px;
+}
+
+/* ---------- conversor de unidades ---------- */
+.quantity-picker {
+  flex-wrap: wrap;
+  margin-bottom: var(--space-24);
+}
+
+.equiv-value {
+  font-family: var(--font-display);
+  font-size: var(--text-subheading);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-heading-sm);
+  letter-spacing: var(--tracking-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* ---------- variables con nombre (desplegable) ---------- */
+.calc-details {
+  margin-top: var(--space-24);
+}
+
+.calc-details > summary {
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+.calc-details > summary:hover {
+  color: var(--text);
+}
+
+.calc-details > .grid {
+  margin-top: var(--space-16);
+}
+
+/* ---------- resolver desde captura ---------- */
+.progress {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--bg-subtle);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--dur-layout) var(--ease-standard);
+}
+
+.progress-status {
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+}
+
+.capture-text {
+  width: 100%;
+  padding: var(--space-12);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-subtle);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body);
+  resize: vertical;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.capture-text::placeholder {
+  color: var(--text-faint);
+}
+
+.capture-text:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.capture-text:disabled {
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+
+.card.is-dragging {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* ---------- cuadro de enunciado ---------- */
+.statement-text {
+  min-height: 144px;
+}
+
+.statement-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.statement-status {
+  margin-left: auto;
+}
+
+.data-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.data-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-chip b {
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.answers-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-16);
+  padding: var(--space-8) 0;
+  font-size: var(--text-body-sm);
+  color: var(--text-muted);
+}
+
+/* El desarrollo conserva la altura de su contenido, sin estirar tarjetas ni filas. */
+.grid-2:has(> .card .calc-line),
+.card-body > .grid-2:has(> .kv) {
+  align-items: start;
+}
+
+/* ---------- adaptable ---------- */
+@media (max-width: 1100px) {
+  .inline-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .interp-table {
+    grid-template-columns: minmax(0, 1fr) var(--space-16) minmax(0, 1fr);
+  }
+
+  .interp-table .field-tag {
+    min-width: var(--space-32);
+    padding-inline: var(--space-8);
+  }
+
+  .interp-table input,
+  .interp-table .result-output {
+    padding-inline: var(--space-8);
+  }
+
+  .interp-table .result-output {
+    min-width: 0;
+    font-size: var(--text-body);
+    overflow-wrap: anywhere;
+  }
+
+  .interp-table .field-control:has(.result-output) {
+    height: auto;
+    min-height: var(--space-48);
+  }
+
+  /* resultado y fórmula (sustituye los tamaños de components.css) */
+  .result-hero {
+    padding: var(--space-24);
+  }
+
+  .result-hero-value {
+    font-size: var(--text-heading-sm);
+    line-height: var(--leading-heading-sm);
+    letter-spacing: var(--tracking-heading-sm);
+  }
+
+  .formula {
+    font-size: var(--text-body-lg);
+  }
+
+  .card-inset {
+    padding-left: var(--space-16);
+    padding-right: var(--space-16);
+  }
+
+  .inline-fields,
+  .inline-fields.airport-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .answer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8);
+  }
+
+  .answer {
+    padding: var(--space-12);
+  }
+
+  .answer-label {
+    font-size: var(--text-caption);
+  }
+
+  .answer-value {
+    font-size: var(--text-body-lg);
+  }
+
+  .answer-value small {
+    font-size: var(--text-caption);
+  }
+
+  .glossary {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+
+  .glossary dd {
+    margin-bottom: var(--space-8);
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: var(--space-8) var(--space-12);
+  }
+
+  /* mismo margen de 16px que .card-header / .card-inset en móvil */
+  .data-table th:first-child,
+  .data-table td:first-child {
+    padding-left: var(--space-16);
+  }
+
+  .data-table th:last-child,
+  .data-table td:last-child {
+    padding-right: var(--space-16);
+  }
+
+  /* validación: tabla compacta, la píldora queda solo con icono */
+  .validation-table th:first-child,
+  .validation-table td:first-child {
+    position: static;
+    min-width: 100px;
+    font-size: var(--text-caption);
+  }
+
+  .validation-table th,
+  .validation-table td {
+    padding: var(--space-8) 6px;
+    font-size: var(--text-caption);
+  }
+
+  .validation-table .status {
+    padding: 3px;
+  }
+
+  .validation-table .status-text {
+    display: none;
+  }
+
+}

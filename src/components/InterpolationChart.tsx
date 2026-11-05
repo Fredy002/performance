@@ -74,7 +74,7 @@ export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel = 'Ent
         </text>
       ))}
       <line x1={PAD.l} x2={W - PAD.r} y1={H - PAD.b} y2={H - PAD.b} stroke="var(--border-strong)" />
-      <text x={(PAD.l + W - PAD.r) / 2} y={H - 6} textAnchor="middle" style={{ fontWeight: 600 }}>
+      <text x={(PAD.l + W - PAD.r) / 2} y={H - 6} textAnchor="middle" className="chart-axis-label">
         {xLabel}
       </text>
       <text
@@ -82,7 +82,7 @@ export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel = 'Ent
         y={(PAD.t + H - PAD.b) / 2}
         textAnchor="middle"
         transform={`rotate(-90 14 ${(PAD.t + H - PAD.b) / 2})`}
-        style={{ fontWeight: 600 }}
+        className="chart-axis-label"
       >
         {yLabel}
       </text>
@@ -116,7 +116,7 @@ export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel = 'Ent
       ].map((p) => (
         <g key={p.label}>
           <circle cx={sx(p.px)} cy={sy(p.py)} r={6} fill="var(--bg-elevated)" stroke="var(--chart-point)" strokeWidth={2.5} />
-          <text x={sx(p.px)} y={sy(p.py) - 12} textAnchor="middle" style={{ fontWeight: 700, fill: 'var(--chart-point)' }}>
+          <text x={sx(p.px)} y={sy(p.py) - 12} textAnchor="middle" className="chart-point-label">
             {p.label}
           </text>
         </g>
@@ -126,7 +126,7 @@ export function InterpolationChart({ a, b, c, a1, b1, x, decimals, xLabel = 'Ent
       <text
         x={sx(c) + 12}
         y={sy(x) + (slope >= 0 ? 16 : -10)}
-        style={{ fontWeight: 700, fill: 'var(--result)', fontSize: 13 }}
+        className="chart-result-label"
       >
         X = {fmt(x)}
       </text>

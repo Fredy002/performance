@@ -16,7 +16,7 @@ export default function ExercisesList() {
         subtitle="Ejercicios resueltos a mano que la app vuelve a resolver con las tablas digitalizadas y la interpolación, para validar paso a paso que los resultados coinciden. Una vez verificados pasan a su herramienta."
       />
 
-      <h2 className="section-title" style={{ marginTop: 0 }}>
+      <h2 className="section-title section-title-flush">
         Pendientes de verificación
       </h2>
       {pending.length === 0 ? (
@@ -30,19 +30,17 @@ export default function ExercisesList() {
         <div className="grid grid-3">
           {pending.map((e) => (
             <Link key={e.id} to={`/pruebas/${e.id}`} className="card tool-card">
-              <span className="tool-card-icon">
-                <ClipboardCheck size={22} />
+              <span className="tool-card-icon tone-blush">
+                <ClipboardCheck size={20} />
               </span>
-              <div>
-                <div className="chip chip-accent" style={{ marginBottom: 8 }}>
-                  {SCOPES[e.scope].label}
-                </div>
+              <div className="tool-card-body">
+                <div className="chip chip-accent">{SCOPES[e.scope].label}</div>
                 <h3>{e.title}</h3>
-                <p style={{ marginTop: 4 }}>{e.summary}</p>
+                <p>{e.summary}</p>
               </div>
               <div className="tool-card-footer">
                 <span className="chip">{e.aircraft}</span>
-                <span className="row" style={{ gap: 4 }}>
+                <span className="tool-card-cta">
                   Abrir prueba <ArrowRight size={14} />
                 </span>
               </div>
@@ -55,10 +53,10 @@ export default function ExercisesList() {
         <>
           <h2 className="section-title">Ya verificados</h2>
           <Card flush>
-            <div className="list" style={{ marginTop: 12 }}>
+            <div className="list">
               {verified.map((e) => (
                 <Link key={e.id} to={`/tools/fuel?${fuelFormQuery(e.input, e.airports)}`} className="list-item">
-                  <span className="list-item-icon" style={{ color: 'var(--success)', background: 'var(--success-soft)' }}>
+                  <span className="list-item-icon is-success">
                     <BadgeCheck size={18} />
                   </span>
                   <div className="list-item-main">
@@ -67,7 +65,7 @@ export default function ExercisesList() {
                       {SCOPES[e.scope].label} · disponible en Planificación de combustible
                     </div>
                   </div>
-                  <ArrowRight size={16} className="muted" />
+                  <ArrowRight size={16} className="list-item-arrow" aria-hidden="true" />
                 </Link>
               ))}
             </div>

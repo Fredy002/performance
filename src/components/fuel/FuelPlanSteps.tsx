@@ -21,15 +21,15 @@ function LegSteps({ leg, windKt, kind, timeTag, fuelTag, p }: { leg: LegResult; 
     </div>
   );
   return (
-    <div className="stack" style={{ gap: 10 }}>
+    <div className="stack gap-12">
       {lookup.interpolated ? (
         <>
-          <p className="muted" style={{ fontSize: 14 }}>
+          <p className="calc-text">
             {formatPlain(lookup.distanceNm, 2)} NM no está en la tabla: se interpola entre las filas de {r1.distanceNm} y{' '}
             {r2.distanceNm} NM.
           </p>
           {lookup.gap && (
-            <div className="alert alert-warning" role="note" style={{ fontSize: 13 }}>
+            <div className="alert alert-warning" role="note">
               <span>
                 Entre {lookup.gap.afterNm} y {lookup.gap.beforeNm} NM la tabla no publica filas intermedias: se interpola
                 directamente entre ambas (método del curso). Es una aproximación.
@@ -49,7 +49,7 @@ function LegSteps({ leg, windKt, kind, timeTag, fuelTag, p }: { leg: LegResult; 
           </span>
         </div>
       )}
-      <p className="muted" style={{ fontSize: 14 }}>
+      <p className="calc-text">
         Viento de {kind === 'HW' ? 'cara (HW): se suma' : 'cola (TW): se resta'}.
       </p>
       <div className="calc-line">
@@ -84,7 +84,7 @@ function HoldingSteps({ r, weightLb, p }: { r: FuelPlanResult['holding']; weight
   const h = r.lookup;
   const fl = (v: number) => `FL ${String(v).padStart(3, '0')}`;
   return (
-    <div className="stack" style={{ gap: 10 }}>
+    <div className="stack gap-12">
       <div className="calc-line">
         <span className="calc-label">Tabla</span>
         <span>
@@ -141,7 +141,7 @@ export function FuelPlanSteps({
           <HoldingSteps r={r.holding} weightLb={input.holding.weightLb} p={p} />
         </Card>
         <Card title="4. Resumen">
-          <div className="grid grid-2" style={{ gap: 18 }}>
+          <div className="grid grid-2 gap-24">
             <div className="kv">
               <div className="k">T.T</div>
               <div className="v">{p(r.trip.timeMin)}</div>
@@ -149,8 +149,8 @@ export function FuelPlanSteps({
               <div className="v">{p(r.alternate.timeMin)}</div>
               <div className="k">T.H (espera)</div>
               <div className="v">{p(r.holding.minutes)}</div>
-              <div className="k" style={{ fontWeight: 700 }}>Autonomía (min)</div>
-              <div className="v" style={{ color: 'var(--result)' }}>{p(r.enduranceMin)}</div>
+              <div className="k kv-total">Autonomía (min)</div>
+              <div className="v kv-total">{p(r.enduranceMin)}</div>
             </div>
             <div className="kv">
               <div className="k">T.F</div>
@@ -161,8 +161,8 @@ export function FuelPlanSteps({
               <div className="v">{p(r.holding.fuelLb)}</div>
               <div className="k">Taxi</div>
               <div className="v">{p(r.taxiFuelLb)}</div>
-              <div className="k" style={{ fontWeight: 700 }}>FOB (lb)</div>
-              <div className="v" style={{ color: 'var(--result)' }}>{p(r.fobLb)}</div>
+              <div className="k kv-total">FOB (lb)</div>
+              <div className="v kv-total">{p(r.fobLb)}</div>
             </div>
           </div>
         </Card>

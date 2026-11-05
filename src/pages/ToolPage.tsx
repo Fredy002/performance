@@ -9,7 +9,7 @@ export default function ToolPage() {
   if (!tool) return <NotFound />;
   if (tool.status !== 'ready' || !tool.component) {
     return (
-      <div className="card empty" style={{ padding: 60 }}>
+      <div className="card empty empty-page">
         <Construction size={40} />
         <h2>{tool.name}</h2>
         <p>Esta herramienta está en desarrollo.</p>

@@ -14,20 +14,20 @@ export function HistoryList({ entries, compact }: { entries: HistoryEntry[]; com
       <div className="empty">
         <HistoryIcon size={32} />
         <div>
-          <div style={{ fontWeight: 600, color: 'var(--text)' }}>Aún no hay cálculos guardados</div>
-          <div style={{ fontSize: 14 }}>Pulsa «Guardar» en cualquier calculadora para verlo aquí.</div>
+          <div className="empty-title">Aún no hay cálculos guardados</div>
+          <div>Pulsa «Guardar» en cualquier calculadora para verlo aquí.</div>
         </div>
       </div>
     );
   }
   return (
-    <div className="list" style={compact ? undefined : { marginTop: 12 }}>
+    <div className="list">
       {entries.map((e) => {
         const tool = getTool(e.toolId);
         const Icon = tool?.icon ?? HistoryIcon;
         return (
-          <div key={e.id} className="row" style={{ gap: 0, flexWrap: 'nowrap' }}>
-            <Link to={e.href} className="list-item" style={{ flex: 1, minWidth: 0 }} title="Abrir este cálculo">
+          <div key={e.id} className="history-row">
+            <Link to={e.href} className="list-item" title="Abrir este cálculo">
               <span className="list-item-icon">
                 <Icon size={18} />
               </span>
@@ -42,7 +42,6 @@ export function HistoryList({ entries, compact }: { entries: HistoryEntry[]; com
             {!compact && (
               <button
                 className="btn btn-ghost btn-icon"
-                style={{ marginRight: 12 }}
                 onClick={() => removeHistory(e.id)}
                 aria-label="Eliminar del historial"
               >
@@ -81,7 +80,7 @@ export default function HistoryPage() {
         }
       />
       {usedTools.length > 1 && (
-        <div className="segmented" role="group" aria-label="Filtrar por herramienta" style={{ marginBottom: 16, flexWrap: 'wrap' }}>
+        <div className="segmented history-filter" role="group" aria-label="Filtrar por herramienta">
           <button aria-pressed={filter === 'all'} onClick={() => setFilter('all')}>
             Todas
           </button>

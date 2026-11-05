@@ -76,7 +76,7 @@ export default function LinearInterpolation() {
             title="Datos de la tabla"
             action={
               <select
-                className="select"
+                className="select select-compact"
                 aria-label="Cargar ejemplo"
                 value=""
                 onChange={(e) => {
@@ -118,21 +118,21 @@ export default function LinearInterpolation() {
               <NumberField tag="B1" value={form.values.b1} onChange={(v) => form.set('b1', v)} invalid={Number.isNaN(b1) && form.values.b1 !== ''} />
             </div>
 
-            <details style={{ marginTop: 18 }}>
-              <summary className="muted" style={{ cursor: 'pointer', fontSize: 14 }}>
+            <details className="calc-details">
+              <summary>
                 Nombrar variables (opcional)
               </summary>
-              <div className="grid grid-2" style={{ marginTop: 12 }}>
+              <div className="grid grid-2">
                 <div className="field">
                   <label className="field-label" htmlFor="xn">Variable de entrada</label>
                   <div className="field-control">
-                    <input id="xn" style={{ fontFamily: 'var(--font-sans)' }} placeholder="p. ej. Peso (kg)" value={form.values.xn} onChange={(e) => form.set('xn', e.target.value)} />
+                    <input id="xn" placeholder="p. ej. Peso (kg)" value={form.values.xn} onChange={(e) => form.set('xn', e.target.value)} />
                   </div>
                 </div>
                 <div className="field">
                   <label className="field-label" htmlFor="yn">Variable de resultado</label>
                   <div className="field-control">
-                    <input id="yn" style={{ fontFamily: 'var(--font-sans)' }} placeholder="p. ej. Distancia (m)" value={form.values.yn} onChange={(e) => form.set('yn', e.target.value)} />
+                    <input id="yn" placeholder="p. ej. Distancia (m)" value={form.values.yn} onChange={(e) => form.set('yn', e.target.value)} />
                   </div>
                 </div>
               </div>
@@ -181,7 +181,7 @@ export default function LinearInterpolation() {
               </span>
             </div>
             {r && (
-              <ol className="steps" style={{ marginTop: 18 }}>
+              <ol className="steps">
                 <li>
                   <span className="mono">
                     X = {fmt(a1)} + ({fmt(b1)} − {fmt(a1)})({fmt(c)} − {fmt(a)}) / ({fmt(b)} − {fmt(a)})
@@ -198,7 +198,7 @@ export default function LinearInterpolation() {
                   </span>
                 </li>
                 <li>
-                  <span className="mono" style={{ color: 'var(--result)', fontWeight: 700 }}>
+                  <span className="mono step-result">
                     X = {fmt(r.x)}
                   </span>
                 </li>

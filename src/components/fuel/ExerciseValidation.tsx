@@ -50,20 +50,20 @@ export function ExerciseValidation({ exercise, checks, decimals }: { exercise: F
       flush
       title={s.mismatch === 0 ? `${s.total}/${s.total} pasos coinciden` : `${s.mismatch} de ${s.total} pasos no coinciden`}
       action={
-        <span className="row" style={{ gap: 6 }}>
+        <span className="row">
           <span className="status status-match">{s.match} exactos</span>
           {s.rounding > 0 && <span className="status status-rounding">{s.rounding} por redondeo</span>}
           {s.mismatch > 0 && <span className="status status-mismatch">{s.mismatch} distintos</span>}
         </span>
       }
     >
-      <div style={{ padding: '8px 22px 12px', fontSize: 14 }} className="muted">
+      <div className="card-inset muted">
         <p>
           «Coincide»: el valor de la app redondeado a los decimales de la resolución es idéntico. «Redondeo»: difiere en
           menos de 0,05 por redondeos intermedios.
         </p>
         {exercise.remarks.length > 0 && (
-          <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+          <ul>
             {exercise.remarks.map((r) => (
               <li key={r}>{r}</li>
             ))}
@@ -83,7 +83,7 @@ export function ExerciseValidation({ exercise, checks, decimals }: { exercise: F
           <tbody>
             {checks.map(({ step, cmp }) => (
               <tr key={step.label} className={step.answer ? 'is-answer' : undefined}>
-                <td style={{ fontFamily: 'var(--font-sans)' }}>
+                <td>
                   {step.answer && `${step.answer}) `}
                   {step.label}
                 </td>

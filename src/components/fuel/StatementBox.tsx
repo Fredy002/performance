@@ -151,8 +151,7 @@ export function StatementBox({ text, onTextChange, report, examples, editedByHan
       }
     >
       <div
-        className="stack"
-        style={{ gap: 12 }}
+        className="stack gap-12"
         onDragOver={(e) => {
           e.preventDefault();
           setDragging(true);
@@ -196,8 +195,8 @@ export function StatementBox({ text, onTextChange, report, examples, editedByHan
         <input ref={fileRef} type="file" accept="image/*" hidden onChange={onFile} aria-label="Subir imagen del enunciado" />
 
         {progress && (
-          <div className="stack" style={{ gap: 6 }} role="status">
-            <span style={{ fontSize: 14 }}>{progress.status}</span>
+          <div className="stack gap-8" role="status">
+            <span className="progress-status">{progress.status}</span>
             <div className="progress">
               <div className="progress-bar" style={{ width: `${Math.round(progress.progress * 100)}%` }} />
             </div>

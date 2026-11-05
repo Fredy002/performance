@@ -7,33 +7,33 @@ export function TableHelp({ help }: { help: Help }) {
   return (
     <div className="grid grid-2">
       <div className="stack">
-        <Card title={<span className="row" style={{ gap: 8 }}><BookOpen size={17} /> ¿Para qué sirve?</span>}>
+        <Card title={<span className="row"><BookOpen size={17} /> ¿Para qué sirve?</span>}>
           <div className="help-block">
             <p>{help.purpose}</p>
           </div>
         </Card>
-        <Card title={<span className="row" style={{ gap: 8 }}><ListOrdered size={17} /> Cómo se usa</span>}>
+        <Card title={<span className="row"><ListOrdered size={17} /> Cómo se usa</span>}>
           <ol className="steps">
             {help.steps.map((s) => (
               <li key={s}>
-                <span style={{ fontSize: 14 }}>{s}</span>
+                <span className="step-text">{s}</span>
               </li>
             ))}
           </ol>
         </Card>
       </div>
       <div className="stack">
-        <Card title={<span className="row" style={{ gap: 8 }}><Tags size={17} /> Glosario</span>}>
+        <Card title={<span className="row"><Tags size={17} /> Glosario</span>}>
           <dl className="glossary">
             {help.glossary.map((g) => (
-              <div key={g.term} style={{ display: 'contents' }}>
+              <div key={g.term} className="glossary-item">
                 <dt>{g.term}</dt>
                 <dd>{g.meaning}</dd>
               </div>
             ))}
           </dl>
         </Card>
-        <Card title={<span className="row" style={{ gap: 8 }}><Lightbulb size={17} /> Consejos</span>}>
+        <Card title={<span className="row"><Lightbulb size={17} /> Consejos</span>}>
           <div className="help-block">
             <ul>
               {help.tips.map((t) => (

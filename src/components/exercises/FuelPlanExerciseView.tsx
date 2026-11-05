@@ -41,7 +41,7 @@ export function FuelPlanExerciseView({ exercise }: { exercise: FuelPlanExercise 
           )
         }
       />
-      <div style={{ marginBottom: 16 }}>
+      <div className="page-badges">
         <span className="chip chip-warning">Pendiente de verificación</span>
       </div>
 
@@ -56,8 +56,8 @@ export function FuelPlanExerciseView({ exercise }: { exercise: FuelPlanExercise 
             return (
               isOriginal &&
               c && (
-                <div className="row" style={{ marginTop: 6, gap: 6 }}>
-                  <span className="muted" style={{ fontSize: 12 }}>
+                <div className="row answer-footer">
+                  <span className="answer-footer-text">
                     Resolución: {c.step.written}
                   </span>
                   <StatusChip status={c.cmp.status} diff={c.cmp.diff} />
@@ -68,11 +68,12 @@ export function FuelPlanExerciseView({ exercise }: { exercise: FuelPlanExercise 
         />
       </div>
 
-      <div style={{ marginTop: 20 }} />
-      <FuelPlanForm values={form.values} set={form.set} holdingHint={scope.holdingRule} />
+      <div className="calc-section">
+        <FuelPlanForm values={form.values} set={form.set} holdingHint={scope.holdingRule} />
+      </div>
 
       {plan.error && (
-        <div style={{ marginTop: 16 }}>
+        <div className="calc-section-sm">
           <Alert kind="error">{plan.error}</Alert>
         </div>
       )}
@@ -83,7 +84,7 @@ export function FuelPlanExerciseView({ exercise }: { exercise: FuelPlanExercise 
       {!isOriginal ? (
         <Alert kind="info">
           Has cambiado los datos del enunciado: la validación solo se aplica a los datos originales.{' '}
-          <button className="btn btn-sm" onClick={form.reset} style={{ marginLeft: 6 }}>
+          <button className="btn btn-sm alert-action" onClick={form.reset}>
             Restaurar enunciado
           </button>
         </Alert>
@@ -91,7 +92,7 @@ export function FuelPlanExerciseView({ exercise }: { exercise: FuelPlanExercise 
         r && <ExerciseValidation exercise={exercise} checks={checks} decimals={decimals} />
       )}
 
-      <p className="muted row" style={{ marginTop: 20, fontSize: 13, gap: 6 }}>
+      <p className="calc-footnote row">
         <Table size={14} /> Los valores salen de las tablas digitalizadas y del mismo núcleo de interpolación que usan las
         calculadoras.
       </p>

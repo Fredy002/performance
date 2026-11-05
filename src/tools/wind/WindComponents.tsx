@@ -25,14 +25,14 @@ function WindDiagram({ heading, w, dir }: { heading: number; w: WC; dir: number 
   const [ix, iy] = toXY(dir, 40);
   const markerId = useId().replace(/:/g, '');
   return (
-    <svg className="chart" viewBox={`0 0 ${size} ${size}`} style={{ maxWidth: 300, margin: '0 auto' }} role="img"
+    <svg className="chart chart-compass" viewBox={`0 0 ${size} ${size}`} role="img"
       aria-label={`Pista ${formatNumber(heading, 0)}°, viento desde ${formatNumber(dir, 0)}°`}>
       <defs>
         <marker id={markerId} viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M0 0 L10 5 L0 10 z" fill="var(--result)" />
         </marker>
       </defs>
-      <circle cx={c} cy={c} r={R} fill="none" stroke="var(--chart-grid)" strokeWidth={2} />
+      <circle cx={c} cy={c} r={R} fill="none" stroke="var(--chart-grid)" strokeWidth={1.5} />
       {Array.from({ length: 36 }, (_, i) => {
         const [x1, y1] = toXY(i * 10, R);
         const [x2, y2] = toXY(i * 10, i % 9 === 0 ? R - 12 : R - 6);
@@ -40,11 +40,11 @@ function WindDiagram({ heading, w, dir }: { heading: number; w: WC; dir: number 
       })}
       {['N', 'E', 'S', 'W'].map((l, i) => {
         const [x, y] = toXY(i * 90, R - 22);
-        return <text key={l} x={x} y={y + 4} textAnchor="middle" style={{ fontWeight: 700 }}>{l}</text>;
+        return <text key={l} x={x} y={y + 4} textAnchor="middle" className="chart-compass-label">{l}</text>;
       })}
       <g transform={`rotate(${heading} ${c} ${c})`}>
-        <rect x={c - 11} y={c - 70} width={22} height={140} rx={3} fill="var(--brand-700)" />
-        <line x1={c} y1={c - 60} x2={c} y2={c + 60} stroke="#fff" strokeDasharray="8 7" strokeWidth={2} />
+        <rect x={c - 11} y={c - 70} width={22} height={140} rx={3} fill="var(--text)" />
+        <line x1={c} y1={c - 60} x2={c} y2={c + 60} stroke="var(--bg-elevated)" strokeDasharray="8 7" strokeWidth={2} />
       </g>
       <line x1={wx} y1={wy} x2={ix} y2={iy} stroke="var(--result)" strokeWidth={3} markerEnd={`url(#${markerId})`} />
       <text x={c} y={size - 4} textAnchor="middle">
@@ -118,7 +118,7 @@ export default function WindComponents() {
         </div>
         <Card title="Diagrama">
           {w ? <WindDiagram heading={heading} w={w} dir={dir} /> : <div className="empty"><Wind size={32} />Sin datos</div>}
-          <p className="field-hint" style={{ marginTop: 12 }}>
+          <p className="calc-caption">
             HW = V·cos(α) · XW = V·sen(α), siendo α el ángulo entre el viento y la pista.
           </p>
         </Card>

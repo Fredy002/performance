@@ -43,15 +43,15 @@ export function HoldingView({ table }: { table: HoldingTable }) {
         }
         flush
       >
-        <div className="row" style={{ padding: '12px 22px', justifyContent: 'space-between' }}>
-          <span className="muted" style={{ fontSize: 13 }}>
+        <div className="row card-inset table-toolbar">
+          <span className="muted">
             Columnas: peso bruto (×1000 lb) · Filas: nivel de vuelo
           </span>
           {param === 'all' && (
             <span className="legend">
-              <span style={{ color: 'var(--accent)' }}><i /> EPR</span>
-              <span style={{ color: 'var(--text)' }}><i /> IAS kt</span>
-              <span style={{ color: 'var(--result)' }}><i /> FF por motor lb/h</span>
+              <span className="legend-epr"><i /> EPR</span>
+              <span className="legend-ias"><i /> IAS kt</span>
+              <span className="legend-ff"><i /> FF por motor lb/h</span>
             </span>
           )}
         </div>
@@ -86,7 +86,7 @@ export function HoldingView({ table }: { table: HoldingTable }) {
             <span>Consumo total = FF por motor × {table.engines}</span>
             <span>Combustible = Consumo total × minutos ÷ 60</span>
           </div>
-          <p className="muted" style={{ marginTop: 10, fontSize: 14 }}>
+          <p className="calc-note">
             Ejemplo: FL 200, 100 000 lb → 2 390 lb/h por motor → 4 780 lb/h. En 30 min de espera: 2 390 lb.
           </p>
         </Card>

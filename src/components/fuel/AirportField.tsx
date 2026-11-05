@@ -43,7 +43,7 @@ export function AirportField({ label, value, onChange }: Props) {
         {label}
       </label>
       <div className={`field-control${invalid ? ' invalid' : ''}`}>
-        <span className="field-tag" style={{ fontSize: 12 }}>
+        <span className="field-tag tag-sm">
           OACI
         </span>
         <input
@@ -54,7 +54,7 @@ export function AirportField({ label, value, onChange }: Props) {
           autoComplete="off"
           spellCheck={false}
           placeholder="SP__"
-          style={{ textTransform: 'uppercase', letterSpacing: '0.08em' }}
+          className="input-code"
           onChange={(e) => onChange(e.target.value.toUpperCase().replace(/\s/g, ''))}
           onFocus={(e) => e.target.select()}
         />

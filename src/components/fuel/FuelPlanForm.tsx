@@ -21,7 +21,7 @@ function WindSelect({ value, onChange, label }: { value: string; onChange: (v: s
   return (
     <div className="field">
       <label className="field-label">{label}</label>
-      <select className="select" style={{ height: 46 }} value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}>
+      <select className="select" value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}>
         <option value="HW">Cara (HW) · suma</option>
         <option value="TW">Cola (TW) · resta</option>
       </select>
@@ -53,7 +53,7 @@ export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly
       <AirportsDatalist />
       <div className="stack">
         <div>
-          <p className="field-label" style={{ marginBottom: 8 }}>
+          <p className="field-label field-group-label">
             Ruta
           </p>
           <div className="inline-fields airport-fields">
@@ -62,7 +62,7 @@ export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly
             <AirportField label="Alterno" value={v.alt} onChange={(x) => set('alt', x)} />
           </div>
           {warnings.length > 0 && (
-            <div className="alert alert-warning" role="note" style={{ marginTop: 12 }}>
+            <div className="alert alert-warning calc-section-sm" role="note">
               <div>
                 {warnings.map((w) => (
                   <p key={w}>{w}</p>
@@ -72,7 +72,7 @@ export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly
           )}
         </div>
         <div>
-          <p className="field-label" style={{ marginBottom: 8 }}>
+          <p className="field-label field-group-label">
             Origen – destino{leg(v.dep, v.dst)}
           </p>
           <div className="inline-fields">
@@ -83,7 +83,7 @@ export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly
           </div>
         </div>
         <div>
-          <p className="field-label" style={{ marginBottom: 8 }}>
+          <p className="field-label field-group-label">
             Destino – alterno{leg(v.dst, v.alt)}
           </p>
           <div className="inline-fields">
@@ -94,7 +94,7 @@ export function FuelPlanForm({ values: v, set, action, holdingHint, domesticOnly
           </div>
         </div>
         <div>
-          <p className="field-label" style={{ marginBottom: 8 }}>
+          <p className="field-label field-group-label">
             Espera y rodaje
           </p>
           <div className="inline-fields">

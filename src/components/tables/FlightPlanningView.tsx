@@ -13,7 +13,7 @@ export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
   return (
     <div className="grid grid-calc">
       <Card title="Datos de la tabla" flush>
-        <div className="row" style={{ padding: '10px 22px 14px', gap: 6 }}>
+        <div className="row card-inset">
           {table.profile.map((p) => (
             <span key={p} className="chip">
               {p}
@@ -67,10 +67,10 @@ export function FlightPlanningView({ table }: { table: FlightPlanningTable }) {
               <span key={f}>{f}</span>
             ))}
           </div>
-          <p className="field-hint" style={{ marginTop: 10, fontWeight: 600 }}>
+          <p className="calc-rule">
             {table.windCorrection.rule}
           </p>
-          <p className="muted" style={{ marginTop: 6, fontSize: 14 }}>
+          <p className="calc-note">
             Viento de cara (HW): se suma. Viento de cola (TW): se resta.
           </p>
         </Card>

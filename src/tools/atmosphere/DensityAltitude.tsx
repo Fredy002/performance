@@ -43,7 +43,7 @@ export default function DensityAltitude() {
       <div className="grid grid-calc">
         <div className="stack">
           <Card title="Condiciones">
-            <div className="stack" style={{ gap: 16 }}>
+            <div className="stack gap-16">
               <NumberField label="Elevación del aeródromo" value={form.values.elev} onChange={(v) => form.set('elev', v)} unit="ft" />
               <NumberField label="QNH" value={form.values.qnh} onChange={(v) => form.set('qnh', v)} unit="hPa" hint="Estándar: 1013,25 hPa (29,92 inHg)" />
               <NumberField label="Temperatura exterior (OAT)" value={form.values.oat} onChange={(v) => form.set('oat', v)} unit="°C" />

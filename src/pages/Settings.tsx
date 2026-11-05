@@ -34,14 +34,14 @@ export default function SettingsPage() {
               value={decimals}
               onChange={(e) => updateSettings({ decimals: Number(e.target.value) })}
               aria-label="Número de decimales"
-              style={{ flex: 1, accentColor: 'var(--accent)' }}
+              className="settings-range"
             />
             <span className="chip chip-accent">{decimals} decimales</span>
           </div>
-          <p className="field-hint" style={{ marginTop: 10 }}>
+          <p className="field-hint settings-hint">
             Vista previa: <span className="mono">{formatNumber(92.0812345, decimals)}</span>
           </p>
-          <p className="field-hint" style={{ marginTop: 6 }}>
+          <p className="field-hint settings-hint">
             Se aplica a los resultados de las calculadoras, la planificación de combustible, las pruebas y los ejemplos
             resueltos. Los datos de las tablas se muestran tal cual la fuente y las altitudes en pies enteros.
           </p>

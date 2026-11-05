@@ -41,7 +41,7 @@ export function FuelPlanAnswers({ result: r, error, decimals, footer, badge, pla
               </div>
             ))}
           </div>
-          <p className="muted" style={{ marginTop: 12, fontSize: 13 }}>
+          <p className="calc-note">
             Autonomía: {Math.floor(r.enduranceMin / 60)} h {formatPlain(r.enduranceMin % 60, 0)} min.
           </p>
         </>

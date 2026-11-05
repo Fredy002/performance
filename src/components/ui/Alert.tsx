@@ -7,7 +7,7 @@ export function Alert({ kind = 'info', children }: { kind?: keyof typeof ICONS; 
   const Icon = ICONS[kind];
   return (
     <div className={`alert alert-${kind}`} role={kind === 'error' ? 'alert' : 'status'}>
-      <Icon size={18} />
+      <Icon size={18} aria-hidden="true" />
       <div>{children}</div>
     </div>
   );

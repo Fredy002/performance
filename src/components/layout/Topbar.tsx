@@ -30,26 +30,26 @@ export function Topbar({ onSearch }: { onSearch: () => void }) {
       <nav className="breadcrumbs" aria-label="Ruta">
         {tool ? (
           <>
-            <Link to="/" className="desktop-only" style={{ color: 'inherit' }}>
+            <Link to="/" className="breadcrumb-link desktop-only">
               {CATEGORIES[tool.category]}
             </Link>
-            <ChevronRight size={14} className="desktop-only" />
+            <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
             <strong>{tool.name}</strong>
           </>
         ) : exercise ? (
           <>
-            <Link to="/pruebas" className="desktop-only" style={{ color: 'inherit' }}>
+            <Link to="/pruebas" className="breadcrumb-link desktop-only">
               Pruebas
             </Link>
-            <ChevronRight size={14} className="desktop-only" />
+            <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
             <strong>{exercise.title}</strong>
           </>
         ) : table ? (
           <>
-            <Link to="/tables" className="desktop-only" style={{ color: 'inherit' }}>
+            <Link to="/tables" className="breadcrumb-link desktop-only">
               Tablas
             </Link>
-            <ChevronRight size={14} className="desktop-only" />
+            <ChevronRight size={14} className="desktop-only" aria-hidden="true" />
             <strong>{table.title}</strong>
           </>
         ) : (
@@ -68,7 +68,7 @@ export function Topbar({ onSearch }: { onSearch: () => void }) {
         aria-label={`${THEME_LABEL[theme]} (cambiar)`}
         title={THEME_LABEL[theme]}
       >
-        <ThemeIcon size={19} />
+        <ThemeIcon size={18} />
       </button>
     </header>
   );

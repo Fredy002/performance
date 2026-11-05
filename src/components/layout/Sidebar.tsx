@@ -21,7 +21,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
     <aside className="sidebar" aria-label="Menú principal">
       <div className="sidebar-brand">
         <span className="brand-logo">
-          <Plane size={20} />
+          <Plane size={18} aria-hidden="true" />
         </span>
         <span className="brand-name">
           AeroPerf
@@ -32,11 +32,11 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
       <nav className="sidebar-nav" ref={navRef}>
         <div className="nav-section">
           <NavLink to="/" end className={link} onClick={onNavigate} title="Inicio">
-            <House size={19} />
+            <House size={18} />
             <span className="nav-label">Inicio</span>
           </NavLink>
           <NavLink to="/history" className={link} onClick={onNavigate} title="Historial">
-            <History size={19} />
+            <History size={18} />
             <span className="nav-label">Historial</span>
             {history.length > 0 && <span className="nav-badge">{history.length}</span>}
           </NavLink>
@@ -46,7 +46,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
           <div className="nav-section-title">Calcular</div>
           {readyTools().map((t) => (
             <NavLink key={t.id} to={toolPath(t.id)} className={link} onClick={onNavigate} title={t.name}>
-              <t.icon size={19} />
+              <t.icon size={18} />
               <span className="nav-label">{t.shortName ?? t.name}</span>
             </NavLink>
           ))}
@@ -55,7 +55,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
         <div className="nav-section">
           <div className="nav-section-title">Consultar</div>
           <NavLink to="/tables" className={link} onClick={onNavigate} title="Tablas de performance de aeronaves">
-            <Table size={19} />
+            <Table size={18} />
             <span className="nav-label">Tablas de aeronaves</span>
           </NavLink>
         </div>
@@ -63,7 +63,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
         <div className="nav-section">
           <div className="nav-section-title">Pruebas</div>
           <NavLink to="/pruebas" className={link} onClick={onNavigate} title="Pruebas">
-            <ClipboardCheck size={19} />
+            <ClipboardCheck size={18} />
             <span className="nav-label">Pruebas</span>
           </NavLink>
         </div>
@@ -72,7 +72,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
           <div className="nav-section-title">Próximamente</div>
           {upcomingTools().map((t) => (
             <span key={t.id} className="nav-link disabled" title={`${t.name}: ${t.description} (en desarrollo)`} aria-disabled="true">
-              <t.icon size={19} />
+              <t.icon size={18} />
               <span className="nav-label">{t.shortName ?? t.name}</span>
               <span className="nav-badge">Pronto</span>
             </span>
@@ -82,7 +82,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
 
       <div className="sidebar-footer">
         <NavLink to="/settings" className={link} onClick={onNavigate} title="Ajustes">
-          <Settings size={19} />
+          <Settings size={18} />
           <span className="nav-label">Ajustes</span>
         </NavLink>
         <button
@@ -91,7 +91,7 @@ export function Sidebar({ onNavigate }: { onNavigate: () => void }) {
           aria-label={sidebarCollapsed ? 'Expandir menú' : 'Contraer menú'}
           title={sidebarCollapsed ? 'Expandir menú' : 'Contraer menú'}
         >
-          {sidebarCollapsed ? <PanelLeftOpen size={19} /> : <PanelLeftClose size={19} />}
+          {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
           <span className="nav-label">Contraer</span>
         </button>
       </div>

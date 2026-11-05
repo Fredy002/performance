@@ -1,0 +1,42 @@
+[
+  {
+    "width": 1280,
+    "theme": "light",
+    "unitCategories": 7,
+    "paletteKeyboard": true,
+    "tableScroll": true,
+    "themeToggle": true,
+    "historyFilters": true,
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "unitCategories": 7,
+    "paletteKeyboard": true,
+    "tableScroll": true,
+    "themeToggle": true,
+    "historyFilters": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "unitCategories": 7,
+    "paletteKeyboard": true,
+    "tableScroll": true,
+    "themeToggle": true,
+    "historyFilters": true,
+    "errors": []
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "unitCategories": 7,
+    "paletteKeyboard": true,
+    "tableScroll": true,
+    "themeToggle": true,
+    "historyFilters": true,
+    "errors": []
+  }
+]

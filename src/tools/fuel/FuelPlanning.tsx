@@ -133,7 +133,7 @@ export default function FuelPlanning() {
 
       <div className="grid grid-calc">
         <StatementBox text={text} onTextChange={onText} report={report} examples={EXAMPLES} editedByHand={source === 'form' && !!text.trim()} />
-        <div id="fuel-answers" className="stack" style={{ scrollMarginTop: 80 }}>
+        <div id="fuel-answers" className="stack scroll-anchor">
           <FuelPlanAnswers
             result={r}
             error={plan.error}
@@ -152,7 +152,7 @@ export default function FuelPlanning() {
         </div>
       </div>
 
-      <div style={{ marginTop: 20 }}>
+      <div className="calc-section">
         <Disclosure
           ref={dataRef}
           title="Datos"
@@ -173,7 +173,7 @@ export default function FuelPlanning() {
           {r ? (
             <FuelPlanSteps result={r} input={plan.input} airports={route} decimals={decimals} heading={false} />
           ) : (
-            <p className="muted">Aparece cuando hay respuestas.</p>
+            <p className="calc-text">Aparece cuando hay respuestas.</p>
           )}
         </Disclosure>
 

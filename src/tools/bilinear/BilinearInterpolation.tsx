@@ -48,7 +48,7 @@ export default function BilinearInterpolation() {
   const output = (label: string, v: number | undefined, strong = false) => (
     <div className="field-control" aria-label={label}>
       <span className="field-tag result">{label}</span>
-      <output className="result-output" style={strong ? undefined : { fontSize: 15, fontWeight: 600 }}>
+      <output className={`result-output${strong ? '' : ' is-secondary'}`}>
         {v === undefined ? '—' : fmt(v)}
       </output>
     </div>
@@ -113,7 +113,7 @@ export default function BilinearInterpolation() {
               </tbody>
             </table>
           </div>
-          <p className="field-hint" style={{ marginTop: 12 }}>
+          <p className="calc-caption">
             Ejemplo: distancia de despegue (m) con temperatura 10–20 °C en columnas y altitud de presión 2000–4000 ft en filas.
           </p>
         </Card>

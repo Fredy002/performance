@@ -1,0 +1,62 @@
+[
+  {
+    "theme": "light",
+    "fg": "--text-muted",
+    "bg": "--bg",
+    "ratio": 7.03
+  },
+  {
+    "theme": "light",
+    "fg": "--text-faint",
+    "bg": "--bg-elevated",
+    "ratio": 5.43
+  },
+  {
+    "theme": "light",
+    "fg": "--text-faint",
+    "bg": "--bg-subtle",
+    "ratio": 4.94
+  },
+  {
+    "theme": "light",
+    "fg": "--accent-text",
+    "bg": "--accent",
+    "ratio": 5.91
+  },
+  {
+    "theme": "light",
+    "fg": "--accent-text",
+    "bg": "--accent-hover",
+    "ratio": 4.69
+  },
+  {
+    "theme": "dark",
+    "fg": "--text-muted",
+    "bg": "--bg",
+    "ratio": 7.59
+  },
+  {
+    "theme": "dark",
+    "fg": "--text-faint",
+    "bg": "--bg-elevated",
+    "ratio": 5.6
+  },
+  {
+    "theme": "dark",
+    "fg": "--text-faint",
+    "bg": "--bg-subtle",
+    "ratio": 4.71
+  },
+  {
+    "theme": "dark",
+    "fg": "--accent-text",
+    "bg": "--accent",
+    "ratio": 5.91
+  },
+  {
+    "theme": "dark",
+    "fg": "--accent-text",
+    "bg": "--accent-hover",
+    "ratio": 7.57
+  }
+]

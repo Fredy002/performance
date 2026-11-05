@@ -14,12 +14,12 @@ export function BottomNav({ onMenu }: { onMenu: () => void }) {
     <nav className="bottom-nav mobile-only" aria-label="Accesos rápidos">
       {ITEMS.map((it) => (
         <NavLink key={it.to} to={it.to} end={it.end} className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}>
-          <it.icon size={21} />
+          <it.icon size={20} />
           <span>{it.label}</span>
         </NavLink>
       ))}
       <button className="bottom-nav-item" onClick={onMenu} aria-label="Abrir menú">
-        <Menu size={21} />
+        <Menu size={20} />
         <span>Más</span>
       </button>
     </nav>

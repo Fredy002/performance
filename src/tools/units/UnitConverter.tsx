@@ -39,7 +39,7 @@ export default function UnitConverter() {
         subtitle="Conversiones habituales en operaciones aéreas. El resultado se actualiza al escribir."
       />
 
-      <div className="segmented" role="group" aria-label="Magnitud" style={{ marginBottom: 20, flexWrap: 'wrap' }}>
+      <div className="segmented quantity-picker" role="group" aria-label="Magnitud">
         {QUANTITIES.map((q) => (
           <button key={q.id} aria-pressed={q.id === quantity.id} onClick={() => selectQuantity(q.id)}>
             {q.label}
@@ -49,7 +49,7 @@ export default function UnitConverter() {
 
       <div className="grid grid-calc">
         <Card title="Valor de origen">
-          <div className="stack" style={{ gap: 16 }}>
+          <div className="stack gap-16">
             <NumberField label="Cantidad" value={form.values.v} onChange={(v) => form.set('v', v)} unit={from.symbol} autoFocus />
             <div className="field">
               <label className="field-label" htmlFor="unit-from">Unidad</label>
@@ -65,7 +65,7 @@ export default function UnitConverter() {
         </Card>
 
         <Card title="Equivalencias" flush>
-          <div className="list" style={{ marginTop: 12 }}>
+          <div className="list after-header">
             {quantity.units
               .filter((u) => u.id !== from.id)
               .map((u) => {
@@ -75,7 +75,7 @@ export default function UnitConverter() {
                   <div className="list-item" key={u.id}>
                     <div className="list-item-main">
                       <div className="list-item-sub">{u.label}</div>
-                      <div className="mono" style={{ fontSize: 22, fontWeight: 700 }}>{text}</div>
+                      <div className="equiv-value">{text}</div>
                     </div>
                     <button className="btn btn-ghost btn-icon" aria-label={`Copiar ${u.label}`} onClick={() => copy(text)} disabled={!Number.isFinite(out)}>
                       <Copy size={16} />

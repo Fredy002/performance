@@ -20,19 +20,17 @@ export default function TablesLibrary() {
       <div className="grid grid-3">
         {PERFORMANCE_TABLES.map((t) => (
           <Link key={t.id} to={`/tables/${t.id}`} className="card tool-card">
-            <span className="tool-card-icon">
-              <Table size={22} />
+            <span className="tool-card-icon tone-yellow">
+              <Table size={20} />
             </span>
-            <div>
-              <div className="chip chip-accent" style={{ marginBottom: 8 }}>
-                {t.category}
-              </div>
+            <div className="tool-card-body">
+              <div className="chip chip-accent">{t.category}</div>
               <h3>{t.title}</h3>
-              <p style={{ marginTop: 4 }}>{t.summary}</p>
+              <p>{t.summary}</p>
             </div>
             <div className="tool-card-footer">
               <span className="chip">{t.aircraft ?? KIND_LABEL[t.kind]}</span>
-              <span className="row" style={{ gap: 4 }}>
+              <span className="tool-card-cta">
                 Ver tabla <ArrowRight size={14} />
               </span>
             </div>

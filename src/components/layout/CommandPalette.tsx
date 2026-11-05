@@ -78,6 +78,12 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
   useEffect(() => setActive(0), [query]);
 
+  useEffect(() => {
+    if (open && results[active]) {
+      document.getElementById(`pal-${results[active].id}`)?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [active, open, results]);
+
   if (!open) return null;
 
   const go = (item?: Item) => {
@@ -128,13 +134,13 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
               role="option"
               aria-selected={i === active}
               className="palette-item"
-              onMouseEnter={() => setActive(i)}
+              onMouseMove={() => setActive(i)}
               onClick={() => go(item)}
             >
-              <span className="list-item-icon">
+              <span className="palette-item-icon">
                 <item.icon size={18} />
               </span>
-              <span style={{ flex: 1 }}>
+              <span className="palette-item-text">
                 {item.label}
                 <small>{item.hint}</small>
               </span>

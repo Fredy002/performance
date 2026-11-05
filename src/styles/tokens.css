@@ -1,0 +1,243 @@
+/* ==========================================================================
+   AeroPerf — tokens de diseño
+   Lienzo gris cálido, superficies blancas, tinta casi negra y un único teal
+   para la acción principal. Tema oscuro con data-theme="dark" o preferencia
+   del sistema.
+   ========================================================================== */
+
+:root {
+  /* ---------- paleta base ---------- */
+  --color-teal: #019d91;
+  --color-teal-hover: #018a80;
+  --color-teal-strong: #017a71; /* teal para texto sobre claro (contraste AA) */
+  --color-ink: #09090b;
+  --color-charcoal: #18181b;
+  --color-slate-700: #27272a;
+  --color-zinc-600: #52525b;
+  --color-steel: #71717b;
+  --color-steel-readable: #696973;
+  --color-fog-readable: #90909a;
+  --color-fog: #9f9fa9;
+  --color-zinc-300: #d4d4d8;
+  --color-cloud: #e4e4e7;
+  --color-mist: #f2f2f3;
+  --color-warm-gray: #f4f4f5;
+  --color-paper: #ffffff;
+  --color-sunshine: #f0b100;
+  --color-mint-wash: #b7ffe7;
+  --color-mint-pop: #61f7cf;
+  --color-blush: #ff8a80;
+  --color-ember: #ff6900;
+
+  /* acentos por categoría (iconos de mosaicos, nunca CTA) */
+  --cat-yellow: var(--color-sunshine);
+  --cat-yellow-wash: #fff8e5;
+  --cat-mint: var(--color-mint-pop);
+  --cat-mint-wash: #e7fff7;
+  --cat-blush: var(--color-blush);
+  --cat-blush-wash: #fff0ee;
+  --cat-ink: var(--color-charcoal);
+  --cat-ink-fg: #ffffff;
+  --cat-fg: var(--color-ink); /* glifo sobre bloque de color claro */
+
+  /* ---------- tipografía ---------- */
+  --font-display: 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  --text-label: 10px;
+  --text-caption: 12px;
+  --text-body-sm: 14px;
+  --text-body: 16px;
+  --text-body-lg: 20px;
+  --text-subheading: 24px;
+  --text-heading-sm: 32px;
+  --text-heading: 48px;
+  --text-heading-lg: 64px;
+
+  --leading-caption: 1.33;
+  --leading-body-sm: 1.43;
+  --leading-body: 1.5;
+  --leading-body-lg: 1.4;
+  --leading-subheading: 1.12;
+  --leading-heading-sm: 1.2;
+  --leading-heading: 1.15;
+
+  --tracking-ui: -0.01em; /* Inter y DM Sans ≤ 24px */
+  --tracking-heading-sm: -0.03em; /* 32px */
+  --tracking-heading: -0.04em; /* 48–64px */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+
+  /* ---------- espaciado (base 8px) ---------- */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+
+  --page-max-width: 1200px;
+  --card-padding: 24px;
+
+  /* ---------- radios: 8 · 16 · 24 · 48 ---------- */
+  --radius-xs: 8px;
+  --radius-button: 8px;
+  --radius-input: 8px;
+  --radius-card: 16px;
+  --radius-feature: 24px;
+  --radius-hero: 48px;
+  --radius-pill: 48px;
+  /* alias heredados */
+  --radius-sm: 8px;
+  --radius: 16px;
+  --radius-lg: 24px;
+
+  /* ---------- elevación: solo botones, inputs y capas flotantes ---------- */
+  --shadow-subtle: rgb(0 0 0 / 5%) 0 1px 2px 0;
+  --shadow-subtle-2: rgb(0 0 0 / 10%) 0 1px 3px 0, rgb(0 0 0 / 10%) 0 1px 2px -1px;
+  --shadow-overlay: 0 16px 48px -12px rgb(9 9 11 / 22%), 0 1px 3px rgb(9 9 11 / 8%);
+  --overlay-backdrop: rgb(9 9 11 / 40%);
+  --shadow-sm: var(--shadow-subtle);
+  --shadow: var(--shadow-subtle-2);
+  --shadow-lg: var(--shadow-overlay);
+
+  /* ---------- movimiento ---------- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-instant: 100ms;
+  --dur-fast: 150ms;
+  --dur-layout: 300ms;
+
+  /* ---------- roles semánticos (tema claro) ---------- */
+  --bg: var(--color-warm-gray);
+  --bg-elevated: var(--color-paper);
+  --bg-subtle: var(--color-warm-gray);
+  --bg-hover: var(--color-mist);
+  --bg-inverse: var(--color-ink);
+  --bg-inverse-raised: var(--color-charcoal);
+  --bg-sidebar: var(--color-paper);
+  --border: var(--color-cloud);
+  --border-subtle: var(--color-mist);
+  --border-strong: var(--color-zinc-300);
+  --text: var(--color-ink);
+  --text-muted: var(--color-zinc-600);
+  --text-faint: var(--color-steel-readable);
+  --text-inverse: #ffffff;
+  --text-inverse-muted: var(--color-fog);
+  --text-on-sidebar: var(--color-zinc-600);
+
+  --accent: var(--color-teal); /* relleno de acción */
+  --accent-hover: var(--color-teal-hover);
+  --accent-strong: var(--color-teal-strong); /* texto/icono teal sobre claro */
+  --accent-soft: #e6f5f4;
+  --accent-text: var(--color-ink);
+  --focus-ring: rgb(1 157 145 / 28%);
+
+  /* el resultado X de la referencia del manual se mantiene en rojo */
+  --result: #d92d20;
+  --result-soft: #fef3f2;
+  /* ember queda reservado para avisos / atención */
+  --warning: #c2410c;
+  --warning-soft: #fff4ec;
+  --warning-accent: var(--color-ember);
+  --success: #067647;
+  --success-soft: #ecfdf3;
+
+  --chart-line: var(--color-teal);
+  --chart-grid: var(--color-cloud);
+  --chart-point: var(--color-ink);
+
+  /* ---------- layout ---------- */
+  --sidebar-w: 264px;
+  --sidebar-w-collapsed: 76px;
+  --topbar-h: 64px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: var(--color-ink);
+    --bg-elevated: var(--color-charcoal);
+    --bg-subtle: var(--color-slate-700);
+    --bg-hover: #222226;
+    --bg-inverse: #fafafa;
+    --bg-inverse-raised: #ffffff;
+    --bg-sidebar: var(--color-ink);
+    --border: var(--color-slate-700);
+    --border-subtle: #1f1f23;
+    --border-strong: #3f3f46;
+    --text: #fafafa;
+    --text-muted: var(--color-fog);
+    --text-faint: var(--color-fog-readable);
+    --text-inverse: var(--color-ink);
+    --text-inverse-muted: var(--color-zinc-600);
+    --text-on-sidebar: var(--color-fog);
+    --accent-hover: #01b3a5;
+    --accent-strong: #3cc8bb;
+    --accent-soft: rgb(1 157 145 / 16%);
+    --focus-ring: rgb(60 200 187 / 30%);
+    --result: #f97066;
+    --result-soft: rgb(249 112 102 / 12%);
+    --warning: #fd853a;
+    --warning-soft: rgb(255 105 0 / 12%);
+    --success: #47cd89;
+    --success-soft: rgb(71 205 137 / 12%);
+    --cat-yellow-wash: rgb(240 177 0 / 14%);
+    --cat-mint-wash: rgb(97 247 207 / 12%);
+    --cat-blush-wash: rgb(255 138 128 / 14%);
+    --cat-ink: #fafafa;
+    --cat-ink-fg: var(--color-ink);
+    --chart-line: #3cc8bb;
+    --chart-grid: var(--color-slate-700);
+    --chart-point: #fafafa;
+    --shadow-overlay: 0 16px 48px -12px rgb(0 0 0 / 60%), 0 0 0 1px rgb(255 255 255 / 6%);
+    --overlay-backdrop: rgb(0 0 0 / 60%);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: var(--color-ink);
+  --bg-elevated: var(--color-charcoal);
+  --bg-subtle: var(--color-slate-700);
+  --bg-hover: #222226;
+  --bg-inverse: #fafafa;
+  --bg-inverse-raised: #ffffff;
+  --bg-sidebar: var(--color-ink);
+  --border: var(--color-slate-700);
+  --border-subtle: #1f1f23;
+  --border-strong: #3f3f46;
+  --text: #fafafa;
+  --text-muted: var(--color-fog);
+  --text-faint: var(--color-fog-readable);
+  --text-inverse: var(--color-ink);
+  --text-inverse-muted: var(--color-zinc-600);
+  --text-on-sidebar: var(--color-fog);
+  --accent-hover: #01b3a5;
+  --accent-strong: #3cc8bb;
+  --accent-soft: rgb(1 157 145 / 16%);
+  --focus-ring: rgb(60 200 187 / 30%);
+  --result: #f97066;
+  --result-soft: rgb(249 112 102 / 12%);
+  --warning: #fd853a;
+  --warning-soft: rgb(255 105 0 / 12%);
+  --success: #47cd89;
+  --success-soft: rgb(71 205 137 / 12%);
+  --cat-yellow-wash: rgb(240 177 0 / 14%);
+  --cat-mint-wash: rgb(97 247 207 / 12%);
+  --cat-blush-wash: rgb(255 138 128 / 14%);
+  --cat-ink: #fafafa;
+  --cat-ink-fg: var(--color-ink);
+  --chart-line: #3cc8bb;
+  --chart-grid: var(--color-slate-700);
+  --chart-point: #fafafa;
+  --shadow-overlay: 0 16px 48px -12px rgb(0 0 0 / 60%), 0 0 0 1px rgb(255 255 255 / 6%);
+  --overlay-backdrop: rgb(0 0 0 / 60%);
+  color-scheme: dark;
+}

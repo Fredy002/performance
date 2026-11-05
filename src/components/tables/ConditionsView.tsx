@@ -4,7 +4,6 @@ import { formatPlain } from '@/core/format';
 import { useDecimals } from '@/state/settings';
 import { FIG67_ABBREVIATED_FLIGHT_PLANNING as F67, windCorrection, type ConditionsTable } from '@/data/tables';
 
-
 export function ConditionsView({ table }: { table: ConditionsTable }) {
   const decimals = useDecimals();
   // sin separador de miles para que todas las filas se lean igual; decimales de Ajustes
@@ -13,7 +12,7 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
   return (
     <div className="stack">
       <Card title="Datos de la tabla" flush>
-        <div className="data-table-wrap" style={{ marginTop: 14 }}>
+        <div className="data-table-wrap after-header">
           <table className="data-table">
             <thead>
               <tr>
@@ -33,7 +32,7 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
               <tr>
                 <td>AVG WIND COMP (KTS)</td>
                 {table.conditions.map((c) => (
-                  <td key={c.id} style={{ color: c.wind.kind === 'HW' ? 'var(--result)' : 'var(--success)' }}>
+                  <td key={c.id} className={c.wind.kind === 'HW' ? 'text-result' : 'text-success'}>
                     {c.wind.speedKt} {c.wind.kind}
                   </td>
                 ))}
@@ -44,7 +43,7 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
       </Card>
 
       <Card title="Ejemplo resuelto" flush>
-        <p className="muted" style={{ padding: '6px 22px 12px', fontSize: 14 }}>
+        <p className="card-inset muted">
           Resultado de aplicar el procedimiento a cada condición, con los valores de la{' '}
           <Link to={`/tables/${F67.id}`}>{F67.title.toLowerCase()}</Link>.
         </p>
@@ -74,10 +73,10 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
                     <td>{r.tasKt} kt</td>
                     <td>{r.airTimeMin} min</td>
                     <td>{signed(w.deltaTimeMin, min)}</td>
-                    <td style={{ fontWeight: 700 }}>{min(w.timeMin)} min</td>
+                    <td className="cell-em">{min(w.timeMin)} min</td>
                     <td>{lb(r.fuelLb)} lb</td>
                     <td>{signed(w.deltaFuelLb, lb)}</td>
-                    <td style={{ fontWeight: 700, color: 'var(--result)' }}>{lb(w.fuelLb)} lb</td>
+                    <td className="text-result">{lb(w.fuelLb)} lb</td>
                   </tr>
                 );
               })}

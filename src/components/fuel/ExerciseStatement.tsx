@@ -14,7 +14,7 @@ export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise:
           <li key={s}>{s}</li>
         ))}
       </ul>
-      <p className="muted" style={{ marginTop: 10, fontSize: 13 }}>
+      <p className="calc-note">
         Aeropuertos:{' '}
         {(['origin', 'destination', 'alternate'] as const)
           .map((role) => {
@@ -24,22 +24,22 @@ export function ExerciseStatement({ exercise, title = 'Enunciado' }: { exercise:
           })
           .join(' · ')}
       </p>
-      <p style={{ marginTop: 14, fontWeight: 600, fontSize: 14 }}>Se pide:</p>
-      <ul className="statement" style={{ fontSize: 14, marginTop: 4 }}>
+      <p className="statement-heading">Se pide:</p>
+      <ul className="statement statement-sm">
         {exercise.questions.map((q) => (
           <li key={q}>{q}</li>
         ))}
       </ul>
-      <div style={{ marginTop: 14 }}>
+      <div className="statement-block assumptions">
         <Alert kind="info">
           {exercise.assumptions.map((a) => (
-            <p key={a} style={{ marginBottom: 4 }}>
+            <p key={a}>
               {a}
             </p>
           ))}
         </Alert>
       </div>
-      <p className="muted" style={{ marginTop: 12, fontSize: 13 }}>
+      <p className="calc-note">
         Tablas usadas:{' '}
         {exercise.tables.map((id, i) => (
           <span key={id}>
