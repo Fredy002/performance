@@ -1,9 +1,9 @@
 import { ArrowRight, BadgeCheck, ClipboardCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { fuelFormQuery } from '@/components/fuel/fuelForm';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { pendingExercises, SCOPES, verifiedExercises } from '@/exercises/registry';
+import { pendingExercises, verifiedExercises } from '@/exercises/registry';
+import { exerciseScopeLabel, exerciseToolHref, exerciseToolName } from './exerciseLinks';
 
 export default function ExercisesList() {
   const pending = pendingExercises();
@@ -34,7 +34,7 @@ export default function ExercisesList() {
                 <ClipboardCheck size={20} />
               </span>
               <div className="tool-card-body">
-                <div className="chip chip-accent">{SCOPES[e.scope].label}</div>
+                <div className="chip chip-accent">{exerciseScopeLabel(e)}</div>
                 <h3>{e.title}</h3>
                 <p>{e.summary}</p>
               </div>
@@ -55,14 +55,14 @@ export default function ExercisesList() {
           <Card flush>
             <div className="list">
               {verified.map((e) => (
-                <Link key={e.id} to={`/tools/fuel?${fuelFormQuery(e.input, e.airports)}`} className="list-item">
+                <Link key={e.id} to={exerciseToolHref(e)} className="list-item">
                   <span className="list-item-icon is-success">
                     <BadgeCheck size={18} />
                   </span>
                   <div className="list-item-main">
                     <div className="list-item-title">{e.title}</div>
                     <div className="list-item-sub">
-                      {SCOPES[e.scope].label} · disponible en Planificación de combustible
+                      {exerciseScopeLabel(e)} · disponible en {exerciseToolName(e)}
                     </div>
                   </div>
                   <ArrowRight size={16} className="list-item-arrow" aria-hidden="true" />

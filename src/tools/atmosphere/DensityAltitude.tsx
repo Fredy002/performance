@@ -1,7 +1,9 @@
 import { Mountain } from 'lucide-react';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
-import { NumberField } from '@/components/ui/NumberField';
+import { InfoTip } from '@/components/ui/InfoTip';
+import { NumberField, numberError } from '@/components/ui/NumberField';
+import { HELP } from '@/content/help';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ResultHero } from '@/components/ui/ResultHero';
 import { ToolActions } from '@/components/ToolActions';
@@ -36,6 +38,10 @@ export default function DensityAltitude() {
             summary={`Elev ${ft(elev)} ft · QNH ${formatNumber(qnh, 1)} hPa · OAT ${formatNumber(oat, 1)} °C`}
             result={r ? `DA ${ft(r.densityAltitude)} ft` : ''}
             onReset={form.reset}
+            capture={() => {
+              const prev = form.values;
+              return () => form.load(prev);
+            }}
           />
         }
       />
@@ -44,12 +50,12 @@ export default function DensityAltitude() {
         <div className="stack">
           <Card title="Condiciones">
             <div className="stack gap-16">
-              <NumberField label="Elevación del aeródromo" value={form.values.elev} onChange={(v) => form.set('elev', v)} unit="ft" />
-              <NumberField label="QNH" value={form.values.qnh} onChange={(v) => form.set('qnh', v)} unit="hPa" hint="Estándar: 1013,25 hPa (29,92 inHg)" />
-              <NumberField label="Temperatura exterior (OAT)" value={form.values.oat} onChange={(v) => form.set('oat', v)} unit="°C" />
+              <NumberField label="Elevación del aeródromo" value={form.values.elev} onChange={(v) => form.set('elev', v)} unit="ft" help={HELP.elevation} error={numberError(form.values.elev, elev, HELP.invalidNumber)} hint="Ejemplo: 5000" />
+              <NumberField label="QNH" value={form.values.qnh} onChange={(v) => form.set('qnh', v)} unit="hPa" help={HELP.qnh} error={numberError(form.values.qnh, qnh, HELP.invalidNumber) ?? (Number.isFinite(qnh) && qnh <= 0 ? 'El QNH debe ser mayor que 0. Un valor habitual está entre 950 y 1050 hPa.' : undefined)} hint="Estándar: 1013,25 hPa (29,92 inHg)" />
+              <NumberField label="Temperatura exterior (OAT)" value={form.values.oat} onChange={(v) => form.set('oat', v)} unit="°C" help={HELP.oat} error={numberError(form.values.oat, oat, HELP.invalidNumber)} hint="Usa el signo menos para temperaturas bajo cero: −5" />
             </div>
           </Card>
-          {!valid && <Alert kind="info">Introduce elevación, QNH y temperatura.</Alert>}
+          {!valid && <Alert kind="info">Completa elevación, QNH y temperatura con números para ver la altitud de densidad.</Alert>}
           {r && r.pressureAltitude > TROPOPAUSE_FT && (
             <Alert kind="warning">El modelo usado es válido sólo en la troposfera (hasta 36 089 ft).</Alert>
           )}
@@ -63,7 +69,7 @@ export default function DensityAltitude() {
               unit="ft"
               meta={[
                 { label: 'Regla rápida (120 ft/°C)', value: `${ft(r.densityAltitudeApprox)} ft` },
-                { label: 'σ', value: d(r.densityRatio) },
+                { label: 'σ (densidad relativa)', value: d(r.densityRatio) },
               ]}
             />
             {r.densityAltitude - r.pressureAltitude > 2000 && (
@@ -84,7 +90,7 @@ export default function DensityAltitude() {
                 </div>
                 <div className="k">Presión estática</div>
                 <div className="v">{d(r.staticPressure)} hPa</div>
-                <div className="k">Densidad relativa (σ)</div>
+                <div className="k with-help">Densidad relativa (σ)<InfoTip label="σ">{HELP.sigma}</InfoTip></div>
                 <div className="v">{d(r.densityRatio * 100)} %</div>
               </div>
             </Card>

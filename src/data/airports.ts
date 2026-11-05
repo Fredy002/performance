@@ -9,6 +9,8 @@ export interface Airport {
   icao: string;
   city: string;
   name: string;
+  /** País, solo en aeropuertos fuera del Perú */
+  country?: string;
 }
 
 export interface RouteAirports {
@@ -54,13 +56,38 @@ export const PERU_AIRPORTS: Airport[] = [
   { icao: 'SPZA', city: 'Nazca', name: 'María Reiche Neuman' },
 ];
 
+/**
+ * Aeropuertos internacionales frecuentes desde el Perú (referencia para autocompletar).
+ * Se admite cualquier otro código OACI: basta con que no empiece por SP para que el vuelo sea internacional.
+ */
+export const INTERNATIONAL_AIRPORTS: Airport[] = [
+  { icao: 'SEGU', city: 'Guayaquil', name: 'José Joaquín de Olmedo', country: 'Ecuador' },
+  { icao: 'SEQM', city: 'Quito', name: 'Mariscal Sucre', country: 'Ecuador' },
+  { icao: 'SKBO', city: 'Bogotá', name: 'El Dorado', country: 'Colombia' },
+  { icao: 'SCEL', city: 'Santiago', name: 'Arturo Merino Benítez', country: 'Chile' },
+  { icao: 'SLLP', city: 'La Paz', name: 'El Alto', country: 'Bolivia' },
+  { icao: 'SLVR', city: 'Santa Cruz', name: 'Viru Viru', country: 'Bolivia' },
+  { icao: 'SAEZ', city: 'Buenos Aires', name: 'Ministro Pistarini (Ezeiza)', country: 'Argentina' },
+  { icao: 'SBGR', city: 'São Paulo', name: 'Guarulhos', country: 'Brasil' },
+  { icao: 'MPTO', city: 'Ciudad de Panamá', name: 'Tocumen', country: 'Panamá' },
+  { icao: 'KMIA', city: 'Miami', name: 'Miami International', country: 'Estados Unidos' },
+];
+
 export const normalizeIcao = (code: string) => code.trim().toUpperCase();
 
 export const isIcaoCode = (code: string) => /^[A-Z]{4}$/.test(normalizeIcao(code));
 
 export function findAirport(code: string): Airport | undefined {
   const c = normalizeIcao(code);
-  return PERU_AIRPORTS.find((a) => a.icao === c);
+  return PERU_AIRPORTS.find((a) => a.icao === c) ?? INTERNATIONAL_AIRPORTS.find((a) => a.icao === c);
+}
+
+/** Código OACI válido de un aeropuerto fuera del Perú (no empieza por SP). */
+export const isForeignAirport = (code: string) => isIcaoCode(code) && !normalizeIcao(code).startsWith(PERU_ICAO_PREFIX);
+
+/** Aeropuertos de la ruta que no son del Perú (origen, destino o alterno). */
+export function foreignAirports(route: RouteAirports): string[] {
+  return [route.origin, route.destination, route.alternate].map(normalizeIcao).filter(isForeignAirport);
 }
 
 /** «SPJC · Lima – Callao» o solo el código si no está en la lista. */
@@ -93,7 +120,7 @@ export function routeWarnings(route: RouteAirports, domesticOnly: boolean): stri
       out.push(`«${code}» no es un código OACI válido para el ${ROLE_LABEL[role]} (deben ser 4 letras, p. ej. SPJC).`);
     } else if (domesticOnly && !code.startsWith(PERU_ICAO_PREFIX)) {
       out.push(
-        `${code} (${ROLE_LABEL[role]}) no es un aeropuerto del Perú: en vuelos nacionales los códigos OACI empiezan por ${PERU_ICAO_PREFIX}. Los vuelos internacionales aún no están disponibles.`,
+        `${code} (${ROLE_LABEL[role]}) no es un aeropuerto del Perú: en vuelos nacionales los códigos OACI empiezan por ${PERU_ICAO_PREFIX}.`,
       );
     }
   });

@@ -141,6 +141,8 @@
   /* el resultado X de la referencia del manual se mantiene en rojo */
   --result: #d92d20;
   --result-soft: #fef3f2;
+  /* texto de resultado/error sobre --result-soft (contraste AA, UX-14) */
+  --result-strong: #b42318;
   /* ember queda reservado para avisos / atención */
   --warning: #c2410c;
   --warning-soft: #fff4ec;
@@ -184,6 +186,7 @@
     --focus-ring: rgb(60 200 187 / 30%);
     --result: #f97066;
     --result-soft: rgb(249 112 102 / 12%);
+    --result-strong: #fda29b;
     --warning: #fd853a;
     --warning-soft: rgb(255 105 0 / 12%);
     --success: #47cd89;
@@ -225,6 +228,7 @@
   --focus-ring: rgb(60 200 187 / 30%);
   --result: #f97066;
   --result-soft: rgb(249 112 102 / 12%);
+  --result-strong: #fda29b;
   --warning: #fd853a;
   --warning-soft: rgb(255 105 0 / 12%);
   --success: #47cd89;

@@ -1,6 +1,7 @@
 import { ArrowLeftRight, Copy } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
-import { NumberField } from '@/components/ui/NumberField';
+import { NumberField, numberError } from '@/components/ui/NumberField';
+import { HELP } from '@/content/help';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { convert, findQuantity, QUANTITIES } from '@/core/units';
 import { formatNumber } from '@/core/format';
@@ -27,7 +28,7 @@ export default function UnitConverter() {
       await navigator.clipboard.writeText(text);
       showToast(`Copiado: ${text}`);
     } catch {
-      showToast('No se pudo copiar');
+      showToast('No se pudo copiar. Selecciona el valor y cópialo a mano.', { kind: 'error' });
     }
   };
 
@@ -50,7 +51,7 @@ export default function UnitConverter() {
       <div className="grid grid-calc">
         <Card title="Valor de origen">
           <div className="stack gap-16">
-            <NumberField label="Cantidad" value={form.values.v} onChange={(v) => form.set('v', v)} unit={from.symbol} autoFocus />
+            <NumberField label="Cantidad" value={form.values.v} onChange={(v) => form.set('v', v)} unit={from.symbol} autoFocus error={numberError(form.values.v, value, HELP.invalidNumber)} />
             <div className="field">
               <label className="field-label" htmlFor="unit-from">Unidad</label>
               <select id="unit-from" className="select" value={from.id} onChange={(e) => form.set('u', e.target.value)}>

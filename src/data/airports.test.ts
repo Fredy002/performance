@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { airportLabel, findAirport, isIcaoCode, PERU_AIRPORTS, routeWarnings } from './airports';
+import { airportLabel, findAirport, foreignAirports, INTERNATIONAL_AIRPORTS, isIcaoCode, PERU_AIRPORTS, routeWarnings } from './airports';
 
 describe('aeropuertos', () => {
   it('la lista tiene códigos OACI peruanos únicos', () => {
@@ -13,6 +13,13 @@ describe('aeropuertos', () => {
     expect(findAirport('spjc')?.city).toBe('Lima – Callao');
     expect(airportLabel('SPQT')).toBe('SPQT · Iquitos');
     expect(airportLabel('SPXX')).toBe('SPXX');
+  });
+
+  it('reconoce aeropuertos fuera del Perú', () => {
+    expect(findAirport('SEGU')).toMatchObject({ city: 'Guayaquil', country: 'Ecuador' });
+    INTERNATIONAL_AIRPORTS.forEach((a) => expect(a.icao).toMatch(/^(?!SP)[A-Z]{4}$/));
+    expect(foreignAirports({ origin: 'SEGU', destination: 'SPJC', alternate: 'SKBO' })).toEqual(['SEGU', 'SKBO']);
+    expect(foreignAirports({ origin: 'SPJC', destination: 'SPQT', alternate: '' })).toEqual([]);
   });
 
   it('valida el formato OACI', () => {

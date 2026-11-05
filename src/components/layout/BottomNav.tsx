@@ -9,7 +9,7 @@ const ITEMS = [
 ];
 
 /** Navegación del móvil: lo más usado a un toque del pulgar; el resto, en «Más». */
-export function BottomNav({ onMenu }: { onMenu: () => void }) {
+export function BottomNav({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean }) {
   return (
     <nav className="bottom-nav mobile-only" aria-label="Accesos rápidos">
       {ITEMS.map((it) => (
@@ -18,8 +18,8 @@ export function BottomNav({ onMenu }: { onMenu: () => void }) {
           <span>{it.label}</span>
         </NavLink>
       ))}
-      <button className="bottom-nav-item" onClick={onMenu} aria-label="Abrir menú">
-        <Menu size={20} />
+      <button className="bottom-nav-item" onClick={onMenu} aria-expanded={menuOpen} aria-controls="menu-principal">
+        <Menu size={20} aria-hidden="true" />
         <span>Más</span>
       </button>
     </nav>

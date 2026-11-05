@@ -17,7 +17,8 @@ function renderAt(hash: string) {
   return render(<App />);
 }
 
-const output = (label: string) => document.querySelector(`.field-control[aria-label="${label}"] output`)!;
+// las salidas se nombran «X: 92,08», «R1: 1236»…
+const output = (label: string) => document.querySelector(`output[aria-label^="${label}:"]`)!;
 
 beforeEach(() => {
   localStorage.clear();
@@ -38,11 +39,11 @@ describe('calculadoras (regresión)', () => {
   it('interpolación lineal: recalcula al editar y avisa de extrapolación', async () => {
     renderAt('#/tools/linear');
     await screen.findByRole('heading', { name: 'Interpolación lineal' });
-    fireEvent.change(screen.getByLabelText('C'), { target: { value: '625' } });
+    fireEvent.change(screen.getByLabelText('C, tu dato'), { target: { value: '625' } });
     expect(output('Resultado X').textContent).toBe('92,5');
-    fireEvent.change(screen.getByLabelText('C'), { target: { value: '700' } });
+    fireEvent.change(screen.getByLabelText('C, tu dato'), { target: { value: '700' } });
     expect(screen.getByText(/Extrapolación:/)).toBeTruthy();
-    fireEvent.change(screen.getByLabelText('B'), { target: { value: '600' } });
+    fireEvent.change(screen.getByLabelText('B, fila superior de la tabla'), { target: { value: '600' } });
     expect(screen.getByRole('alert').textContent).toMatch(/A y B no pueden ser iguales/);
   });
 
@@ -246,11 +247,24 @@ describe('aeropuertos (códigos OACI)', () => {
     expect(JSON.parse(localStorage.getItem('aeroperf.history')!)[0].summary).toMatch(/^SPJC–SPCL 622 NM .* alterno SPCL–SPST 270 NM/);
   });
 
-  it('avisa si un aeropuerto no es del Perú o la ruta es incoherente', async () => {
+  it('un aeropuerto fuera del Perú convierte el vuelo en internacional; avisa si la ruta es incoherente', async () => {
     renderAt('#/tools/fuel');
     await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
+    const hm = () => (screen.getByLabelText('Tiempo de espera') as HTMLInputElement).value;
+    const fob = () => answerValues()[2];
+    const nacionalFob = fob();
+    expect(hm()).toBe('45');
     fireEvent.change(airportInput('Alterno'), { target: { value: 'SKBO' } });
-    expect(screen.getByRole('note').textContent).toMatch(/SKBO \(alterno\) no es un aeropuerto del Perú/);
+    expect(screen.queryByRole('note')).toBeNull();
+    expect(screen.getByText(/SKBO no es un aeropuerto del Perú/).closest('.alert')!.textContent).toMatch(/Vuelo internacional/);
+    expect(screen.getByText(/^Bogotá \(Colombia\)/, { selector: '.field-hint' })).toBeTruthy();
+    expect(hm()).toBe('30');
+    expect(document.querySelector('.page-eyebrow')!.textContent).toMatch(/Vuelo internacional/);
+    expect(fob()).not.toBe(nacionalFob);
+    // de vuelta a nacional: la espera vuelve a 45 min y el FOB al valor original
+    fireEvent.change(airportInput('Alterno'), { target: { value: 'SPST' } });
+    expect(hm()).toBe('45');
+    expect(fob()).toBe(nacionalFob);
     fireEvent.change(airportInput('Alterno'), { target: { value: 'SPQT' } });
     expect(screen.getByRole('note').textContent).toMatch(/El alterno debe ser un aeropuerto distinto del destino/);
     fireEvent.change(airportInput('Alterno'), { target: { value: 'SPXY' } });
@@ -277,7 +291,8 @@ describe('ajuste de decimales', () => {
     updateSettings({ decimals: 0 });
     renderAt('#/pruebas/b737-combustible-spur-spjc');
     await screen.findByRole('heading', { name: 'Planificación de combustible SPUR – SPJC' });
-    expect(answerValues()).toEqual(['96', '9288', '16972', '173']);
+    // con 0 decimales cada paso se redondea a entero, como a mano: 9288 + 3340 + 3946 + 400 = 16974; 96 + 31 + 45 = 172
+    expect(answerValues()).toEqual(['96', '9288', '16974', '172']);
     // la validación muestra al menos los decimales de la resolución
     expect(screen.getAllByText('16972,16 lb', { selector: 'td' })).toHaveLength(2);
   });
@@ -399,7 +414,7 @@ describe('resolver desde una captura', () => {
     await openFuel();
     if (edited) fireEvent.change(statement(), { target: { value: 'Un ejercicio pendiente de completar.' } });
     fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
-    fireEvent.click(screen.getByTitle('Restaurar ejemplo'));
+    fireEvent.click(screen.getByRole('button', { name: 'Ejemplo' }));
     await act(async () => finish(claudeResult()));
     expect(statement().value).toContain('SPJC – SPQT');
     expect(value('Origen')).toBe('SPJC');
@@ -478,7 +493,7 @@ describe('navegación simplificada', () => {
     await screen.findByRole('heading', { name: '¿Qué quieres resolver?' });
     const nav = screen.getByRole('navigation', { name: 'Accesos rápidos' });
     expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['#/', '#/tools/fuel', '#/tools/linear', '#/tables']);
-    fireEvent.click(within(nav).getByRole('button', { name: 'Abrir menú' }));
+    fireEvent.click(within(nav).getByRole('button', { name: 'Más' }));
     expect(document.querySelector('.shell')!.className).toContain('mobile-open');
   });
 

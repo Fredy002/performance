@@ -4,6 +4,7 @@ import { solveFuelPlan, type FuelPlanInput, type FuelPlanResult } from '@/core/f
 import { LookupError } from '@/core/tableLookup';
 import { EMPTY_ROUTE, normalizeIcao, type RouteAirports } from '@/data/airports';
 import type { ParseDefaults, ParseReport } from '@/exercises/parseStatement';
+import { routeScope, SCOPES, type FlightScope } from '@/exercises/registry';
 
 /**
  * Claves del formulario de planificación de combustible (también son los parámetros de la URL).
@@ -39,6 +40,9 @@ export function routeFromForm(v: FuelFormValues): RouteAirports {
   return { origin: normalizeIcao(v.dep), destination: normalizeIcao(v.dst), alternate: normalizeIcao(v.alt) };
 }
 
+/** Ámbito del vuelo según los aeropuertos escritos: internacional si alguno no es del Perú. */
+export const formScope = (v: FuelFormValues): FlightScope => routeScope(routeFromForm(v));
+
 export function fromFuelForm(v: FuelFormValues): { input: FuelPlanInput; incomplete: boolean } {
   const n = (k: FuelFormKey) => parseNumber(v[k]);
   const input: FuelPlanInput = {
@@ -46,6 +50,7 @@ export function fromFuelForm(v: FuelFormValues): { input: FuelPlanInput; incompl
     alternate: { distanceNm: n('ad'), windKt: n('aw'), windKind: v.ak === 'TW' ? 'TW' : 'HW', flightLevel: n('afl') },
     holding: { weightLb: n('hw'), flightLevel: n('hfl'), minutes: n('hm') },
     taxiFuelLb: n('taxi'),
+    contingencyPct: SCOPES[formScope(v)].contingencyPct,
   };
   const required: FuelFormKey[] = ['td', 'tw', 'ad', 'aw', 'hw', 'hfl', 'hm', 'taxi'];
   return { input, incomplete: required.some((k) => !Number.isFinite(n(k))) };
@@ -67,14 +72,17 @@ export function fuelFormQuery(input: FuelPlanInput, airports?: RouteAirports): s
   return qs.toString();
 }
 
-/** Resuelve el plan a partir del formulario; memoriza por valor. */
-export function useFuelPlan(values: FuelFormValues): { input: FuelPlanInput; result?: FuelPlanResult; error?: string; incomplete: boolean } {
-  const key = FUEL_FORM_KEYS.map((k) => values[k]).join('|');
+/**
+ * Resuelve el plan a partir del formulario; memoriza por valor.
+ * `decimals` (de Ajustes) redondea cada paso como en una resolución a mano.
+ */
+export function useFuelPlan(values: FuelFormValues, decimals?: number): { input: FuelPlanInput; result?: FuelPlanResult; error?: string; incomplete: boolean } {
+  const key = `${FUEL_FORM_KEYS.map((k) => values[k]).join('|')}|${decimals}`;
   return useMemo(() => {
     const { input, incomplete } = fromFuelForm(values);
     if (incomplete) return { input, incomplete };
     try {
-      return { input, incomplete, result: solveFuelPlan(input) };
+      return { input, incomplete, result: solveFuelPlan(input, undefined, { decimals }) };
     } catch (e) {
       return { input, incomplete, error: e instanceof LookupError ? e.message : 'Error de cálculo' };
     }

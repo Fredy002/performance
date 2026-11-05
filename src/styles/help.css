@@ -1,0 +1,428 @@
+/* ==========================================================================
+   Ayuda contextual, mensajes y accesibilidad (auditoría UX 2026-11)
+   Solo usa tokens de tokens.css; ambos temas se resuelven allí.
+   ========================================================================== */
+
+/* ---------- utilidades ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* UX-13: primer elemento enfocable, visible solo con foco */
+.skip-link {
+  position: fixed;
+  top: var(--space-8);
+  left: var(--space-8);
+  z-index: 200;
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-button);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-medium);
+  transform: translateY(-160%);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.content:focus {
+  outline: none;
+}
+
+/* ---------- InfoTip (UX-04) ---------- */
+.infotip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+/* objetivo de 24 px (WCAG 2.5.8) con un icono discreto de 14 px */
+.infotip-trigger {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: help;
+  transition:
+    color var(--dur-fast) var(--ease-standard),
+    background-color var(--dur-fast) var(--ease-standard);
+}
+
+.infotip-trigger:hover,
+.infotip.is-open .infotip-trigger {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.infotip-trigger:focus-visible {
+  border-radius: 50%;
+}
+
+.infotip-bubble {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  z-index: 90;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 32px));
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-button);
+  background: var(--bg-inverse);
+  box-shadow: var(--shadow-overlay);
+  color: var(--text-inverse);
+  font-size: var(--text-body-sm);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-body-sm);
+  letter-spacing: var(--tracking-ui);
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  transform: translateX(-50%);
+  /* cerrada no ocupa espacio (evita scroll horizontal); aria-describedby sigue leyendo el texto */
+  display: none;
+  animation: fade var(--dur-fast) var(--ease-standard);
+}
+
+.infotip.is-open .infotip-bubble {
+  display: block;
+}
+
+/* etiqueta + ayuda en la misma línea */
+.field-label-row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 24px;
+}
+
+.field-label-row .field-label {
+  margin: 0;
+}
+
+.field-help-inline {
+  display: grid;
+  place-items: center;
+  padding: 0 var(--space-4);
+}
+
+/* encabezado con ayuda (columnas, respuestas, chips) */
+.with-help {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+/* ---------- mensajes por campo (UX-03) ---------- */
+.field-error {
+  color: var(--result-strong);
+}
+
+/* ---------- acciones (UX-06) ---------- */
+.actions-hint {
+  flex-basis: 100%;
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+  line-height: var(--leading-caption);
+}
+
+/* ---------- avisos (UX-07, UX-08) ---------- */
+.toast-region {
+  position: fixed;
+  bottom: var(--space-24);
+  left: 50%;
+  z-index: 120;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+}
+
+.toast-region .toast {
+  position: static;
+  transform: none;
+  animation: fade var(--dur-layout) var(--ease-standard);
+}
+
+.toast-error svg:first-child {
+  color: var(--result);
+}
+
+.toast-info svg:first-child {
+  color: var(--accent);
+}
+
+.toast-action {
+  margin-left: var(--space-8);
+  padding: var(--space-4) var(--space-8);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--accent);
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.toast-action:hover {
+  background: rgb(255 255 255 / 10%);
+}
+
+.toast-close {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: var(--space-4);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-inverse-muted);
+  cursor: pointer;
+}
+
+.toast-close svg {
+  color: inherit !important;
+}
+
+/* ---------- primeros pasos (UX-05) ---------- */
+.onboarding {
+  position: relative;
+  margin-bottom: var(--space-32);
+}
+
+.onboarding-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.onboarding-steps li {
+  display: flex;
+  gap: var(--space-12);
+  counter-increment: step;
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  color: var(--text-muted);
+}
+
+.onboarding-steps li::before {
+  content: counter(step);
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-weight: var(--weight-medium);
+}
+
+.onboarding-steps b {
+  display: block;
+  color: var(--text);
+  font-weight: var(--weight-medium);
+}
+
+.onboarding-note {
+  margin-top: var(--space-16);
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+}
+
+/* ---------- leyenda de chips (UX-12) ---------- */
+.chip-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-12);
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+}
+
+.chip-legend .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: var(--space-4);
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.dot.is-match {
+  background: var(--success);
+}
+
+.dot.is-assumed {
+  background: var(--warning);
+}
+
+.dot.is-missing {
+  background: var(--result);
+}
+
+/* ---------- esqueleto de carga (UX-19) ---------- */
+.skeleton {
+  border-radius: var(--radius-card);
+  background: var(--bg-hover);
+  animation: skeleton-pulse 1.2s var(--ease-standard) infinite alternate;
+}
+
+.skeleton-title {
+  width: min(420px, 70%);
+  height: 40px;
+  margin-bottom: var(--space-12);
+  border-radius: var(--radius-button);
+}
+
+.skeleton-line {
+  width: min(640px, 90%);
+  height: 18px;
+  margin-bottom: var(--space-32);
+  border-radius: var(--radius-button);
+}
+
+.skeleton-card {
+  height: 280px;
+}
+
+@keyframes skeleton-pulse {
+  to {
+    opacity: 0.55;
+  }
+}
+
+/* ---------- objetivos táctiles (UX-16, UX-20) ---------- */
+.calc-details > summary {
+  padding-block: var(--space-8);
+}
+
+.settings-range {
+  height: 32px;
+}
+
+.settings-label {
+  display: block;
+  margin-bottom: var(--space-8);
+}
+
+.breadcrumb-text {
+  white-space: nowrap;
+}
+
+/* ---------- interpolación doble (UX-01) ---------- */
+.matrix .field-tag {
+  min-width: 0;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.matrix .field-control input {
+  padding: 0 6px;
+}
+
+.matrix-axis {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+@media (max-width: 860px) {
+  .toast-region {
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* UX-21: el cajón cerrado no debe recibir el foco del teclado */
+  .shell:not(.mobile-open) .sidebar {
+    visibility: hidden;
+    transition:
+      transform var(--dur-layout) var(--ease-standard),
+      visibility 0s linear var(--dur-layout);
+  }
+
+  .sidebar-brand {
+    padding-right: var(--space-12);
+  }
+
+  .sidebar-close {
+    margin-left: auto;
+  }
+
+  .onboarding-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+.calc-caption + .calc-caption {
+  margin-top: var(--space-4);
+}
+
+/* ---------- EPR de despegue: formulario en dos columnas ---------- */
+.epr-form,
+.climb-form {
+  gap: var(--space-16) var(--space-24);
+  align-items: start;
+}
+
+.epr-form .segmented,
+.climb-form .segmented {
+  flex-wrap: nowrap;
+  align-self: start;
+}
+
+.epr-form .field,
+.climb-form .field {
+  min-width: 0;
+}
+
+/* respuesta en texto (p. ej. «Temperatura»): más pequeña que una cifra */
+.answer-value.answer-value-text {
+  font-size: var(--text-body-lg);
+}
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
+.epr-form .segmented button,
+.climb-form .segmented button {
+  white-space: nowrap;
+}
+
+/* enlaces dentro de notas y ayudas: área táctil de 24 px sin mover el texto (WCAG 2.5.8) */
+.calc-note a,
+.help-block a {
+  display: inline-block;
+  min-width: 24px;
+  padding-block: 4px;
+  margin-block: -4px;
+  text-align: center;
+}

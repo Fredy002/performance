@@ -11,10 +11,10 @@ export default function ToolPage() {
     return (
       <div className="card empty empty-page">
         <Construction size={40} />
-        <h2>{tool.name}</h2>
-        <p>Esta herramienta está en desarrollo.</p>
+        <h1 className="empty-page-title">{tool.name}</h1>
+        <p>Esta herramienta está en desarrollo. Mientras tanto, puedes usar las calculadoras disponibles o consultar las tablas.</p>
         <Link to="/" className="btn">
-          Volver al panel
+          Volver al inicio
         </Link>
       </div>
     );

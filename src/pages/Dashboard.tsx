@@ -1,8 +1,9 @@
-import { ArrowRight, Fuel, Spline, Table, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Fuel, Spline, Table, X, type LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { readyTools, toolPath, upcomingTools } from '@/tools/registry';
 import { useHistory } from '@/state/history';
+import { updateSettings, useSettings } from '@/state/settings';
 import { HistoryList } from './History';
 
 type Tone = 'accent' | 'yellow' | 'mint';
@@ -50,8 +51,47 @@ function HeroArt() {
   );
 }
 
+/** UX-05: orientación de primer uso, breve y descartable (se recuerda en Ajustes). */
+function Onboarding() {
+  return (
+    <Card
+      className="onboarding"
+      title="Cómo empezar"
+      action={
+        <button className="btn btn-ghost btn-sm" onClick={() => updateSettings({ onboardingDismissed: true })}>
+          <X size={16} aria-hidden="true" /> Entendido, ocultar
+        </button>
+      }
+    >
+      <ol className="onboarding-steps">
+        <li>
+          <span>
+            <b>Elige una tarea</b>
+            Usa los accesos de abajo, el menú o «Buscar»
+            <span className="desktop-only"> ({typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform) ? '⌘' : 'Ctrl'} K)</span>.
+          </span>
+        </li>
+        <li>
+          <span>
+            <b>Escribe tus datos</b>
+            Cada calculadora trae un ejemplo. Toca ⓘ junto a un campo si no sabes qué poner.
+          </span>
+        </li>
+        <li>
+          <span>
+            <b>Revisa y guarda</b>
+            El resultado se actualiza al escribir. «Guardar» lo deja en el historial; «Compartir» copia un enlace.
+          </span>
+        </li>
+      </ol>
+      <p className="onboarding-note">Tus cálculos y ajustes se guardan solo en este navegador.</p>
+    </Card>
+  );
+}
+
 export default function Dashboard() {
   const history = useHistory();
+  const { onboardingDismissed } = useSettings();
   const others = readyTools().filter((t) => !MAIN.has(t.id));
   const upcoming = upcomingTools();
 
@@ -64,6 +104,8 @@ export default function Dashboard() {
         </div>
         <HeroArt />
       </section>
+
+      {!onboardingDismissed && <Onboarding />}
 
       <div className="action-grid">
         {ACTIONS.map((a) => (
@@ -101,27 +143,6 @@ export default function Dashboard() {
               ))}
             </div>
           </Card>
-          {upcoming.length > 0 && (
-            <>
-              <h2 className="section-title">Próximamente</h2>
-              <Card flush>
-                <div className="list">
-                  {upcoming.map((t) => (
-                    <div key={t.id} className="list-item upcoming" aria-disabled="true">
-                      <span className="list-item-icon">
-                        <t.icon size={18} />
-                      </span>
-                      <span className="list-item-main">
-                        <span className="list-item-title">{t.name}</span>
-                        <span className="list-item-sub">{t.description}</span>
-                      </span>
-                      <span className="chip chip-warning">Pronto</span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </>
-          )}
         </section>
 
         <section>
@@ -136,6 +157,28 @@ export default function Dashboard() {
           </Card>
         </section>
       </div>
+
+      {upcoming.length > 0 && (
+        <section className="home-upcoming">
+          <h2 className="section-title">Próximamente</h2>
+          <Card flush>
+            <div className="list">
+              {upcoming.map((t) => (
+                <div key={t.id} className="list-item upcoming" aria-disabled="true">
+                  <span className="list-item-icon">
+                    <t.icon size={18} aria-hidden="true" />
+                  </span>
+                  <span className="list-item-main">
+                    <span className="list-item-title">{t.name}</span>
+                    <span className="list-item-sub">{t.description}</span>
+                  </span>
+                  <span className="chip chip-warning">Pronto</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </section>
+      )}
     </>
   );
 }

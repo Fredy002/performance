@@ -28,7 +28,7 @@ export default function TablesLibrary() {
               </span>
               <div className="tool-card-body">
                 <div className="chip chip-accent">{t.category}</div>
-                <h3>{group.title}</h3>
+                <h2 className="tool-card-title">{group.title}</h2>
                 <p>{group.summary ?? t.summary}</p>
               </div>
               <div className="tool-card-footer">

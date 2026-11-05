@@ -34,7 +34,7 @@ export function linearInterpolate({ a, b, c, a1, b1 }: LinearInput): LinearResul
   for (const v of [a, b, c, a1, b1]) {
     if (!Number.isFinite(v)) throw new InterpolationError('Todos los valores deben ser numéricos.');
   }
-  if (a === b) throw new InterpolationError('A y B no pueden ser iguales (división por cero).');
+  if (a === b) throw new InterpolationError('A y B no pueden ser iguales: escribe dos filas distintas de la tabla.');
   const ratio = (c - a) / (b - a);
   const slope = (b1 - a1) / (b - a);
   const x = a1 + (b1 - a1) * ratio;

@@ -29,10 +29,35 @@ export function addHistory(entry: Omit<HistoryEntry, 'id' | 'createdAt'>): Histo
   return full;
 }
 
-export function removeHistory(id: string) {
-  store.set((prev) => prev.filter((e) => e.id !== id));
+/** Elimina una entrada y la devuelve con su posición, para poder deshacer. */
+export function removeHistory(id: string): { entry: HistoryEntry; index: number } | undefined {
+  let removed: { entry: HistoryEntry; index: number } | undefined;
+  store.set((prev) => {
+    const index = prev.findIndex((e) => e.id === id);
+    if (index < 0) return prev;
+    removed = { entry: prev[index], index };
+    return prev.filter((e) => e.id !== id);
+  });
+  return removed;
 }
 
-export function clearHistory() {
-  store.set([]);
+/** Vuelve a insertar entradas eliminadas en su posición original (Deshacer). */
+export function restoreHistory(items: { entry: HistoryEntry; index: number }[]) {
+  store.set((prev) => {
+    const next = [...prev];
+    for (const { entry, index } of [...items].sort((a, b) => a.index - b.index)) {
+      if (!next.some((e) => e.id === entry.id)) next.splice(Math.min(index, next.length), 0, entry);
+    }
+    return next.slice(0, MAX_ENTRIES);
+  });
+}
+
+/** Borra todo y devuelve lo borrado, para poder deshacer. */
+export function clearHistory(): HistoryEntry[] {
+  let removed: HistoryEntry[] = [];
+  store.set((prev) => {
+    removed = prev;
+    return [];
+  });
+  return removed;
 }

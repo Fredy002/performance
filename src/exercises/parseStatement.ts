@@ -33,7 +33,7 @@ export interface ParsedStatement {
 export interface ParseDefaults {
   /** Default holding level when omitted from the statement (FL 015 in these exercises). */
   holdingFlightLevel: number;
-  /** Default holding duration when omitted (45 min for domestic flights under RAP). */
+  /** Default holding duration when omitted (45 min domestic under RAP, 30 min international). */
   holdingMinutes: number;
 }
 
@@ -115,8 +115,20 @@ function segments(t: string): Partial<Record<SegmentName, string>> {
 
 /* ---------- fields ---------- */
 
-function parseLeg(seg: string | undefined): ParsedLeg {
-  if (!seg) return {};
+/**
+ * Drop a city written after an ICAO code in a route pair:
+ * «SEGU (GUAYAQUIL) - SPJC» and «SPJC - SEGU (GUAYAQUIL)» → «SEGU - SPJC», «SPJC - SEGU».
+ * Only parentheses without digits next to the dash are removed, so wind groups such as «(40 HW)» stay.
+ */
+function stripCities(seg: string): string {
+  return seg
+    .replace(/\b([A-Z][A-Z0-9]{3})\s*\([^)\d]*\)\s*(?=-)/g, '$1 ')
+    .replace(/(-\s*[A-Z][A-Z0-9]{3})\s*\([^)\d]*\)/g, '$1');
+}
+
+function parseLeg(raw: string | undefined): ParsedLeg {
+  if (!raw) return {};
+  const seg = stripCities(raw);
   const leg: ParsedLeg = {};
   const pair = /\b([A-Z][A-Z0-9]{3})\s*-\s*([A-Z][A-Z0-9]{3})\b/.exec(seg);
   if (pair) {

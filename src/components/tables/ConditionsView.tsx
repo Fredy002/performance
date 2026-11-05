@@ -12,7 +12,7 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
   return (
     <div className="stack">
       <Card title="Datos de la tabla" flush>
-        <div className="data-table-wrap after-header">
+        <div className="data-table-wrap after-header" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
           <table className="data-table">
             <thead>
               <tr>
@@ -47,7 +47,7 @@ export function ConditionsView({ table }: { table: ConditionsTable }) {
           Resultado de aplicar el procedimiento a cada condición, con los valores de la{' '}
           <Link to={`/tables/${F67.id}`}>{F67.title.toLowerCase()}</Link>.
         </p>
-        <div className="data-table-wrap">
+        <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
           <table className="data-table">
             <thead>
               <tr>

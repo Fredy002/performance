@@ -1,8 +1,8 @@
 import { CircleAlert, CircleCheck } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { formatPlain } from '@/core/format';
-import type { FuelPlanResult } from '@/core/fuelPlanning';
-import type { FuelPlanExercise } from '@/exercises/registry';
+import { solveFuelPlan } from '@/core/fuelPlanning';
+import type { ExpectedStep, FuelPlanExercise } from '@/exercises/registry';
 import { compareWithWritten, type Comparison, type MatchStatus } from '@/exercises/validation';
 
 const STATUS: Record<MatchStatus, { label: string; icon: typeof CircleCheck }> = {
@@ -25,12 +25,24 @@ export function StatusChip({ status, diff }: { status: MatchStatus; diff?: numbe
 }
 
 export interface ExerciseCheck {
-  step: FuelPlanExercise['expected'][number];
+  step: Pick<ExpectedStep<never>, 'label' | 'written' | 'unit' | 'answer'>;
   cmp: Comparison;
 }
 
-export function checkExercise(exercise: FuelPlanExercise, r: FuelPlanResult): ExerciseCheck[] {
-  return exercise.expected.map((step) => ({ step, cmp: compareWithWritten(step.written, step.pick(r)) }));
+/** Compara cada paso de una resolución con el resultado de la app. */
+export function checkSteps<R>(steps: ExpectedStep<R>[], r: R): ExerciseCheck[] {
+  return steps.map((step) => ({ step, cmp: compareWithWritten(step.written, step.pick(r)) }));
+}
+
+/**
+ * Decimales por paso con los que se valida: los de las resoluciones a mano (2), sea cual sea
+ * el ajuste de decimales, para que con 0 decimales no aparezcan discrepancias que no existen.
+ */
+export const VALIDATION_DECIMALS = 2;
+
+export function checkExercise(exercise: FuelPlanExercise): ExerciseCheck[] {
+  const r = solveFuelPlan(exercise.input, undefined, { decimals: VALIDATION_DECIMALS });
+  return checkSteps(exercise.expected, r);
 }
 
 export function summarize(checks: ExerciseCheck[]) {
@@ -43,7 +55,7 @@ export function summarize(checks: ExerciseCheck[]) {
 }
 
 /** Tabla paso a paso: valor de la resolución manual frente al valor de la app. */
-export function ExerciseValidation({ exercise, checks, decimals }: { exercise: FuelPlanExercise; checks: ExerciseCheck[]; decimals: number }) {
+export function ExerciseValidation({ exercise, checks, decimals }: { exercise: { remarks: string[] }; checks: ExerciseCheck[]; decimals: number }) {
   const s = summarize(checks);
   return (
     <Card
@@ -70,7 +82,7 @@ export function ExerciseValidation({ exercise, checks, decimals }: { exercise: F
           </ul>
         )}
       </div>
-      <div className="data-table-wrap">
+      <div className="data-table-wrap" tabIndex={0} role="region" aria-label="Tabla desplazable horizontalmente">
         <table className="data-table validation-table">
           <thead>
             <tr>

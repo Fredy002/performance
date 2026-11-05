@@ -2,7 +2,9 @@ import { Wind } from 'lucide-react';
 import { useId } from 'react';
 import { Alert } from '@/components/ui/Alert';
 import { Card } from '@/components/ui/Card';
-import { NumberField } from '@/components/ui/NumberField';
+import { InfoTip } from '@/components/ui/InfoTip';
+import { NumberField, numberError } from '@/components/ui/NumberField';
+import { HELP } from '@/content/help';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ResultHero } from '@/components/ui/ResultHero';
 import { ToolActions } from '@/components/ToolActions';
@@ -61,6 +63,7 @@ export default function WindComponents() {
   const dir = parseNumber(form.values.dir);
   const spd = parseNumber(form.values.spd);
   const limit = parseNumber(form.values.limit);
+  const rwyInvalid = !!form.values.rwy.trim() && !Number.isFinite(heading);
   const valid = Number.isFinite(heading) && Number.isFinite(dir) && Number.isFinite(spd) && spd >= 0;
   const w = valid ? windComponents(heading, dir, spd) : undefined;
   const kt = (v: number) => formatNumber(Math.abs(v), decimals);
@@ -79,6 +82,10 @@ export default function WindComponents() {
             summary={`RWY ${form.values.rwy} · viento ${form.values.dir}/${form.values.spd} kt`}
             result={w ? `${w.headwind >= 0 ? 'HW' : 'TW'} ${kt(w.headwind)} · XW ${kt(w.crosswind)} kt` : ''}
             onReset={form.reset}
+            capture={() => {
+              const prev = form.values;
+              return () => form.load(prev);
+            }}
           />
         }
       />
@@ -87,19 +94,24 @@ export default function WindComponents() {
           <Card title="Datos">
             <div className="grid grid-2">
               <div className="field">
-                <label className="field-label" htmlFor="rwy">Pista</label>
-                <div className={`field-control${!Number.isFinite(heading) && form.values.rwy ? ' invalid' : ''}`}>
-                  <span className="field-tag">RWY</span>
-                  <input id="rwy" value={form.values.rwy} onChange={(e) => form.set('rwy', e.target.value)} placeholder="27L o 274" />
+                <span className="field-label-row">
+                  <label className="field-label" htmlFor="rwy">Pista</label>
+                  <InfoTip label="la pista">{HELP.runway}</InfoTip>
+                </span>
+                <div className={`field-control${rwyInvalid ? ' invalid' : ''}`}>
+                  <span className="field-tag" aria-hidden="true">RWY</span>
+                  <input id="rwy" value={form.values.rwy} onChange={(e) => form.set('rwy', e.target.value)} placeholder="27L o 274" aria-invalid={rwyInvalid || undefined} aria-describedby="rwy-msg" />
                 </div>
-                <span className="field-hint">Designador (27L) o rumbo magnético (274)</span>
+                <span id="rwy-msg" className={`field-hint${rwyInvalid ? ' field-error' : ''}`}>
+                  {rwyInvalid ? 'Escribe un número de pista del 01 al 36 (con L, C o R si hace falta) o un rumbo de 0 a 360.' : 'Designador (27L) o rumbo magnético (274)'}
+                </span>
               </div>
-              <NumberField label="Dirección del viento" value={form.values.dir} onChange={(v) => form.set('dir', v)} unit="°" />
-              <NumberField label="Velocidad del viento" value={form.values.spd} onChange={(v) => form.set('spd', v)} unit="kt" />
-              <NumberField label="Límite de viento cruzado" value={form.values.limit} onChange={(v) => form.set('limit', v)} unit="kt" hint="Máx. demostrado del AFM (opcional)" />
+              <NumberField label="Dirección del viento" value={form.values.dir} onChange={(v) => form.set('dir', v)} unit="°" help={HELP.windDirection} error={numberError(form.values.dir, dir, HELP.invalidNumber)} hint="Ejemplo: 300" />
+              <NumberField label="Velocidad del viento" value={form.values.spd} onChange={(v) => form.set('spd', v)} unit="kt" error={numberError(form.values.spd, spd, HELP.invalidNumber) ?? (spd < 0 ? 'La velocidad no puede ser negativa.' : undefined)} hint="Ejemplo: 18" />
+              <NumberField label="Límite de viento cruzado" value={form.values.limit} onChange={(v) => form.set('limit', v)} unit="kt" help={HELP.crosswindLimit} error={numberError(form.values.limit, limit, HELP.invalidNumber)} hint="Opcional" />
             </div>
           </Card>
-          {!valid && <Alert kind="info">Introduce una pista válida, dirección y velocidad del viento.</Alert>}
+          {!valid && <Alert kind="info">Completa pista, dirección y velocidad del viento para ver las componentes.</Alert>}
           {w && Number.isFinite(limit) && Math.abs(w.crosswind) > limit && (
             <Alert kind="error">El viento cruzado ({kt(w.crosswind)} kt) supera el límite indicado ({formatNumber(limit, 0)} kt).</Alert>
           )}
@@ -117,7 +129,7 @@ export default function WindComponents() {
           )}
         </div>
         <Card title="Diagrama">
-          {w ? <WindDiagram heading={heading} w={w} dir={dir} /> : <div className="empty"><Wind size={32} />Sin datos</div>}
+          {w ? <WindDiagram heading={heading} w={w} dir={dir} /> : <div className="empty"><Wind size={32} aria-hidden="true" />El diagrama aparece cuando escribes pista, dirección y velocidad del viento.</div>}
           <p className="calc-caption">
             HW = V·cos(α) · XW = V·sen(α), siendo α el ángulo entre el viento y la pista.
           </p>

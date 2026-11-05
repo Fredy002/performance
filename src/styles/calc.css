@@ -176,7 +176,7 @@
 
 .field-tag.result {
   background: var(--result-soft);
-  color: var(--result);
+  color: var(--result-strong);
 }
 
 .field-control input {
@@ -289,7 +289,7 @@
   align-items: center;
   padding: 0 var(--space-12);
   background: var(--result-soft);
-  color: var(--result);
+  color: var(--result-strong);
   font-family: var(--font-display);
   font-size: var(--text-body-lg);
   font-weight: var(--weight-medium);
@@ -491,7 +491,7 @@
 
 .matrix {
   width: 100%;
-  min-width: 460px;
+  min-width: 400px;
   table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
@@ -781,7 +781,7 @@
 }
 
 .calc-line b {
-  color: var(--result);
+  color: var(--result-strong); /* contraste AA sobre el fondo de la línea (UX-14) */
   font-weight: var(--weight-medium);
 }
 
