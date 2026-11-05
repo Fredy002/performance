@@ -1,4 +1,5 @@
 import { createPersistedStore } from './createStore';
+import type { AISession } from './aiSession';
 
 export interface HistoryEntry {
   id: string;
@@ -10,6 +11,9 @@ export interface HistoryEntry {
   /** Ruta con parámetros para reabrir el cálculo */
   href: string;
   note?: string;
+  /** AI context belongs to this entry and is deleted with it. Images are never persisted. */
+  aiSession?: AISession;
+  sessionId?: string;
   createdAt: number;
 }
 
@@ -18,9 +22,24 @@ const MAX_ENTRIES = 200;
 const store = createPersistedStore<HistoryEntry[]>('aeroperf.history', []);
 
 export const useHistory = store.useStore;
+export const getHistory = store.get;
+export const subscribeHistory = store.subscribe;
+export function updateHistorySession(id: string, session: AISession, result: string, href: string) {
+  store.set(prev => prev.map(entry => entry.sessionId === id ? { ...entry, aiSession: session, result, href } : entry));
+}
 
 export function addHistory(entry: Omit<HistoryEntry, 'id' | 'createdAt'>): HistoryEntry {
+  // un ejercicio de IA tiene una sola entrada: en revisión (?aiReview=) o ya en su calculadora (?from=)
+  const query = new URLSearchParams(entry.href.split('?')[1]);
+  const sessionId = entry.sessionId ?? query.get('aiReview') ?? query.get('from') ?? undefined;
+  const existing = sessionId ? store.get().find(item => item.sessionId === sessionId) : undefined;
+  if (existing) {
+    const updated = { ...existing, ...entry, sessionId };
+    store.set(prev => prev.map(item => item.id === existing.id ? updated : item));
+    return updated;
+  }
   const full: HistoryEntry = {
+    sessionId,
     ...entry,
     id: typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : String(Date.now()),
     createdAt: Date.now(),

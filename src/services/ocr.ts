@@ -12,7 +12,7 @@ export type OcrResult = ImageAnalysis;
 type Listener = (progress: OcrProgress) => void;
 
 /** Resize mobile photos before upload; Claude interprets their content. */
-async function prepareImage(file: Blob, maxSide = 2400): Promise<Blob> {
+export async function prepareImage(file: Blob, maxSide = 2400): Promise<Blob> {
   if (typeof createImageBitmap !== 'function') return file;
   const bitmap = await createImageBitmap(file).catch(() => undefined);
   if (!bitmap) return file;
@@ -31,7 +31,7 @@ async function prepareImage(file: Blob, maxSide = 2400): Promise<Blob> {
   } finally { bitmap.close(); }
 }
 
-function toBase64(blob: Blob, locale: Locale): Promise<string> {
+export function toBase64(blob: Blob, locale: Locale): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error(localizeServiceMessage(locale, 'No se pudo abrir la imagen. Prueba con otro archivo.')));

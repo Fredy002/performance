@@ -36,6 +36,9 @@ export const en = {
   'service.server.timeout': 'Claude took too long to respond. Please try again.',
   'service.server.connection': 'Could not connect to Claude. Check the server connection and try again.',
   'service.error.generic': 'The image could not be analyzed. Please try again.',
+  'service.exercise.missingInput': 'Type an exercise or choose an image.',
+  'service.exercise.tooLong': 'The exercise exceeds 20,000 characters.',
+  'service.exercise.unsupportedModule': 'Unsupported module.',
 } as const;
 
 export const es: Record<keyof typeof en, string> = {
@@ -76,6 +79,9 @@ export const es: Record<keyof typeof en, string> = {
   'service.server.timeout': 'Claude tardó demasiado en responder. Vuelve a intentarlo.',
   'service.server.connection': 'No se pudo conectar con Claude. Revisa la conexión del servidor y vuelve a intentarlo.',
   'service.error.generic': 'No se pudo analizar la imagen. Vuelve a intentarlo.',
+  'service.exercise.missingInput': 'Escribe un ejercicio o elige una imagen.',
+  'service.exercise.tooLong': 'El enunciado supera 20 000 caracteres.',
+  'service.exercise.unsupportedModule': 'Módulo no compatible.',
 };
 
 export function localizeServiceMessage(locale: 'es' | 'en', message: string): string {

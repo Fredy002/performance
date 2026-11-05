@@ -1,5 +1,7 @@
 import { useSettings, updateSettings } from '@/state/settings';
 import * as common from './messages/common';
+import * as ai from './messages/ai';
+import * as aiWorkflow from './messages/aiWorkflow';
 import * as content from './messages/content';
 import * as exercises from './messages/exercises';
 import * as pages from './messages/pages';
@@ -8,8 +10,8 @@ import * as tables from './messages/tables';
 import * as tools from './messages/tools';
 import type { Locale } from './types';
 
-const en = { ...common.en, ...pages.en, ...tools.en, ...content.en, ...tables.en, ...exercises.en, ...services.en };
-const es = { ...common.es, ...pages.es, ...tools.es, ...content.es, ...tables.es, ...exercises.es, ...services.es };
+const en = { ...common.en, ...pages.en, ...tools.en, ...content.en, ...tables.en, ...exercises.en, ...services.en, ...ai.en, ...aiWorkflow.en };
+const es = { ...common.es, ...pages.es, ...tools.es, ...content.es, ...tables.es, ...exercises.es, ...services.es, ...ai.es, ...aiWorkflow.es };
 export type MessageKey = keyof typeof en;
 export type { Locale } from './types';
 

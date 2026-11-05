@@ -250,7 +250,7 @@
 
 /* ---------- chips / pastillas de estado ----------
    .chip (etiqueta) y .status (resultado de una comprobación) comparten la
-   misma píldora de 24px; los tonos .status-* también colorean .data-chip. */
+   misma píldora de 24px; los tonos .status-* son reutilizables. */
 .chip,
 .status {
   display: inline-flex;
@@ -909,4 +909,10 @@ a.list-item:hover .list-item-arrow {
   .empty-page {
     padding: var(--space-48) var(--space-16);
   }
+}
+
+/* Enlaces dentro de un texto (pistas, párrafos): subrayados para distinguirlos sin depender del color (WCAG 1.4.1) */
+.field-hint a:not(.btn) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

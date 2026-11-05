@@ -49,17 +49,19 @@ AeroPerf se abre en el navegador; no necesita usuario ni contraseña. Tus cálcu
 
 La planificación de combustible calcula el tiempo y el combustible de viaje (T.T y T.F), el combustible a bordo (FOB) y la autonomía de un B737. Si origen, destino o alterno no es del Perú, el vuelo es internacional: espera de 30 min y se suma el 10 % de T.T y T.F.
 
-### Escribir, pegar o fotografiar el enunciado
+### Desde un enunciado o una foto
 
-![Escribir, pegar o fotografiar el enunciado](capturas/manual-anotadas/03-combustible.png)
+La calculadora de combustible no tiene tarjeta de enunciado. Para resolver un ejercicio escrito o en foto, usa «Resolver ejercicio con IA» en Inicio: el asistente lee el enunciado, te deja revisar los datos y abre esta calculadora con todo cargado.
 
-1. **Enunciado:** Escribe o pega el enunciado del ejercicio. Las respuestas se actualizan solas.
-2. **Foto o imagen:** «Foto» abre la cámara y «Imagen» una captura guardada. La imagen se envía a Claude para leer el enunciado.
-3. **Datos detectados:** Revisa lo que entendió la app: verde = leído, naranja con * = supuesto porque no figura, rojo = falta.
-4. **Respuestas:** Aquí aparecen T.T, T.F, FOB y autonomía. Toca ⓘ para ver qué significa cada sigla.
-5. **Ejemplos:** Carga un ejercicio resuelto para ver cómo funciona.
+### Introducir los datos
 
-**Resultado:** Con los datos completos verás las cuatro respuestas y la marca «Resuelto».
+![Datos y respuestas de combustible](capturas/manual-anotadas/03-combustible.png)
+
+1. **Datos:** Escribe la ruta, las distancias, los vientos, los niveles, la espera y el taxi. Las respuestas se actualizan solas.
+2. **Ejemplos:** «Cargar un ejemplo» rellena los datos de un ejercicio resuelto para ver cómo funciona.
+3. **Respuestas:** Aquí aparecen T.T, T.F, FOB y autonomía. Toca ⓘ para ver qué significa cada sigla.
+
+**Resultado:** Con los datos completos verás las cuatro respuestas.
 
 ### Revisar o corregir los datos
 

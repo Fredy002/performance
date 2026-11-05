@@ -1,10 +1,9 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { updateSettings } from './state/settings';
 import { recognizeImage } from './services/ocr';
-import type { ParsedStatement } from './exercises/parseStatement';
 
 // La red no se usa en jsdom: se simula la lectura estructurada de Claude.
 vi.mock('./services/ocr', () => ({ recognizeImage: vi.fn() }));
@@ -314,164 +313,36 @@ describe('ajuste de decimales', () => {
   });
 });
 
-describe('resolver desde una captura', () => {
-  // This text deliberately does not match the regular-expression format.
-  // Image data must come from Claude instead of reparsing this text.
-  const CLAUDE_TEXT = 'Lectura del ejercicio manuscrito realizada por Claude.';
-  const CLAUDE_PARSED: ParsedStatement = {
-    aircraft: 'B737',
-    trip: { from: 'SPHI', to: 'SPJC', distanceNm: 380, flightLevel: 350, windKt: 40, windKind: 'TW' },
-    alternate: { from: 'SPJC', to: 'SPSO', distanceNm: 145, flightLevel: 190, windKt: 25, windKind: 'HW' },
-    holding: { weightLb: 97000 },
-    taxiFuelLb: 350,
-  };
-  const claudeResult = () => ({ text: CLAUDE_TEXT, parsed: CLAUDE_PARSED, warnings: [] });
-  const image = new File(['png'], 'captura.png', { type: 'image/png' });
-  const value = (label: string) => (screen.getByLabelText(label, { exact: true }) as HTMLInputElement).value;
-  const statement = () => screen.getByLabelText('Enunciado del ejercicio') as HTMLTextAreaElement;
+describe('combustible sin enunciado propio', () => {
+  const input = (label: string) => screen.getByLabelText(label, { exact: true }) as HTMLInputElement;
   const openFuel = async (hash = '#/tools/fuel') => {
     renderAt(hash);
     await screen.findByRole('heading', { name: 'Planificación de combustible', level: 1 });
   };
 
-  it('abre con un ejemplo resuelto en el cuadro de enunciado', async () => {
+  it('no tiene tarjeta de enunciado: los datos son la entrada y el ejemplo se resuelve', async () => {
     await openFuel();
-    expect(statement().value).toMatch(/^Un B737 tiene programado/);
-    expect(screen.getByText('Resuelto')).toBeTruthy();
+    // el enunciado (texto o foto) se interpreta en Inicio con el asistente
+    expect(screen.queryByLabelText('Enunciado del ejercicio')).toBeNull();
+    expect(screen.queryByRole('button', { name: /^(Foto|Imagen)$/ })).toBeNull();
+    expect(document.querySelector('main textarea')).toBeNull();
+    expect(input('Origen').value).toBe('SPJC');
     expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
   });
 
-  it('usa los datos de Claude aunque el texto de la foto no sea parseable', async () => {
-    mockOcr.mockResolvedValueOnce(claudeResult());
+  it('los ejemplos cargan sus datos', async () => {
     await openFuel();
-    fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
-    await waitFor(() => expect(value('Origen')).toBe('SPHI'));
-    expect(statement().value).toBe(CLAUDE_TEXT);
-    expect(mockOcr).toHaveBeenCalledWith(image, expect.any(Function), 'es');
-    expect(screen.getByText('Resuelto')).toBeTruthy();
-    expect([value('Origen'), value('Destino'), value('Alterno')]).toEqual(['SPHI', 'SPJC', 'SPSO']);
-    expect(screen.getAllByLabelText('Distancia').map((e) => (e as HTMLInputElement).value)).toEqual(['380', '145']);
-    expect(value('Peso en espera')).toBe('97000');
-    expect(value('Combustible de taxi')).toBe('350');
-    // Interpolate 380 NM between 350 and 400 NM with a 40 kt tailwind.
-    expect(answerValues().slice(0, 2)).toEqual(['54,12', '5457,36']);
-    // Mark the omitted holding level and duration as assumptions.
-    expect(screen.getByLabelText('Datos detectados').textContent).toContain('FL 015*');
-  });
-
-  it('si faltan datos no muestra respuestas y dice qué falta', async () => {
-    mockOcr.mockResolvedValueOnce({
-      text: 'Lectura parcial de la foto.',
-      parsed: {
-        aircraft: 'B737',
-        trip: { from: 'SPJC', to: 'SPQT', distanceNm: 622, windKt: 55, windKind: 'TW' },
-        alternate: {},
-        holding: { weightLb: 85000 },
-      },
-      warnings: ['No se distingue el combustible de taxi.'],
-    });
-    await openFuel();
-    fireEvent.change(screen.getByLabelText('Tomar foto del enunciado'), { target: { files: [image] } });
-    await screen.findByText('No se distingue el combustible de taxi.');
-    expect(screen.getByText('Faltan datos')).toBeTruthy();
-    expect(answerValues()).toEqual([]);
-    expect(screen.getByText(/distancia destino – alterno, viento destino – alterno, combustible de taxi/)).toBeTruthy();
-    // Recalculate automatically after the missing text is supplied.
-    fireEvent.change(statement(), {
-      target: { value: 'Origen - destino: SPJC - SPQT 622 nm F350 (55 TW)\nDestino - alterno: SPQT - SPST 270 nm F180 (30 HW)\nHolding con 85000 lbs\nTaxi: 400 lbs' },
-    });
-    expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
-    expect(screen.getByText(/Ejercicio resuelto · SPJC – SPQT/)).toBeTruthy();
-  });
-
-  it('editar el texto después de una foto sustituye los datos de Claude', async () => {
-    mockOcr.mockResolvedValueOnce(claudeResult());
-    await openFuel();
-    fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
-    await waitFor(() => expect(value('Origen')).toBe('SPHI'));
-    fireEvent.change(statement(), {
-      target: { value: 'Origen - destino: SPUR - SPJC 750 NM (50 TW)\nDestino - alterno: SPJC - SPSO 145 NM (30 HW)\nHolding con 92500 lbs\nTaxi: 400 lbs' },
-    });
-    await waitFor(() => expect(value('Origen')).toBe('SPUR'));
-    expect(answerValues()).toEqual(['96,41', '9287,53', '16972,16', '172,95']);
-    expect(mockOcr).toHaveBeenCalledTimes(1);
-  });
-
-  it('no envía otra foto mientras Claude está analizando la primera', async () => {
-    let finish!: (result: Awaited<ReturnType<typeof recognizeImage>>) => void;
-    mockOcr.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
-    await openFuel();
-    fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
-    fireEvent.paste(window, { clipboardData: { items: [{ type: 'image/png', getAsFile: () => image }] } });
-    fireEvent.drop(statement(), { dataTransfer: { files: [image] } });
-    expect(mockOcr).toHaveBeenCalledTimes(1);
-    expect(answerValues()).toEqual([]);
-    expect((screen.getByRole('button', { name: 'Guardar' }) as HTMLButtonElement).disabled).toBe(true);
-    await act(async () => finish(claudeResult()));
-    await waitFor(() => expect(value('Origen')).toBe('SPHI'));
-  });
-
-  it.each([false, true])('una respuesta pendiente no sobrescribe un ejemplo restaurado (texto editado: %s)', async (edited) => {
-    let finish!: (result: Awaited<ReturnType<typeof recognizeImage>>) => void;
-    mockOcr.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
-    await openFuel();
-    if (edited) fireEvent.change(statement(), { target: { value: 'Un ejercicio pendiente de completar.' } });
-    fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
-    fireEvent.click(screen.getByRole('button', { name: 'Ejemplo' }));
-    await act(async () => finish(claudeResult()));
-    expect(statement().value).toContain('SPJC – SPQT');
-    expect(value('Origen')).toBe('SPJC');
-    expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
-  });
-
-  it('«Completar a mano» carga lo detectado para terminarlo en los datos', async () => {
-    await openFuel();
-    fireEvent.change(statement(), { target: { value: 'Origen - destino: SPJC - SPQT 622 nm (55 TW)\nDestino - alterno: SPQT - SPST 270 nm (30 HW)\nHolding con 85000 lbs' } });
-    expect(answerValues()).toEqual([]);
-    fireEvent.click(screen.getByRole('button', { name: /Completar a mano/ }));
-    expect((screen.getByText('Datos').closest('details') as HTMLDetailsElement).open).toBe(true);
-    fireEvent.change(screen.getByLabelText('Combustible de taxi'), { target: { value: '400' } });
-    expect(answerValues()[2]).toBe('17059,18');
-    expect(screen.getByText('Datos editados a mano')).toBeTruthy();
-  });
-
-  it('se puede borrar y escribir otro enunciado sin imagen', async () => {
-    await openFuel();
-    fireEvent.click(screen.getByRole('button', { name: 'Borrar el enunciado' }));
-    expect(statement().value).toBe('');
-    expect(screen.getByText(/Escribe, pega o fotografía el enunciado/)).toBeTruthy();
-    fireEvent.change(statement(), {
-      target: { value: 'Origen - destino: SPUR - SPJC distancia 750 nm F350 (50 TW)\nDestino - alterno: SPJC - SPSO distancia 145 nm F190 (30 HW)\nHolding con 92500 lbs\nCombustible para el taxi: 400 lbs' },
-    });
-    expect(answerValues()).toEqual(['96,41', '9287,53', '16972,16', '172,95']);
-    expect(mockOcr).not.toHaveBeenCalled();
-  });
-
-  it('los ejemplos cargan su enunciado', async () => {
-    await openFuel();
-    fireEvent.click(screen.getByRole('button', { name: 'Borrar el enunciado' }));
+    fireEvent.change(input('Destino'), { target: { value: 'SPCL' } });
+    fireEvent.change(screen.getAllByLabelText('Distancia')[0], { target: { value: '400' } });
     fireEvent.change(screen.getByLabelText('Cargar un ejemplo'), { target: { value: 'b737-combustible-spjc-spqt' } });
-    expect(statement().value).toContain('SPJC – SPQT');
-    expect(answerValues()[0]).toBe('80,38');
+    expect([input('Origen').value, input('Destino').value, input('Alterno').value]).toEqual(['SPJC', 'SPQT', 'SPST']);
+    expect(answerValues()).toEqual(['80,38', '7825,39', '17059,18', '173,4']);
   });
 
-  it('un enlace con datos (historial) los muestra sin enunciado', async () => {
+  it('un enlace con datos (historial) los muestra y calcula', async () => {
     await openFuel('#/tools/fuel?td=400&tw=20&tk=HW&ad=150&aw=10&ak=TW&hw=100000&hfl=200&hm=45&taxi=400');
-    expect(statement().value).toBe('');
+    expect(input('Peso en espera').value).toBe('100000');
     expect(answerValues()).toHaveLength(4);
-    expect((screen.getByText('Datos').closest('details') as HTMLDetailsElement).open).toBe(true);
-  });
-
-  it('si Claude falla muestra el error y permite volver a intentarlo', async () => {
-    mockOcr.mockRejectedValueOnce(new Error('Claude no pudo analizar la imagen. Inténtalo de nuevo.')).mockResolvedValueOnce(claudeResult());
-    await openFuel();
-    fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
-    expect((await screen.findByRole('alert')).textContent).toContain('Claude no pudo analizar la imagen.');
-    expect(answerValues()).toEqual([]);
-    expect((screen.getByRole('button', { name: 'Imagen' }) as HTMLButtonElement).disabled).toBe(false);
-    fireEvent.change(screen.getByLabelText('Subir imagen del enunciado'), { target: { files: [image] } });
-    await waitFor(() => expect(value('Origen')).toBe('SPHI'));
-    expect(mockOcr).toHaveBeenCalledTimes(2);
   });
 });
 

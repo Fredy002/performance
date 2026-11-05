@@ -990,55 +990,6 @@
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
-/* ---------- cuadro de enunciado ---------- */
-.statement-text {
-  min-height: 144px;
-}
-
-.statement-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-8);
-}
-
-.statement-status {
-  margin-left: auto;
-}
-
-.data-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-8);
-}
-
-.data-chip {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--space-8);
-  padding: var(--space-4) var(--space-12);
-  border-radius: var(--radius-pill);
-  font-size: var(--text-caption);
-  font-weight: var(--weight-medium);
-  font-variant-numeric: tabular-nums;
-}
-
-.data-chip b {
-  font-weight: var(--weight-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.answers-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-16);
-  padding: var(--space-8) 0;
-  font-size: var(--text-body-sm);
-  color: var(--text-muted);
-}
-
 /* El desarrollo conserva la altura de su contenido, sin estirar tarjetas ni filas. */
 .grid-2:has(> .card .calc-line),
 .card-body > .grid-2:has(> .kv) {
@@ -1171,4 +1122,13 @@
     display: none;
   }
 
+}
+
+/* Plan de combustible: los datos comparten fila con las respuestas (≥ 1101 px), así que la
+   tarjeta mide la mitad del ancho; las columnas se ajustan para que los valores se lean completos. */
+@media (min-width: 1101px) {
+  .grid-calc .inline-fields,
+  .grid-calc .inline-fields.airport-fields {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
 }
