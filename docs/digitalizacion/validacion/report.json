@@ -1,0 +1,990 @@
+[
+  {
+    "name": "tables",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [],
+    "scrollAreas": [],
+    "errors": []
+  },
+  {
+    "name": "condiciones-despegue-b737",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "reglaje-altimetrico-altitud-presion",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "performance-despegue-b737",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 462,
+        "scroll": 462
+      },
+      {
+        "client": 462,
+        "scroll": 462
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 1463
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "condiciones-ascenso-ruta-b737",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "ascenso-ruta-280-070-isa",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 1208
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "ascenso-ruta-280-070-isa-mas-10",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 1208
+      },
+      {
+        "client": 950,
+        "scroll": 1057
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "condiciones-despegue-b727",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "performance-despegue-b727",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 1216
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 973
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "planificacion-crucero-m074",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "planificacion-abreviada",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 473,
+        "scroll": 512
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "espera-b737",
+    "width": 1280,
+    "theme": "light",
+    "scroll": 1280,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "tables",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [],
+    "scrollAreas": [],
+    "errors": []
+  },
+  {
+    "name": "condiciones-despegue-b737",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "reglaje-altimetrico-altitud-presion",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "performance-despegue-b737",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 462,
+        "scroll": 462
+      },
+      {
+        "client": 462,
+        "scroll": 462
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 1463
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "condiciones-ascenso-ruta-b737",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "ascenso-ruta-280-070-isa",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 1208
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "ascenso-ruta-280-070-isa-mas-10",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 1208
+      },
+      {
+        "client": 950,
+        "scroll": 1057
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "condiciones-despegue-b727",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "performance-despegue-b727",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 1216
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 973
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "planificacion-crucero-m074",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      },
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "planificacion-abreviada",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 473,
+        "scroll": 512
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "espera-b737",
+    "width": 1280,
+    "theme": "dark",
+    "scroll": 1280,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 950,
+        "scroll": 950
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "tables",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [],
+    "scrollAreas": [],
+    "errors": []
+  },
+  {
+    "name": "condiciones-despegue-b737",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 593
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "reglaje-altimetrico-altitud-presion",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 356
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "performance-despegue-b737",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 1431
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "condiciones-ascenso-ruta-b737",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 566
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "ascenso-ruta-280-070-isa",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 1096
+      },
+      {
+        "client": 356,
+        "scroll": 664
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "ascenso-ruta-280-070-isa-mas-10",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 1096
+      },
+      {
+        "client": 356,
+        "scroll": 969
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "condiciones-despegue-b727",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 575
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "performance-despegue-b727",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 1188
+      },
+      {
+        "client": 356,
+        "scroll": 363
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 853
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "planificacion-crucero-m074",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 536
+      },
+      {
+        "client": 356,
+        "scroll": 761
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "planificacion-abreviada",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 464
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "espera-b737",
+    "width": 390,
+    "theme": "light",
+    "scroll": 390,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 750
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "tables",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [],
+    "scrollAreas": [],
+    "errors": []
+  },
+  {
+    "name": "condiciones-despegue-b737",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 593
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "reglaje-altimetrico-altitud-presion",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 356
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "performance-despegue-b737",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 1431
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "condiciones-ascenso-ruta-b737",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 566
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "ascenso-ruta-280-070-isa",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 1096
+      },
+      {
+        "client": 356,
+        "scroll": 664
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "ascenso-ruta-280-070-isa-mas-10",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 1096
+      },
+      {
+        "client": 356,
+        "scroll": 969
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "condiciones-despegue-b727",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [
+      "400",
+      "500"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 575
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "performance-despegue-b727",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [
+      "500",
+      "400"
+    ],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 1188
+      },
+      {
+        "client": 356,
+        "scroll": 363
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 356
+      },
+      {
+        "client": 356,
+        "scroll": 853
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "planificacion-crucero-m074",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 536
+      },
+      {
+        "client": 356,
+        "scroll": 761
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "planificacion-abreviada",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 464
+      }
+    ],
+    "errors": []
+  },
+  {
+    "name": "espera-b737",
+    "width": 390,
+    "theme": "dark",
+    "scroll": 390,
+    "weights": [],
+    "scrollAreas": [
+      {
+        "client": 356,
+        "scroll": 750
+      }
+    ],
+    "errors": []
+  }
+]

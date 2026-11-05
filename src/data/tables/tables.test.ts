@@ -38,7 +38,7 @@ describe('biblioteca de tablas', () => {
 
   it('ningún texto visible hace referencia a números de figura', () => {
     for (const t of PERFORMANCE_TABLES) {
-      const { source: _source, ...visible } = t;
+      const { source: _source, kind: _kind, ...visible } = t;
       expect(JSON.stringify(visible)).not.toMatch(/figur/i);
       expect(t.id).toMatch(/^[a-z0-9-]+$/);
       expect(t.category.length).toBeGreaterThan(3);

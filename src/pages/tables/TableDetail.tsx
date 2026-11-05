@@ -1,11 +1,12 @@
 import { Download, Table } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { ConditionsView } from '@/components/tables/ConditionsView';
+import { FigureView } from '@/components/tables/FigureView';
 import { FlightPlanningView } from '@/components/tables/FlightPlanningView';
 import { HoldingView } from '@/components/tables/HoldingView';
 import { TableHelp } from '@/components/tables/TableHelp';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { getTable, type PerformanceTable } from '@/data/tables';
+import { getTable, getTableGroup, type PerformanceTable } from '@/data/tables';
 import { tableToCsv } from '@/data/tables/csv';
 import NotFound from '../NotFound';
 
@@ -27,6 +28,8 @@ function TableBody({ table }: { table: PerformanceTable }) {
       return <FlightPlanningView table={table} />;
     case 'holding':
       return <HoldingView table={table} />;
+    case 'figure':
+      return <FigureView table={table} />;
   }
 }
 
@@ -34,6 +37,10 @@ export default function TableDetail() {
   const { tableId = '' } = useParams();
   const table = getTable(tableId);
   if (!table) return <NotFound />;
+  const group = getTableGroup(table.id);
+  // Related variants are available in the subject navigation; deduplicate other subjects.
+  const related = [...new Set(table.related?.map(id => getTableGroup(id)?.primaryId ?? id))]
+    .filter(id => id !== group?.primaryId);
 
   return (
     <>
@@ -46,6 +53,9 @@ export default function TableDetail() {
             <span className="page-subtitle-note">
               Original: <i>{table.source.originalTitle}</i> — {table.source.document}
             </span>
+            {!!table.source.references?.length && <span className="page-subtitle-note row">
+              Referencias: {table.source.references.map(reference => <a key={reference.url} href={reference.url} target="_blank" rel="noreferrer">{reference.label}</a>)}
+            </span>}
           </>
         }
         actions={
@@ -54,19 +64,23 @@ export default function TableDetail() {
           </button>
         }
       />
+      {group && group.variants.length > 1 && <nav className="table-variants" aria-label="Versiones de la tabla">
+        {group.variants.map(variant => <Link key={variant.id} to={`/tables/${variant.id}`} className="btn"
+          aria-current={variant.id === table.id ? 'page' : undefined}>{variant.label}</Link>)}
+      </nav>}
       <TableBody table={table} />
       <h2 className="section-title">Ayuda</h2>
       <TableHelp help={table.help} />
-      {table.related && table.related.length > 0 && (
+      {related.length > 0 && (
         <p className="calc-footnote">
           Se usa junto con:{' '}
-          {table.related.map((id, i) => {
+          {related.map((id, i) => {
             const r = getTable(id);
             return r ? (
               <span key={id}>
                 {i > 0 && ', '}
                 <Link to={`/tables/${id}`}>
-                  {r.title}
+                  {getTableGroup(id)?.title ?? r.title}
                 </Link>
               </span>
             ) : null;

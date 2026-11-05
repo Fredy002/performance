@@ -2,7 +2,7 @@ import { ClipboardCheck, CornerDownLeft, ScanText, History, LayoutDashboard, Sea
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, TOOLS, toolPath } from '@/tools/registry';
-import { PERFORMANCE_TABLES } from '@/data/tables';
+import { PERFORMANCE_TABLE_GROUPS, getTable } from '@/data/tables';
 import { EXERCISES } from '@/exercises/registry';
 
 interface Item {
@@ -25,14 +25,17 @@ const ITEMS: Item[] = [
     to: toolPath(t.id),
     keywords: normalize([t.name, t.description, ...t.keywords].join(' ')),
   })),
-  ...PERFORMANCE_TABLES.map((t) => ({
-    id: `table-${t.id}`,
-    label: t.title,
-    hint: `Tabla · ${t.category}`,
-    icon: Table,
-    to: `/tables/${t.id}`,
-    keywords: normalize([t.title, t.summary, t.source.originalTitle, t.category, t.aircraft ?? '', 'tabla performance aeronave'].join(' ')),
-  })),
+  ...PERFORMANCE_TABLE_GROUPS.map((group) => {
+    const t = getTable(group.primaryId)!;
+    return {
+      id: `table-${t.id}`,
+      label: group.title,
+      hint: `Tabla · ${t.category}`,
+      icon: Table,
+      to: `/tables/${t.id}`,
+      keywords: normalize([group.title, group.summary ?? t.summary, ...group.variants.map(variant => getTable(variant.id)?.title ?? ''), t.source.originalTitle, t.category, t.aircraft ?? '', 'tabla performance aeronave'].join(' ')),
+    };
+  }),
   ...EXERCISES.map((e) => ({
     id: `exercise-${e.id}`,
     label: e.title,

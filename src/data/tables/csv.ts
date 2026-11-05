@@ -1,8 +1,14 @@
-import type { PerformanceTable } from './types';
+import { figPlainText } from './figText';
+import type { FigBlock, PerformanceTable } from './types';
 
 const line = (cells: (string | number)[]) => cells.map((c) => (/[",\n]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : c)).join(',');
 
-/** Exporta una tabla a CSV (formato «largo» en la de espera para facilitar su reutilización). */
+/** Source tables in reading order, including nested print columns. */
+function figTables(blocks: FigBlock[]): Extract<FigBlock, { type: 'table' }>[] {
+  return blocks.flatMap((b) => (b.type === 'table' ? [b] : b.type === 'columns' ? b.columns.flatMap(figTables) : []));
+}
+
+/** Export tables to CSV; holding data uses long format. */
 export function tableToCsv(t: PerformanceTable): string {
   switch (t.kind) {
     case 'conditions':
@@ -17,5 +23,11 @@ export function tableToCsv(t: PerformanceTable): string {
         line(['flight_level', 'gross_weight_klb', 'epr', 'ias_kt', 'ff_per_engine_lb_hr']),
         ...t.rows.flatMap((r) => r.cells.map((c, i) => line([r.flightLevel, t.weightsKlb[i], c.epr, c.iasKt, c.ffPerEngineLbHr]))),
       ].join('\n');
+    case 'figure':
+      // One line per source row, excluding breaks; blank lines separate tables.
+      return t.sheets
+        .flatMap((s) => figTables(s.blocks))
+        .map((tb) => tb.rows.flatMap((r) => (Array.isArray(r) ? [line(r.map((c) => figPlainText(c.t)))] : [])).join('\n'))
+        .join('\n\n');
   }
 }

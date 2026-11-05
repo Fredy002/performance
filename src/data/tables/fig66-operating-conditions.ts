@@ -1,3 +1,4 @@
+import { historicalReferences, SOURCE_EDITION } from './sources';
 import type { ConditionsTable } from './types';
 
 export const FIG66_OPERATING_CONDITIONS: ConditionsTable = {
@@ -9,7 +10,8 @@ export const FIG66_OPERATING_CONDITIONS: ConditionsTable = {
   source: {
     figure: 'FIGURE 66',
     originalTitle: 'Flight Planning at .74 Mach Cruise',
-    document: 'FAA — Computer Testing Supplement (ATP / Aircraft Dispatcher), Appendix 2',
+    document: SOURCE_EDITION,
+    references: historicalReferences(113),
   },
   related: ['planificacion-abreviada'],
   conditions: [

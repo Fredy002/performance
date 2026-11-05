@@ -1,3 +1,4 @@
+import { historicalReferences, SOURCE_EDITION } from './sources';
 import type { FlightPlanningRow, FlightPlanningTable } from './types';
 
 const row = (distanceNm: number, alt: [number, number], tasKt: number, airTimeMin: number, fuelLb: number): FlightPlanningRow => ({
@@ -18,7 +19,8 @@ export const FIG67_ABBREVIATED_FLIGHT_PLANNING: FlightPlanningTable = {
   source: {
     figure: 'FIGURE 67',
     originalTitle: 'Abbreviated Flight Planning',
-    document: 'FAA — Computer Testing Supplement (ATP / Aircraft Dispatcher), Appendix 2',
+    document: SOURCE_EDITION,
+    references: historicalReferences(113),
   },
   related: ['planificacion-crucero-m074'],
   profile: [

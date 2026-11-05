@@ -1,3 +1,4 @@
+import { historicalReferences, SOURCE_EDITION } from './sources';
 import type { HoldingCell, HoldingRow, HoldingTable } from './types';
 
 const WEIGHTS_KLB = [115, 110, 105, 100, 95, 90, 85, 80, 75, 70, 65];
@@ -18,7 +19,8 @@ export const FIG69_B737_HOLDING: HoldingTable = {
   source: {
     figure: 'FIGURE 69',
     originalTitle: 'B-737 – Holding Performance Chart',
-    document: 'FAA — Computer Testing Supplement (ATP / Aircraft Dispatcher)',
+    document: SOURCE_EDITION,
+    references: historicalReferences(114),
   },
   engines: 2,
   weightsKlb: WEIGHTS_KLB,
@@ -57,13 +59,14 @@ export const FIG69_B737_HOLDING: HoldingTable = {
       [3050, 2950, 2850, 2790, 2670, 2590, 2510, 2430, 2370, 2300, 2240]),
   ],
   sourceRemarks: [
+    'FL 150 · 110 000 lb: esta edición publica 2680 lb/h por motor; la edición FAA-CT-8080-7D (2019) publica 2668. Se conserva la edición de 2005.',
     'FL 200 · 115 000 lb: el flujo aparece como 2716 lb/h (el resto de valores termina en 0). Se conserva tal cual la fuente.',
     'FL 350: entre 115 000 y 110 000 lb el flujo solo baja 20 lb/h (2830 → 2810), mucho menos que en el resto de la fila. Se conserva tal cual.',
     'FL 150 · 65 000 lb: 1990 lb/h, solo 10 lb/h menos que la columna de 70 000 lb. Se conserva tal cual.',
   ],
   help: {
     purpose:
-      'Da los parámetros para volar un circuito de espera con un B-737: el reglaje de empuje (EPR), la velocidad indicada (IAS) y el consumo por motor. Sirve para calcular cuánto combustible se gasta esperando un tiempo determinado y para saber a qué velocidad y empuje volar la espera.',
+      'Permite resolver ejercicios de espera del B-737 con el suplemento de 2005: el reglaje de empuje (EPR), la velocidad indicada (IAS) y el consumo por motor. Sirve para calcular cuánto combustible se gasta esperando un tiempo determinado y para saber a qué velocidad y empuje volar la espera.',
     glossary: [
       { term: 'FLIGHT LEVEL', meaning: 'Nivel de vuelo en centenas de pies. «015» = 1 500 ft, «050» = 5 000 ft.' },
       { term: 'GROSS WEIGHT 1000 LB', meaning: 'Peso bruto del avión en miles de libras (115 = 115 000 lb).' },

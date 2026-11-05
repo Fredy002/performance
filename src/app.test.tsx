@@ -79,13 +79,27 @@ describe('calculadoras (regresión)', () => {
 });
 
 describe('tablas de performance de aeronaves', () => {
-  it('la biblioteca lista las tres tablas por su título, sin números de figura', async () => {
+  it('la biblioteca muestra una tarjeta por tema, sin repetir variantes', async () => {
     const { container } = renderAt('#/tables');
     await screen.findByRole('heading', { name: 'Tablas de performance de aeronaves' });
-    for (const name of ['Planificación de vuelo en crucero Mach 0,74', 'Planificación de vuelo abreviada', 'Performance de espera del Boeing 737']) {
+    for (const name of ['Planificación de vuelo abreviada', 'Performance de espera del Boeing 737', 'Despegue del Boeing 737', 'Reglaje altimétrico a altitud de presión', 'Ascenso en ruta del Boeing 737', 'Despegue del Boeing 727']) {
       expect(screen.getByRole('heading', { name })).toBeTruthy();
     }
     expect(container.textContent).not.toMatch(/figur/i);
+    expect(container.querySelectorAll('.tool-card')).toHaveLength(6);
+    expect(screen.queryByRole('heading', { name: 'Ascenso en ruta 280/.70 ISA +10 °C' })).toBeNull();
+  });
+
+  it('ascenso reúne ISA, ISA +10 °C y condiciones en el mismo conjunto', async () => {
+    renderAt('#/tables/ascenso-ruta-280-070-isa');
+    await screen.findByRole('heading', { name: 'Ascenso en ruta 280/.70 ISA', level: 1 });
+    const nav = screen.getByRole('navigation', { name: 'Versiones de la tabla' });
+    expect(within(nav).getAllByRole('link')).toHaveLength(3);
+    expect(within(nav).getByRole('link', { name: 'ISA' }).getAttribute('aria-current')).toBe('page');
+    fireEvent.click(within(nav).getByRole('link', { name: 'ISA +10 °C' }));
+    await screen.findByRole('heading', { name: 'Ascenso en ruta 280/.70 ISA +10 °C', level: 1 });
+    fireEvent.click(screen.getByRole('link', { name: 'Condiciones' }));
+    await screen.findByRole('heading', { name: 'Condiciones de ascenso en ruta del Boeing 737', level: 1 });
   });
 
   it('crucero Mach 0,74: muestra condiciones y el ejemplo resuelto', async () => {

@@ -10,6 +10,10 @@ export interface TableSource {
   /** Título original en inglés */
   originalTitle: string;
   document: string;
+  /** Publication links identify the reviewed edition instead of mixing revisions. */
+  references?: { label: string; url: string }[];
+  /** Equivalent source sheets share one library entry. */
+  equivalentFigures?: string[];
 }
 
 export interface TableHelp {
@@ -104,4 +108,102 @@ export interface HoldingTable extends TableBase {
   sourceRemarks: string[];
 }
 
-export type PerformanceTable = ConditionsTable | FlightPlanningTable | HoldingTable;
+/* ---------- Digitized source content with semantic cell relationships ---------- */
+
+/**
+ * Source text with `\n` line breaks.
+ * Minimal markup: `_{…}` for subscripts and `^{…}` for superscripts.
+ */
+export type FigText = string;
+
+export type FigAlign = 'left' | 'center' | 'right';
+
+export interface FigCell {
+  t: FigText;
+  /** colspan */
+  cs?: number;
+  /** rowspan */
+  rs?: number;
+  /** Header cell */
+  h?: boolean;
+  align?: FigAlign;
+  /** Source vertical alignment hint */
+  valign?: 'top' | 'middle' | 'bottom';
+  bold?: boolean;
+  /** Shaded area in the source */
+  shaded?: boolean;
+  /** Source cell without borders */
+  bare?: boolean;
+  /** Open source borders: top, right, bottom, left */
+  open?: ('t' | 'r' | 'b' | 'l')[];
+  /** Source small-print hint */
+  small?: boolean;
+  /** Source arrow label, such as TEMP LIMIT EPR */
+  arrow?: boolean;
+  /** Independent pressure limit linked by a pointer in the source */
+  pointer?: boolean;
+  /** Source staggered range layout hint */
+  stagger?: boolean;
+}
+
+/** A break identifies rows omitted from the publication */
+export interface FigBreakRow {
+  break: true;
+  /** Number of parallel lines in the source break marker */
+  lines?: number;
+}
+
+export type FigRow = FigCell[] | FigBreakRow;
+
+export interface FigScaleMark {
+  label: FigText;
+  /** Vertical position from 0 (top) to 1 (bottom) */
+  pos: number;
+}
+
+export type FigBlock =
+  | { type: 'heading'; text: FigText; size?: 'xl' | 'lg' | 'md' | 'sm'; align?: FigAlign; boxed?: boolean }
+  | { type: 'text'; text: FigText; align?: FigAlign; bold?: boolean; size?: 'sm' | 'md' | 'lg'; boxed?: boolean }
+  | { type: 'list'; items: { marker: FigText; text: FigText }[] }
+  | {
+      type: 'table';
+      rows: FigRow[];
+      /** Number of initial header rows */
+      headerRows?: number;
+      /** Source heavy-border hint */
+      heavy?: boolean;
+      /** Source relative column-width hints */
+      colWidths?: string[];
+      /** Source dense-table hint */
+      dense?: boolean;
+      align?: FigAlign;
+    }
+  | {
+      /** Vertical ruler with left and right scales */
+      type: 'scale';
+      title: FigText;
+      leftUnit: FigText;
+      rightUnit: FigText;
+      left: FigScaleMark[];
+      right: FigScaleMark[];
+      /** Number of minor divisions across the ruler */
+      minorTicks: number;
+    }
+  | { type: 'columns'; widths?: string[]; align?: 'start' | 'center' | 'end' | 'stretch'; columns: FigBlock[][] }
+  | { type: 'spacer'; size?: 'sm' | 'md' | 'lg' };
+
+export interface FigureTable extends TableBase {
+  kind: 'figure';
+  /** Source limitations that affect interpretation and must stay visible. */
+  cautions?: string[];
+  /** One or more source sheets, rendered with the application design system */
+  sheets: {
+    blocks: FigBlock[];
+    /** Original caption without the traceability prefix stored in source.figure */
+    caption: FigText;
+  }[];
+  /** Source uncertainties and review findings */
+  uncertain?: string[];
+}
+
+export type PerformanceTable = ConditionsTable | FlightPlanningTable | HoldingTable | FigureTable;

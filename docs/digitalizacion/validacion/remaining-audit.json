@@ -1,0 +1,29 @@
+[
+  {
+    "figure": 55,
+    "officialPdfPage": 136,
+    "weightBandsCompared": 20,
+    "speedsCompared": 276,
+    "differences": []
+  },
+  {
+    "figure": 67,
+    "officialPdfPage": 142,
+    "rowsCompared": 25,
+    "differences": []
+  },
+  {
+    "figure": 69,
+    "officialPdfPage": 143,
+    "valuesCompared": 264,
+    "editionDifferences": [
+      {
+        "flightLevel": 150,
+        "weightKlb": 110,
+        "property": "ffPerEngineLbHr",
+        "edition2005": 2680,
+        "edition2019": 2668.0
+      }
+    ]
+  }
+]

@@ -1,11 +1,12 @@
 import { BookOpen, Lightbulb, ListOrdered, Tags } from 'lucide-react';
 import type { TableHelp as Help } from '@/data/tables';
 import { Card } from '@/components/ui/Card';
+import { FigText } from './figText';
 
-/** Ayuda al usuario: para qué sirve la tabla, cómo usarla, glosario y consejos. */
+/** Explain the table's purpose, reading procedure, terminology and limitations. */
 export function TableHelp({ help }: { help: Help }) {
   return (
-    <div className="grid grid-2">
+    <div className="grid grid-2 table-help">
       <div className="stack">
         <Card title={<span className="row"><BookOpen size={17} /> ¿Para qué sirve?</span>}>
           <div className="help-block">
@@ -27,7 +28,7 @@ export function TableHelp({ help }: { help: Help }) {
           <dl className="glossary">
             {help.glossary.map((g) => (
               <div key={g.term} className="glossary-item">
-                <dt>{g.term}</dt>
+                <dt><FigText text={g.term} /></dt>
                 <dd>{g.meaning}</dd>
               </div>
             ))}

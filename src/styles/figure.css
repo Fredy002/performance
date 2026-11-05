@@ -1,0 +1,97 @@
+/* Reference tables use the same surfaces, type and spacing as the calculators. */
+.figure-view,
+.fig-sheet,
+.fig-flow {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.fig-sheet { margin: 0; }
+.fig-flow { display: flex; flex-direction: column; gap: var(--space-24); }
+.fig-heading {
+  font-size: var(--text-body-lg);
+  line-height: var(--leading-body-lg);
+  overflow-wrap: anywhere;
+}
+.fig-text,
+.fig-list,
+.fig-caption {
+  font-size: var(--text-body-sm);
+  line-height: var(--leading-body-sm);
+  color: var(--text-muted);
+}
+.fig-caption { margin-top: var(--space-16); }
+.fig-note {
+  padding: var(--space-12) var(--space-16);
+  border-radius: var(--radius-button);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: var(--text-body-sm);
+}
+.fig-list { margin: 0; padding-left: var(--space-24); }
+.fig-list li + li { margin-top: var(--space-8); }
+.fig-table-wrap { max-width: 100%; scrollbar-width: thin; }
+.fig-table { min-width: 100%; font-size: var(--text-body-sm); }
+.fig-table th,
+.fig-table td { line-height: var(--leading-body); vertical-align: top; }
+.fig-table thead th {
+  position: static;
+  min-width: var(--space-64);
+  white-space: normal;
+  text-transform: none;
+  letter-spacing: var(--tracking-ui);
+}
+/* A row's first DOM cell can follow a rowspan: pin the actual first column only. */
+.fig-table th:first-child,
+.fig-table td:first-child {
+  position: static;
+  border-right: 0;
+  font-weight: var(--weight-regular);
+}
+.fig-table tbody th { font-weight: var(--weight-medium); text-align: left; color: var(--text); }
+.fig-table .fig-row-heading {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  min-width: var(--space-80);
+  border-right: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+.fig-table thead .fig-row-heading { background: var(--bg-subtle); }
+.fig-table .fig-wrap { white-space: normal; min-width: 24ch; max-width: 56ch; }
+.fig-table .fig-shaded { background: var(--warning-soft); color: var(--warning); }
+.fig-table tr:hover .fig-shaded { background: var(--warning-soft); }
+.fig-table .fig-break td {
+  position: static;
+  padding: var(--space-8) var(--space-16);
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  font-size: var(--text-caption);
+  white-space: normal;
+  text-align: center;
+}
+.figure-view sub,
+.figure-view sup { font-size: 0.75em; line-height: 0; }
+.fig-scale { width: 100%; max-width: 320px; margin: 0 auto; }
+.fig-scale-units { display: flex; justify-content: space-between; margin: var(--space-16) 0; font-size: var(--text-caption); color: var(--text-muted); }
+.fig-scale-body { position: relative; display: flex; justify-content: center; height: 360px; margin-bottom: var(--space-12); }
+.fig-scale-labels { position: relative; flex: 1; font-size: var(--text-caption); font-variant-numeric: tabular-nums; }
+.fig-scale-label { position: absolute; transform: translateY(-50%); }
+.fig-scale-labels.is-left .fig-scale-label { right: var(--space-24); }
+.fig-scale-labels.is-right .fig-scale-label { left: var(--space-24); }
+.fig-scale-rule { position: relative; width: 1px; background: var(--border-strong); }
+.fig-tick { position: absolute; height: 1px; background: var(--border-strong); }
+.fig-tick.is-minor { width: var(--space-8); left: calc(-1 * var(--space-4)); }
+.fig-tick.is-left { width: var(--space-16); right: 0; }
+.fig-tick.is-right { width: var(--space-16); left: 0; }
+@media (max-width: 560px) {
+  .fig-flow { gap: var(--space-16); }
+  .fig-table .fig-row-heading { min-width: var(--space-64); }
+}
+.fig-epr-grid { align-items: start; }
+.table-variants { display: flex; flex-wrap: wrap; gap: var(--space-8); margin-bottom: var(--space-24); }
+.table-variants [aria-current='page'] { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent); }
+.table-help .glossary dt { white-space: normal; overflow-wrap: anywhere; }
+@media (min-width: 561px) {
+  .table-help .glossary { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); }
+}
